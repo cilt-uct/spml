@@ -180,7 +180,7 @@ public class SPML implements SpmlHandler {
     
     
     
-    public int profilesUpdated = 0;
+    private int profilesUpdated = 0;
     
     private static final Log LOG = LogFactory.getLog(SPML.class);
     
@@ -249,7 +249,8 @@ public class SPML implements SpmlHandler {
 
     public SpmlResponse doRequest(SpmlRequest req) {
 	
-	LOG.info("SPMLRouter received req " + req + " (id) ");
+	LOG.info("SPMLRouter recieved req " + req + " (id) ");
+	profilesUpdated = 0;
 	SpmlResponse resp = req.createResponse();
 	//this.logSPMLRequest("Unknown",req.toXml());
 	try {
