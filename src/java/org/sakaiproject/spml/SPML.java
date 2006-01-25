@@ -352,7 +352,7 @@ public class SPML implements SpmlHandler {
 
 
 		    String addeduser = null;
-		    System.out.println("About to add " + CN + " of type " + type);
+		    System.out.println("About to add " + CN + " of type " + type + " from " +(String)req.getAttributeValue("uctFaculty"));
 		    addeduser = addNewUser(sID,CN,GN,LN,thisEmail,type,passwd);
 		    
 		    //try populate the profile
