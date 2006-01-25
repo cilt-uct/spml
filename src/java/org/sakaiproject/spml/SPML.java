@@ -368,7 +368,7 @@ public class SPML implements SpmlHandler {
 			    	//response.setError(profileAdd);
 			    	//response.setResult("Profile Failure - account added");		    		
 			    	System.out.println("WARN: "+ this + " profile error" + profileAdd);
-			    	String thisProfileAdd = addnewUserProfile(sID,CN,GN,LN,thisEmail,type,passwd, mobile);
+			    	
 			    	
 			    	
 		    	}
@@ -377,11 +377,8 @@ public class SPML implements SpmlHandler {
 		    	response = req.createResponse();
 		    	//for now were not sending these back to eds
 		    	System.out.println("WARN: "+ this + " adduser error" + addeduser);
-		    	//try update
-		    	//System.out.println("About to update " + CN + " of type " + type);
-		    	//String changeInfo = changeUserInfo( sID, CN, GN, LN, thisEmail, type, passwd);
-		    	//response.setError(addeduser);
-		    	//response.setResult("failure");
+		    	String thisProfileAdd = addnewUserProfile(sID,CN,GN,LN,thisEmail,type,passwd, mobile);
+
 		    }
 		}
 		catch(Exception e) {
