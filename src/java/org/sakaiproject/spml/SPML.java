@@ -746,8 +746,9 @@ private void updateUserProfile(String userId, String firstName, String lastName,
     System.out.println("got profile " + sakaiPerson);
     if(sakaiPerson != null){
         try{
+        	
             //sakaiPerson.setJpegPhoto(jpegPhoto);
-            //sakaiPerson.setSystemPicturePreferred(Boolean.false);
+            sakaiPerson.setSystemPicturePreferred(Boolean.FALSE);
             sakaiPerson.setGivenName(firstName);
             sakaiPerson.setSurname(lastName);
             sakaiPerson.setDisplayName(firstName + " " + lastName);
