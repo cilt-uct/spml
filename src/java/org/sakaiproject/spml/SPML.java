@@ -263,7 +263,7 @@ public class SPML implements SpmlHandler {
 	    System.out.println("About to login");
 	    sID = login(spmlUser,spmlPassword);
 	    //get the session
-	    Map session = UsageSessionService.getSession();
+	    UsageSession session = UsageSessionService.getSession();
 	    String  ipAddress = session.getIpAddress(); 
 	    LOG.info("request from " + ipAddress);
 	    	
