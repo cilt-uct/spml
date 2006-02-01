@@ -593,7 +593,7 @@ private String addnewUserProfile(String sessionid, String userid, String firstna
 		e.printStackTrace();
 		return e.getClass().getName() + " : " + e.getMessage();
 	}
-	return ret;
+	//return ret;
 }
 private Session establishSession(String id) throws Exception
 {
