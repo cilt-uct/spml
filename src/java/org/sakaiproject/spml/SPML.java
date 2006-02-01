@@ -266,8 +266,8 @@ public class SPML implements SpmlHandler {
 	    sID = login(spmlUser,spmlPassword);
 	    //get the session
 	    
-	    HttpServletRequest request = (HttpServletRequest) ComponentManager.get(HttpServletRequest.class.getName());
-	    LOG.info("lets try this" + request.getRemoteAddr());
+	    //HttpServletRequest request = (HttpServletRequest) ComponentManager.get(HttpServletRequest.class.getName());
+	    //LOG.info("lets try this" + request.getRemoteAddr());
 	    
 
 	    	
