@@ -250,7 +250,7 @@ public class SPML implements SpmlHandler {
     //////////////////////////////////////////////////////////////////////
 
 
-    public SpmlResponse doRequest(HttpServletRequest request, SpmlRequest req) {
+    public SpmlResponse doRequest(SpmlRequest req) {
 	
 	LOG.info("SPMLRouter recieved req " + req + " (id) ");
 	profilesUpdated = 0;
