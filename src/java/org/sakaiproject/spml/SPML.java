@@ -378,6 +378,7 @@ public class SPML implements SpmlHandler {
 		    	response = req.createResponse();
 		    	//for now were not sending these back to eds
 		    	System.out.println("WARN: "+ this + " adduser error" + addeduser);
+		    	String changeUserInfo(sID,CN, GN, LN, thisEmail,type, "")
 		    	String thisProfileAdd = addnewUserProfile(sID,CN,GN,LN,thisEmail,type,passwd, mobile);
 
 		    }
@@ -590,6 +591,7 @@ private String addnewUserProfile(String sessionid, String userid, String firstna
 	}
 	catch (Exception e) {
 		e.printStackTrace();
+		return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return ret;
 }
@@ -637,7 +639,7 @@ public String login(String id,String pw) {
 	return "usernull";
 }
 
-public String changeUserInfo( String sessionid, String userid, String firstname, String lastname, String thisEmail, String type, String password) throws AxisFault
+public String changeUserInfo(String sessionId, String userid, String firstname, String lastname, String thisEmail, String type, String password) 
 {
 
     LOG.info("Editing info for " + userid + "," + firstname + "," + lastname + "," + thisEmail + "," + type +"," + password);
