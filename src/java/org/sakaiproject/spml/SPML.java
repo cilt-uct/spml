@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Stack;
 import java.net.URLEncoder;
 import org.apache.axis.AxisFault;
@@ -58,6 +59,7 @@ import org.sakaiproject.util.java.StringUtil;
 import org.sakaiproject.api.common.manager.Persistable;
 
 
+import org.sakaiproject.service.framework.session.cover.UsageSessionService;
 import org.sakaiproject.service.framework.sql.SqlReader;
 import org.sakaiproject.service.framework.sql.SqlService;
 
@@ -76,7 +78,8 @@ import org.sakaiproject.api.common.superstructure.DefaultContainer;
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.api.common.type.UuidTypeResolvable;
 
-
+//to get the usage session
+import org.sakaiproject.service.framework.session.*;
 
 //import javax.xml.parsers;
 
@@ -259,7 +262,10 @@ public class SPML implements SpmlHandler {
 	    //this will need to be changed - login can be sent via attributes to the object?
 	    System.out.println("About to login");
 	    sID = login(spmlUser,spmlPassword);
-	    
+	    //get the session
+	    Map session = UsageSessionService.getSession()
+	    String IP Address = session.getIpAddress(); 
+	    	
 	    if (req instanceof AddRequest) {
 		AddRequest uctRequest = (AddRequest)req;
 		resp = spmlAddRequest(uctRequest);
@@ -378,6 +384,7 @@ public class SPML implements SpmlHandler {
 		    	response = req.createResponse();
 		    	//for now were not sending these back to eds
 		    	System.out.println("WARN: "+ this + " adduser error" + addeduser);
+		    	// we need rules and checks to see when we should do this
 		    	String change = changeUserInfo(sID,CN, GN, LN, thisEmail,type, "");
 		    	String thisProfileAdd = addnewUserProfile(sID,CN,GN,LN,thisEmail,type,passwd, mobile);
 
