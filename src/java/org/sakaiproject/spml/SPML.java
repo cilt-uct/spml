@@ -378,7 +378,7 @@ public class SPML implements SpmlHandler {
 		    	response = req.createResponse();
 		    	//for now were not sending these back to eds
 		    	System.out.println("WARN: "+ this + " adduser error" + addeduser);
-		    	String changeUserInfo(sID,CN, GN, LN, thisEmail,type, "")
+		    	String changeUserInfo(sID,CN, GN, LN, thisEmail,type, "");
 		    	String thisProfileAdd = addnewUserProfile(sID,CN,GN,LN,thisEmail,type,passwd, mobile);
 
 		    }
