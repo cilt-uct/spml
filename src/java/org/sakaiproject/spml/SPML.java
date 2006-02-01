@@ -265,12 +265,11 @@ public class SPML implements SpmlHandler {
 	    System.out.println("About to login");
 	    sID = login(spmlUser,spmlPassword);
 	    //get the session
+	    
+	    request = (HttpServletRequest) ComponentManager.get(HttpServletRequest.class.getName());
 	    LOG.info("lets try this" + request.getRemoteAddr());
 	    
-	    List atr = req.getOperationalAttributes();
-	    for (int i = 0; i < atr.size(); i++) {
-	    	LOG.info("got attribute: " + atr.get(i));
-	    }
+
 	    	
 	    if (req instanceof AddRequest) {
 		AddRequest uctRequest = (AddRequest)req;
