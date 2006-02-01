@@ -263,9 +263,10 @@ public class SPML implements SpmlHandler {
 	    System.out.println("About to login");
 	    sID = login(spmlUser,spmlPassword);
 	    //get the session
-	    UsageSession session = UsageSessionService.getSession();
-	    String  ipAddress = session.getIpAddress(); 
-	    LOG.info("request from " + ipAddress);
+	    List atr = req.getOperationalAttributes()
+	    for (int i = 0; int i < req.size(); i++) {
+	    	LOG.info("got attribute: " + re.get(i));
+	    }
 	    	
 	    if (req instanceof AddRequest) {
 		AddRequest uctRequest = (AddRequest)req;
