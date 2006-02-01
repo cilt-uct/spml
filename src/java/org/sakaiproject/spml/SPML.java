@@ -250,7 +250,7 @@ public class SPML implements SpmlHandler {
     //////////////////////////////////////////////////////////////////////
 
 
-    public SpmlResponse doRequest(SpmlRequest req) {
+    public SpmlResponse doRequest(HttpServletRequest request, SpmlRequest req) {
 	
 	LOG.info("SPMLRouter recieved req " + req + " (id) ");
 	profilesUpdated = 0;
@@ -265,11 +265,11 @@ public class SPML implements SpmlHandler {
 	    System.out.println("About to login");
 	    sID = login(spmlUser,spmlPassword);
 	    //get the session
-	    LOG.info("lets try this" + req.getRemoteAddr());
+	    LOG.info("lets try this" + request.getRemoteAddr());
 	    
 	    List atr = req.getOperationalAttributes();
-	    for (int i = 0; i < req.size(); i++) {
-	    	LOG.info("got attribute: " + re.get(i));
+	    for (int i = 0; i < atr.size(); i++) {
+	    	LOG.info("got attribute: " + atr.get(i));
 	    }
 	    	
 	    if (req instanceof AddRequest) {
