@@ -405,7 +405,7 @@ public class SPML implements SpmlHandler {
 		removeUserFromAllCourses(CN);
 		
 		//only do this if the user is active -otherwiose the student is now no longer registered
-		String status = (String)req.getAttributeValue(uctStudentStatus);
+		String status = (String)req.getAttributeValue("uctStudentStatus");
 		if (! status.equals("Inactive")) { 
 			try {
 				String uctCourses =null;
