@@ -403,20 +403,25 @@ public class SPML implements SpmlHandler {
 		// its a comma delimeted list in the uctCourseCode attribute
 		//however it might be null - if so ignore and move on
 		removeUserFromAllCourses(CN);
-		try {
-			String uctCourses =null;
-			uctCourses = (String)req.getAttributeValue(programCode);
-			if ((String)req.getAttributeValue(courseMembership)!=null) {
-				uctCourses = uctCourses + "," +(String)req.getAttributeValue(courseMembership);
-			}
-			uctCourses = uctCourses + "," + (String)req.getAttributeValue("uctFaculty") + "_"+ (String)req.getAttributeValue("eduPersonPrimaryAffiliation");
-			if (uctCourses!=null) {
-				if (uctCourses.length()>0) {
-					String[] uctCourse =  StringUtil.split(uctCourses, ",");
-					//System.out.println("got " + uctCourse.length + " courses");
-					for (int ai = 0; ai < uctCourse.length; ai ++ ) {
-						//System.out.println("got a coursecode " + uctCourse[ai]);
-						String x = addUserToCourse(CN,uctCourse[ai]);
+		
+		//only do this if the user is active
+		String status = (String)req.getAttributeValue(uctStudentStatus);
+		if (! status.equals("Inactive")) { 
+			try {
+				String uctCourses =null;
+				uctCourses = (String)req.getAttributeValue(programCode);
+				if ((String)req.getAttributeValue(courseMembership)!=null) {
+					uctCourses = uctCourses + "," +(String)req.getAttributeValue(courseMembership);
+				}
+				uctCourses = uctCourses + "," + (String)req.getAttributeValue("uctFaculty") + "_"+ (String)req.getAttributeValue("eduPersonPrimaryAffiliation");
+				if (uctCourses!=null) {
+					if (uctCourses.length()>0) {
+						String[] uctCourse =  StringUtil.split(uctCourses, ",");
+						//System.out.println("got " + uctCourse.length + " courses");
+						for (int ai = 0; ai < uctCourse.length; ai ++ ) {
+							//System.out.println("got a coursecode " + uctCourse[ai]);
+							String x = addUserToCourse(CN,uctCourse[ai]);
+						}
 					}
 				}
 			}
