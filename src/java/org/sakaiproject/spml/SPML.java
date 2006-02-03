@@ -404,7 +404,7 @@ public class SPML implements SpmlHandler {
 		//however it might be null - if so ignore and move on
 		removeUserFromAllCourses(CN);
 		
-		//only do this if the user is active
+		//only do this if the user is active -otherwiose the student is now no longer registered
 		String status = (String)req.getAttributeValue(uctStudentStatus);
 		if (! status.equals("Inactive")) { 
 			try {
@@ -425,12 +425,12 @@ public class SPML implements SpmlHandler {
 					}
 				}
 			}
-		}
-		catch (Exception e) {
-			//Nothing to do...
-			//error adding users to course
-			//e.printStackTrace();
-			
+			catch (Exception e) {
+				//Nothing to do...
+				//error adding users to course
+				//e.printStackTrace();
+				
+			}
 		}
 		return response;
 	} 
