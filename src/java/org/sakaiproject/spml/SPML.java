@@ -97,7 +97,7 @@ public class SPML implements SpmlHandler {
 	private String userType = "eduPersonPrimaryAffiliation";
 	private String courseMembership = "uctCourseCode";
 	private String school ="uctFaculty";
-	private String mobilePhone = "cellPhone";
+	private String mobilePhone = "cellNumber";
 	private String programCode = "uctProgramCode";
 	private String homePhone ="homePhone";
 	
@@ -384,14 +384,21 @@ public class SPML implements SpmlHandler {
 			    	
 			    	
 		    	}
-		    	
+		    	//this user already exists
 		    } else {
 		    	response = req.createResponse();
 		    	//for now were not sending these back to eds
 		    	System.out.println("WARN: "+ this + " adduser error" + addeduser);
-		    	// we need rules and checks to see when we should do this
-		    	String change = changeUserInfo(sID,CN, GN, LN, thisEmail,type, "");
-		    	String thisProfileAdd = addnewUserProfile(sID,CN,GN,LN,thisEmail,type,passwd, mobile);
+		    	/*
+		    	 *  we need rules and checks to see when we should do this
+		    	 *  if USernutable== Systemnutable updats
+		    	 *  always change sytemMutable 
+		    	 *  
+		    	 */
+		    	
+		    	//String change = changeUserInfo(sID,CN, GN, LN, thisEmail,type, "");
+		    	//String thisProfileAdd = addnewUserProfile(sID,CN,GN,LN,thisEmail,type,passwd, mobile);
+		    	String updated = updateUserIfo(sID,CN,GN,LN,thisEmail,type,passwd, mobile);
 
 		    }
 		}
@@ -750,6 +757,8 @@ private synchronized void setSakaiSessionUser(String id) {
     
 } 
 
+
+
 /*
  * update a profile
  */
@@ -841,6 +850,62 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 		}
 		return "success";
 		
+	}
+	private String	updateUserIfo(String sID,String CN,String GN,String LN,String thisEmail,String type,String  passwd,String  mobile)
+	{
+	
+		//do we need to update the profile?
+		//first get the profile
+		SakaiPerson systemProfile = getUserProfile(CN.toLowerCase(), "systemMutable");
+		SakaiPerson userProfile = getUserProfile(CN.toLowerCase(), "systemMutable");
+		if (profileSame(systemProfile, userProfile)) {
+			//if yes update the userprofile + userobject
+			try {
+				System.out.println("Profiles are the same updating ...");
+				String change = changeUserInfo(sID,CN, GN, LN, thisEmail,type, "");
+				String thisProfileAdd = addnewUserProfile(sID,CN,GN,LN,thisEmail,type,passwd, mobile);
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+			//if no update the system profile
+			System.out.println("profiles don't match only system profile...");
+		}
+		return "Success";
+		
+	}
+	
+	private boolean profileSame(SakaiPerson systemProfile, SakaiPerson userProfile) {
+		
+		String systemSurname = systemProfile.getSurname();
+		String systemGivenName = systemProfile.getGivenName();
+		String systemMail = systemProfile.getMail();
+		//this last one could be null
+		String systemMobile = systemProfile.getMobile();
+		
+		if (systemSurname.equals(userProfile.getSurname()) && systemGivenName.equals(userProfile.getGivenName()) && systemMail.equals(userProfile.getMail()) )
+		{
+			System.out.println("Profile fields match");
+			if (systemMobile != null && userProfile.getMobile() != null) {
+				if (systemMobile.equals(userProfile.getMobile())) 
+				{
+					return true;
+				}
+				System.out.println("Mobile is null returning true");
+				return true;	
+			} 
+			return true;
+			
+		} else {
+			//names match maybe cellphones don't - update the phone
+			
+			
+		}
+		
+			
+		
+		return false;
 	}
 	
 } //end class
