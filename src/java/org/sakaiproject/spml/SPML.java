@@ -707,7 +707,7 @@ private SakaiPerson getUserProfile(String userId, String type) {
     Agent agent = null;
     try{
     	agentGroupManager = getAgentGroupManager();
-    	System.out.println("got agentgroupmanager" + agentGroupManager);
+    	System.out.println("got agentgroupmanager " + agentGroupManager);
     	System.out.println("user is " + userId);
     	agent = agentGroupManager.getAgentBySessionManagerUserId(userId);
     }catch(Exception e1){
@@ -856,56 +856,50 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 	
 		//do we need to update the profile?
 		//first get the profile
-		SakaiPerson systemProfile = getUserProfile(CN.toLowerCase(), "systemMutable");
-		SakaiPerson userProfile = getUserProfile(CN.toLowerCase(), "systemMutable");
-		if (profileSame(systemProfile, userProfile)) {
-			//if yes update the userprofile + userobject
-			try {
-				System.out.println("Profiles are the same updating ...");
-				String change = changeUserInfo(sID,CN, GN, LN, thisEmail,type, "");
-				String thisProfileAdd = addnewUserProfile(sID,CN,GN,LN,thisEmail,type,passwd, mobile);
-			}
-			catch (Exception e) {
-				e.printStackTrace();
-			}
-		} else {
-			//if no update the system profile
-			System.out.println("profiles don't match only system profile...");
-		}
-		return "Success";
+		SakaiPerson systemProfile = getUserProfile(CN.toLowerCase(), "systemMutableType");
+		SakaiPerson userProfile = getUserProfile(CN.toLowerCase(), "UserMutableType");
 		
-	}
-	
-	private boolean profileSame(SakaiPerson systemProfile, SakaiPerson userProfile) {
-		
+		//get the systemt strings
 		String systemSurname = systemProfile.getSurname();
 		String systemGivenName = systemProfile.getGivenName();
 		String systemMail = systemProfile.getMail();
 		//this last one could be null
 		String systemMobile = systemProfile.getMobile();
 		
-		if (systemSurname.equals(userProfile.getSurname()) && systemGivenName.equals(userProfile.getGivenName()) && systemMail.equals(userProfile.getMail()) )
-		{
-			System.out.println("Profile fields match");
-			if (systemMobile != null && userProfile.getMobile() != null) {
-				if (systemMobile.equals(userProfile.getMobile())) 
-				{
-					return true;
-				}
-				System.out.println("Mobile is null returning true");
-				return true;	
-			} 
-			return true;
-			
-		} else {
-			//names match maybe cellphones don't - update the phone
-			
-			
+		//set up the strings for user update these will be overwriten for changed profiles
+		String modSurname = LN;
+		String modGivenName = GN;
+		String modMail= thisEmail;
+		String modMobile = mobile;
+		
+		if (!systemSurname.equals(userProfile.getSurname())) {
+			modSurname = userProfile.getSurname();
+		}
+		if (!systemGivenName.equals(userProfile.getGivenName())) {
+			modGivenName = userProfile.getGivenName();
+		}		
+		if (!systemMail.equals(userProfile.getMail())) {
+			modMail = userProfile.getMail();
+		}
+		if (systemMobile != null) {
+			if (!systemMobile.equals(userProfile.getMobile())) {
+				modMobile = userProfile.getMobile();
+			}
 		}
 		
-			
+		//set the SystemFields
 		
-		return false;
+		updateUserProfile(CN, GN, LN, thisEmail,"", null, "SystemMutableType", mobile);
+				
+		//set the userfields
+		updateUserProfile(CN, modGivenName, modSurname, modMail,"", null, "UserMutableType", modMobile);
+		
+		
+		//update the user object
+		String change = changeUserInfo(sID,CN, modGivenName, modSurname, modMail,type, "");
+		
+		return "Success";
+		
 	}
 	
 } //end class
