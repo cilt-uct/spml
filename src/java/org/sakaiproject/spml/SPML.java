@@ -100,7 +100,7 @@ public class SPML implements SpmlHandler {
 	private String mobilePhone = "cellNumber";
 	private String programCode = "uctProgramCode";
 	private String homePhone ="homePhone";
-	
+	private String OU ="OU";
 	
 	//change this to the name of your campus
 	private String spmlCampus = "University of Cape Town";
@@ -356,9 +356,15 @@ public class SPML implements SpmlHandler {
 		String passwd = "";
 		
 		String mobile = (String)req.getAttributeValue(mobilePhone);
-		if (mobile!= null ) {
+		if (mobile == null ) {
 			mobile ="";
 		}
+		
+		String orgUnit = (String)req.getAttributeValue(mobilePhone);
+		if (orgUnit == null ) {
+			orgUnit="";
+		}
+		
 		SpmlResponse response = null;
 		try {
 
@@ -372,7 +378,7 @@ public class SPML implements SpmlHandler {
 		    
 		    if (addeduser.equals("success")) {
 		    	
-		    	String profileAdd = addnewUserProfile(sID,CN,GN,LN,thisEmail,type,passwd, mobile);
+		    	String profileAdd = addnewUserProfile(sID,CN,GN,LN,thisEmail,type,passwd, mobile, orgUnit);
 		    	if (profileAdd.equals("success")) {
 		    		response = req.createResponse();
 		    	} else {
@@ -398,7 +404,7 @@ public class SPML implements SpmlHandler {
 		    	
 		    	//String change = changeUserInfo(sID,CN, GN, LN, thisEmail,type, "");
 		    	//String thisProfileAdd = addnewUserProfile(sID,CN,GN,LN,thisEmail,type,passwd, mobile);
-		    	String updated = updateUserIfo(sID,CN,GN,LN,thisEmail,type,passwd, mobile);
+		    	String updated = updateUserIfo(sID,CN,GN,LN,thisEmail,type,passwd, mobile, orgUnit);
 
 		    }
 		}
@@ -603,14 +609,14 @@ private String addNewUser( String sessionid, String userid, String firstname, St
 /*
  *  populate a users profile
  */
-private String addnewUserProfile(String sessionid, String userid, String firstname, String lastname, String thisEmail, String type, String password, String mobile) throws Exception 
+private String addnewUserProfile(String sessionid, String userid, String firstname, String lastname, String thisEmail, String type, String password, String mobile, String orgUnit) throws Exception 
 {
 	LOG.info(this + " creating profile for "+ userid + " ");
 	String ret = "";
 	try {
 		//we need both a user editable and a system profile
-		updateUserProfile(userid, firstname, lastname, thisEmail,"", null, "UserMutableType", mobile);
-		updateUserProfile(userid, firstname, lastname, thisEmail,"", null, "SystemMutableType", mobile);
+		updateUserProfile(userid, firstname, lastname, thisEmail,"", null, "UserMutableType", mobile, orgUnit);
+		updateUserProfile(userid, firstname, lastname, thisEmail,"", null, "SystemMutableType", mobile, orgUnit);
 		return "success";		
 	}
 	catch (Exception e) {
@@ -707,9 +713,7 @@ private SakaiPerson getUserProfile(String userId, String type) {
     Agent agent = null;
     try{
     	agentGroupManager = getAgentGroupManager();
-    	System.out.println("got agentgroupmanager " + agentGroupManager);
-    	System.out.println("user is " + userId);
-    	agent = agentGroupManager.getAgentBySessionManagerUserId(userId);
+       	agent = agentGroupManager.getAgentBySessionManagerUserId(userId);
     }catch(Exception e1){
         LOG.error("Failed to get agentgroupManager " + userId + ": " + e1);
         e1.printStackTrace();
@@ -719,7 +723,7 @@ private SakaiPerson getUserProfile(String userId, String type) {
     Type _type = null;
     if (type.equals("UserMutableType")) {
     	setSakaiSessionUser(userId); // switch to that user's session
-    	 _type = spm.getUserMutableType();
+         _type = spm.getUserMutableType();
     } else {
     	 _type = spm.getSystemMutableType();
     }
@@ -762,7 +766,7 @@ private synchronized void setSakaiSessionUser(String id) {
 /*
  * update a profile
  */
-private void updateUserProfile(String userId, String firstName, String lastName, String thisEmail, String dept, byte[] jpegPhoto, String type, String mobile) {
+private void updateUserProfile(String userId, String firstName, String lastName, String thisEmail, String dept, byte[] jpegPhoto, String type, String mobile, String orgUnit) {
     if(userId == null || userId.equals("")){
         LOG.error("Failed to update profile for user: (null or empty).");
         return;
@@ -785,6 +789,7 @@ private void updateUserProfile(String userId, String firstName, String lastName,
             sakaiPerson.setDepartmentNumber(dept);
             sakaiPerson.setHidePrivateInfo(Boolean.TRUE);
             sakaiPerson.setMobile(mobile);
+            sakaiPerson.setOrganizationalUnit(orgUnit);
             SakaiPersonManager spm = getSakaiPersonManager();
             if (type.equals("UserMutableType")) {
             	setSakaiSessionUser(userId);
@@ -851,7 +856,7 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 		return "success";
 		
 	}
-	private String	updateUserIfo(String sID,String CN,String GN,String LN,String thisEmail,String type,String  passwd,String  mobile)
+	private String	updateUserIfo(String sID,String CN,String GN,String LN,String thisEmail,String type,String  passwd,String  mobile, String o	rgUnit)
 	{
 	
 		//do we need to update the profile?
@@ -865,12 +870,14 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 		String systemMail = systemProfile.getMail();
 		//this last one could be null
 		String systemMobile = systemProfile.getMobile();
+		String systemOrgUnit = systemProfile.getOrganizationalUnit();
 		
 		//set up the strings for user update these will be overwriten for changed profiles
 		String modSurname = LN;
 		String modGivenName = GN;
 		String modMail= thisEmail;
 		String modMobile = mobile;
+		String modOrgUnit = orgUnit;
 		
 		if (!systemSurname.equals(userProfile.getSurname())) {
 			modSurname = userProfile.getSurname();
@@ -886,13 +893,18 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 				modMobile = userProfile.getMobile();
 			}
 		}
+		if (systemOrgUnit != null) {
+			if (!systemOrgUnit.equals(userProfile.getOrganizationalUnit())) {
+				modOrgUnit = userProfile.getOrganizationalUnit();
+			}
+		}
 		
 		//set the SystemFields
 		
-		updateUserProfile(CN, GN, LN, thisEmail,"", null, "SystemMutableType", mobile);
+		updateUserProfile(CN, GN, LN, thisEmail,"", null, "SystemMutableType", mobile, orgUnit);
 				
 		//set the userfields
-		updateUserProfile(CN, modGivenName, modSurname, modMail,"", null, "UserMutableType", modMobile);
+		updateUserProfile(CN, modGivenName, modSurname, modMail,"", null, "UserMutableType", modMobile, modOrgUnit);
 		
 		
 		//update the user object
