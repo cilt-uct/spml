@@ -856,7 +856,7 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 		return "success";
 		
 	}
-	private String	updateUserIfo(String sID,String CN,String GN,String LN,String thisEmail,String type,String  passwd,String  mobile, String o	rgUnit)
+	private String	updateUserIfo(String sID,String CN,String GN,String LN,String thisEmail,String type,String  passwd,String  mobile, String orgUnit)
 	{
 	
 		//do we need to update the profile?
