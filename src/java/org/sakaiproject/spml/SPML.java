@@ -845,7 +845,7 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 	private String removeUserFromAllCourses(String userId) {
 		
 		try {
-			String statement= "delete from UCT_MEMBERSHIP  where lower(MEMBER_SOURCEDID_ID) = lower('" + userId +"') and SOURCEDID_ID like '%,2006'";
+			String statement= "delete from UCT_MEMBERSHIP  where MEMBER_SOURCEDID_ID = '" + userId +"' and SOURCEDID_ID like '%,2006'";
 			getSqlService();
 			sqlService.dbWrite(statement);
 		}
