@@ -131,20 +131,9 @@
 			<version>${sakai.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-session</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
+		
 
-                <dependency>
-                        <groupId>sakaiproject</groupId>
-                        <artifactId>sakai-util-xml</artifactId>
-      			<properties>
-        			<!--<war.bundle>true</war.bundle>-->
-      			</properties>
-                        <version>${sakai.version}</version>
-                </dependency>
+
 <!-- 
 sakai-profile-api-2.1.0.003.jar
 /sakai-legacy-service
@@ -170,14 +159,7 @@ j2ee.ja
       			</properties>
                         <version>${sakai.version}</version>
                 </dependency>
-                <dependency>
-                        <groupId>sakaiproject</groupId>
-                        <artifactId>sakai-legacy-service</artifactId>
-      			<properties>
-        			<!--<war.bundle>true</war.bundle>-->
-      			</properties>
-                        <version>${sakai.version}</version>
-                </dependency>
+
                  <dependency>
                         <groupId>sakaiproject</groupId>
                         <artifactId>sakai-common-composite-component-data</artifactId>
@@ -202,20 +184,8 @@ j2ee.ja
       			</properties>
                         <version>${sakai.version}</version>
                 </dependency>
-                <dependency>
-                        <groupId>sakaiproject</groupId>
-                        <artifactId>sakai-common-agent-api</artifactId>
-      			<properties>
-        			<!--<war.bundle>true</war.bundle>-->
-      			</properties>
-                        <version>${sakai.version}</version>
-                </dependency>
-               <dependency>
-                        <groupId>sakaiproject</groupId>
-                        <artifactId>sakai-common-superstructure-api</artifactId>
-      					
-      			          <version>${sakai.version}</version>
-                </dependency>
+  
+
                 <dependency>
                         <groupId>sakaiproject</groupId>
                         <artifactId>sakai-common-type-api</artifactId>
@@ -241,16 +211,73 @@ j2ee.ja
       </properties>
     </dependency>
     
-    
-    		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-java</artifactId>
-			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency>
-    
+<!--inserted post 2.2 -->
+                <dependency>
+                        <groupId>sakaiproject</groupId>
+                        <artifactId>sakai-tool-api</artifactId>
+      			<properties>
+        			<!--<war.bundle>true</war.bundle>-->
+      			</properties>
+                        <version>${sakai.version}</version>
+                </dependency>
+                                <dependency>
+                        <groupId>sakaiproject</groupId>
+                        <artifactId>sakai-user-api</artifactId>
+      			<properties>
+        			<!--<war.bundle>true</war.bundle>-->
+      			</properties>
+                        <version>${sakai.version}</version>
+                </dependency>
+                <dependency>
+                        <groupId>sakaiproject</groupId>
+                        <artifactId>sakai-util</artifactId>
+      			<properties>
+        			<!--<war.bundle>true</war.bundle>-->
+      			</properties>
+                        <version>${sakai.version}</version>
+                </dependency>
+                <dependency>
+                        <groupId>sakaiproject</groupId>
+                        <artifactId>sakai-authz-api</artifactId>
+      			<properties>
+        			<!--<war.bundle>true</war.bundle>-->
+      			</properties>
+                        <version>${sakai.version}</version>
+                </dependency>
+                <dependency>
+                        <groupId>sakaiproject</groupId>
+                        <artifactId>sakai-db-api</artifactId>
+      			<properties>
+        			<!--<war.bundle>true</war.bundle>-->
+      			</properties>
+                        <version>${sakai.version}</version>
+                </dependency>
+                <dependency>
+                        <groupId>sakaiproject</groupId>
+                        <artifactId>sakai-metaobj-impl</artifactId>
+      			<properties>
+        			<!--<war.bundle>true</war.bundle>-->
+      			</properties>
+                        <version>${sakai.version}</version>
+                </dependency>  
+                <dependency>
+                        <groupId>sakaiproject</groupId>
+                        <artifactId>sakai-metaobj-api</artifactId>
+      			<properties>
+        			<!--<war.bundle>true</war.bundle>-->
+      			</properties>
+                        <version>${sakai.version}</version>
+                </dependency>
+                <dependency>
+                        <groupId>sakaiproject</groupId>
+                        <artifactId>sakai-entity-api</artifactId>
+      			<properties>
+        			<!--<war.bundle>true</war.bundle>-->
+      			</properties>
+                        <version>${sakai.version}</version>
+                </dependency>
+                 
+        
 	</dependencies>
 
 

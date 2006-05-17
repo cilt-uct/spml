@@ -47,21 +47,21 @@ import org.openspml.util.*;
 import org.openspml.message.*;
 import org.openspml.server.SpmlHandler;
 
-import org.sakaiproject.api.kernel.session.Session;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 
-import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
-import org.sakaiproject.service.legacy.user.UserEdit;
-import org.sakaiproject.service.legacy.user.User;
-import org.sakaiproject.service.legacy.security.cover.SecurityService;
-import org.sakaiproject.util.java.StringUtil;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.util.StringUtil;
 
 import org.sakaiproject.api.common.manager.Persistable;
+import org.sakaiproject.entity.api.Entity;
 
-
-import org.sakaiproject.service.framework.session.cover.UsageSessionService;
-import org.sakaiproject.service.framework.sql.SqlReader;
-import org.sakaiproject.service.framework.sql.SqlService;
+//import org.sakaiproject.service.framework.session.cover.UsageSessionService;
+import org.sakaiproject.db.api.SqlReader;
+import org.sakaiproject.db.cover.SqlService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -71,15 +71,17 @@ import org.sakaiproject.component.app.profile.*;
 import org.sakaiproject.component.common.edu.person.SakaiPersonImpl;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
-import org.sakaiproject.api.common.agent.AgentGroupManager;
-import org.sakaiproject.api.common.agent.Agent;
-import org.sakaiproject.api.kernel.component.cover.ComponentManager;
-import org.sakaiproject.api.common.superstructure.DefaultContainer;
+//import org.sakaiproject.api.common.agent.AgentGroupManager;
+import org.sakaiproject.metaobj.security.impl.sakai.AgentManager;
+import org.sakaiproject.metaobj.shared.model.Agent;
+import org.sakaiproject.component.cover.ComponentManager;
+
+//import org.sakaiproject.api.common.superstructure.DefaultContainer;
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.api.common.type.UuidTypeResolvable;
 
 //to get the usage session
-import org.sakaiproject.service.framework.session.*;
+//import org.sakaiproject.service.framework.session.*;
 
 //import javax.xml.parsers;
 
@@ -216,7 +218,7 @@ public class SPML implements SpmlHandler {
      * 
      */
     private SakaiPersonManager sakaiPersonManager;
-    private AgentGroupManager agentGroupManager;
+    private AgentManager agentGroupManager;
     private SqlService sqlService;
     
     public SakaiPersonManager getSakaiPersonManager() {
@@ -225,11 +227,11 @@ public class SPML implements SpmlHandler {
         }
         return sakaiPersonManager;
     }
-    public AgentGroupManager getAgentGroupManager() {
+    public AgentManager getAgentGroupManager() {
     	
         if(agentGroupManager == null){
         	System.out.println("Getting agentgroupmanager");
-            agentGroupManager = (AgentGroupManager) ComponentManager.get(AgentGroupManager.class.getName());
+            agentGroupManager = (AgentManager) ComponentManager.get(AgentManager.class.getName());
             System.out.println("Got agentgroupmanager " + agentGroupManager);
         }
         return agentGroupManager;
@@ -597,8 +599,14 @@ private String addNewUser( String sessionid, String userid, String firstname, St
 	}
 	try {
 
-		User addeduser = null;
-		addeduser = UserDirectoryService.addUser(userid, firstname, lastname, thisEmail, password, type, null);
+		UserEdit addeduser = null;
+		addeduser = UserDirectoryService.addUser(null, userid);
+		addeduser.setFirstName(firstname);
+		addeduser.setLastName(lastname);
+		addeduser.setEmail(thisEmail);
+		addeduser.setPassword(password);
+		addeduser.setType(type);
+		UserDirectoryService.commitEdit(addeduser);
 	
  	}
 	catch (Exception e) {  
@@ -713,7 +721,7 @@ private SakaiPerson getUserProfile(String userId, String type) {
     Agent agent = null;
     try{
     	agentGroupManager = getAgentGroupManager();
-       	agent = agentGroupManager.getAgentBySessionManagerUserId(userId);
+       	agent = agentGroupManager.getAgent(userId);
     }catch(Exception e1){
         LOG.error("Failed to get agentgroupManager " + userId + ": " + e1);
         e1.printStackTrace();
