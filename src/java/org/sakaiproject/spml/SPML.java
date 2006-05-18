@@ -218,7 +218,7 @@ public class SPML implements SpmlHandler {
      * 
      */
     private SakaiPersonManager sakaiPersonManager;
-    private AgentManager agentGroupManager = new AgentManager();
+    //private AgentManager agentGroupManager = new AgentManager();
     private SqlService sqlService;
     
     public SakaiPersonManager getSakaiPersonManager() {
@@ -727,6 +727,8 @@ private SakaiPerson getUserProfile(String userId, String type) {
 	userId = userId.toLowerCase();
 	
     SakaiPersonManager spm = getSakaiPersonManager();
+    
+    /* lets see what happens without this
     //AgentGroupManager agentGroupManager = null;
     Agent agent = null;
     try{
@@ -737,6 +739,7 @@ private SakaiPerson getUserProfile(String userId, String type) {
         e1.printStackTrace();
         return null;
     }
+    */
     
     Type _type = null;
     if (type.equals("UserMutableType")) {
