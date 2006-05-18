@@ -218,7 +218,7 @@ public class SPML implements SpmlHandler {
      * 
      */
     private SakaiPersonManager sakaiPersonManager;
-    private AgentManager agentGroupManager;
+    private AgentManager agentGroupManager = new AgentManager();
     private SqlService sqlService;
     
     public SakaiPersonManager getSakaiPersonManager() {
@@ -227,15 +227,25 @@ public class SPML implements SpmlHandler {
         }
         return sakaiPersonManager;
     }
+    /*
     public AgentManager getAgentGroupManager() {
     	
         if(agentGroupManager == null){
-        	System.out.println("Getting agentgroupmanager");
-            agentGroupManager = (AgentManager) ComponentManager.get(AgentManager.class.getName());
-            System.out.println("Got agentgroupmanager " + agentGroupManager);
+        	try 
+        	{
+        		System.out.println("Getting agentgroupmanager");
+        		agentGroupManager = (AgentManager) ComponentManager.get(AgentManager.class.getName());
+        		System.out.println("Got agentgroupmanager " + agentGroupManager);
+        	}
+        	catch (Exception e)
+        	{
+        		e.printStackTrace();
+        	}
         }
         return agentGroupManager;
     } 
+    */
+    
     public SqlService getSqlService() {
     	
     if (sqlService == null){
@@ -720,7 +730,7 @@ private SakaiPerson getUserProfile(String userId, String type) {
     //AgentGroupManager agentGroupManager = null;
     Agent agent = null;
     try{
-    	agentGroupManager = getAgentGroupManager();
+    	//agentGroupManager = getAgentGroupManager();
        	agent = agentGroupManager.getAgent(userId);
     }catch(Exception e1){
         LOG.error("Failed to get agentgroupManager " + userId + ": " + e1);
