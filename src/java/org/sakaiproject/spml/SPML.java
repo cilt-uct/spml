@@ -729,7 +729,7 @@ private SakaiPerson getUserProfile(String userId, String type) {
     SakaiPersonManager spm = getSakaiPersonManager();
     
     //lets see what happens without this
-    AgentManager agentGroupManager = null;
+    AgentManager agentGroupManager = new AgentManager();
     Agent agent = null;
     try{
     	//agentGroupManager = getAgentGroupManager();
