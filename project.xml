@@ -248,7 +248,7 @@ j2ee.ja
                         <groupId>sakaiproject</groupId>
                         <artifactId>sakai-db-api</artifactId>
       			<properties>
-        			<!--<war.bundle>true</war.bundle>-->
+        			<war.bundle>true</war.bundle>
       			</properties>
                         <version>${sakai.version}</version>
                 </dependency>
