@@ -728,8 +728,8 @@ private SakaiPerson getUserProfile(String userId, String type) {
 	
     SakaiPersonManager spm = getSakaiPersonManager();
     
-    /* lets see what happens without this
-    //AgentGroupManager agentGroupManager = null;
+    //lets see what happens without this
+    AgentGroupManager agentGroupManager = null;
     Agent agent = null;
     try{
     	//agentGroupManager = getAgentGroupManager();
@@ -739,7 +739,7 @@ private SakaiPerson getUserProfile(String userId, String type) {
         e1.printStackTrace();
         return null;
     }
-    */
+    
     
     Type _type = null;
     if (type.equals("UserMutableType")) {
