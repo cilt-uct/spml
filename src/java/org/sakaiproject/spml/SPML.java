@@ -61,7 +61,7 @@ import org.sakaiproject.entity.api.Entity;
 
 //import org.sakaiproject.service.framework.session.cover.UsageSessionService;
 import org.sakaiproject.db.api.SqlReader;
-import org.sakaiproject.db.cover.SqlService;
+import org.sakaiproject.db.api.SqlService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
