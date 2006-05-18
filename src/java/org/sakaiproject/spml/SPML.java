@@ -71,7 +71,7 @@ import org.sakaiproject.component.app.profile.*;
 import org.sakaiproject.component.common.edu.person.SakaiPersonImpl;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
-import org.sakaiproject.api.common.agent.AgentGroupManager;
+//import org.sakaiproject.api.common.agent.AgentGroupManager;
 import org.sakaiproject.metaobj.security.impl.sakai.AgentManager;
 import org.sakaiproject.metaobj.shared.model.Agent;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -729,7 +729,7 @@ private SakaiPerson getUserProfile(String userId, String type) {
     SakaiPersonManager spm = getSakaiPersonManager();
     
     //lets see what happens without this
-    AgentGroupManager agentGroupManager = null;
+    AgentManager agentGroupManager = null;
     Agent agent = null;
     try{
     	//agentGroupManager = getAgentGroupManager();
