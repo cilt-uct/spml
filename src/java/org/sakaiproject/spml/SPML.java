@@ -159,7 +159,18 @@ public class SPML implements SpmlHandler {
     public void setHeader(String s) {
 	_client.setHeader(s);
     }
-
+	/**
+	 * Dependency: SqlService.
+	 * @param service The SqlService.
+	 */
+    private SqlService m_sqlService = null;
+    
+	public void setSqlService(SqlService service)
+	{
+		System.out.println("Setting Sql Service");
+		m_sqlService = service;
+	}
+	
     /**
      * Set an optional list of attributes for the SOAP Body.
      * The string is expected to contain a fragment of well formed
