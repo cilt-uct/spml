@@ -91,7 +91,7 @@ public class SPML implements SpmlHandler {
 	//Atribute mappings to map SPML attributes to Sakai attributs
 	
 	
-	//common name will be used for the Sakai userid
+	//common name will be used for the Sakai eid
 	private String cn = "CN";
 	private String surname = "Surname";
 	private String firstNames = "Given Name";
@@ -163,11 +163,15 @@ public class SPML implements SpmlHandler {
 	 * Dependency: SqlService.
 	 * @param service The SqlService.
 	 */
-    private SqlService m_sqlService = null;
+    protected SqlService m_sqlService = null;
     
+	/**
+	 * Dependency: SqlService.
+	 * @param service The SqlService.
+	 */
 	public void setSqlService(SqlService service)
 	{
-		System.out.println("Setting Sql Service");
+		System.out.println(this + "Setting Sql Service");
 		m_sqlService = service;
 	}
 	
@@ -259,10 +263,7 @@ public class SPML implements SpmlHandler {
     
     public SqlService getSqlService() {
     	
-    if (sqlService == null){
-    	sqlService = (SqlService)ComponentManager.get(SqlService.class.getName());
-    }
-    return sqlService;	
+        return m_sqlService;	
     
     }
 
@@ -848,9 +849,8 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 		try {
 			String escapeBody = body.replaceAll("'","''");
 			String statement = "insert into spml_log (spml_type,spml_body, ipaddress) values ('" + type +"','" + escapeBody + "','" + requestIp + "')";
-			getSqlService();
-			//LOG.info(this + "SQLservice:" + sqlService);
-			sqlService.dbWrite(statement);
+			LOG.info(this + "SQLservice:" + m_sqlService);
+			m_sqlService.dbWrite(statement);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -865,7 +865,7 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 		try {
 			String statement= "insert into UCT_MEMBERSHIP (SOURCEDID_ID, MEMBER_SOURCEDID_ID,MEMBER_ROLE_ROLETYPE) values ('" + courseCode +"," + courseYear +"','" + userId  +"','Student')";
 			getSqlService();
-			sqlService.dbWrite(statement);
+			m_sqlService.dbWrite(statement);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -878,8 +878,7 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 		
 		try {
 			String statement= "delete from UCT_MEMBERSHIP  where MEMBER_SOURCEDID_ID = '" + userId +"' and SOURCEDID_ID like '%,2006'";
-			getSqlService();
-			sqlService.dbWrite(statement);
+			m_sqlService.dbWrite(statement);
 		}
 		catch(Exception e) {
 			e.printStackTrace();

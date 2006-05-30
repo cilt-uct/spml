@@ -110,5 +110,29 @@ Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
     <welcome-file>index.html</welcome-file>
     <welcome-file>index.jws</welcome-file>
   </welcome-file-list>
+  
+      <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>/WEB-INF/local.xml</param-value>
+    </context-param>
+	<!-- Sakai request filter, mapped to anything that goes to the faces servlet -->
+    <filter>
+        <filter-name>sakai.request</filter-name>
+        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+    </filter>
 
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>Faces Servlet</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+    
+    <listener>
+        <listener-class>org.sakaiproject.util.ToolListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+    </listener>
 </web-app>
