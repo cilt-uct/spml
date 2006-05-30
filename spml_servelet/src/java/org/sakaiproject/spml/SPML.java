@@ -38,6 +38,7 @@ import java.util.Iterator;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Stack;
+import java.util.Set;
 import java.net.URLEncoder;
 import org.apache.axis.AxisFault;
 import javax.servlet.http.HttpServletRequest;
@@ -60,8 +61,10 @@ import org.sakaiproject.api.common.manager.Persistable;
 import org.sakaiproject.entity.api.Entity;
 
 //import org.sakaiproject.service.framework.session.cover.UsageSessionService;
-import org.sakaiproject.db.api.SqlReader;
-import org.sakaiproject.db.api.SqlService;
+
+//no longer needed now we have the coursemanagement API
+//import org.sakaiproject.db.api.SqlReader;
+//import org.sakaiproject.db.api.SqlService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -79,7 +82,9 @@ import org.sakaiproject.component.cover.ComponentManager;
 //import org.sakaiproject.api.common.superstructure.DefaultContainer;
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.api.common.type.UuidTypeResolvable;
-
+import org.sakaiproject.coursemanagement.api.*;
+import org.sakaiproject.coursemanagement.impl.*;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 //to get the usage session
 //import org.sakaiproject.service.framework.session.*;
 
@@ -110,6 +115,8 @@ public class SPML implements SpmlHandler {
 	private String spmlPassword = "spmlpass";
 	private String courseYear = "2006";
 	
+	private CourseManagementAdministration CourseManagementAdministration = new CourseManagementAdministrationHibernateImpl();
+	private CourseManagementService CourseManagementService = new CourseManagementServiceHibernateImpl();
 	
 	
     /**
@@ -159,21 +166,6 @@ public class SPML implements SpmlHandler {
     public void setHeader(String s) {
 	_client.setHeader(s);
     }
-	/**
-	 * Dependency: SqlService.
-	 * @param service The SqlService.
-	 */
-    protected SqlService m_sqlService = null;
-    
-	/**
-	 * Dependency: SqlService.
-	 * @param service The SqlService.
-	 */
-	public void setSqlService(SqlService service)
-	{
-		System.out.println(this + "Setting Sql Service");
-		m_sqlService = service;
-	}
 	
     /**
      * Set an optional list of attributes for the SOAP Body.
@@ -234,7 +226,7 @@ public class SPML implements SpmlHandler {
      */
     private SakaiPersonManager sakaiPersonManager;
     //private AgentManager agentGroupManager = new AgentManager();
-    private SqlService sqlService;
+  
     
     public SakaiPersonManager getSakaiPersonManager() {
         if(sakaiPersonManager == null){
@@ -261,11 +253,7 @@ public class SPML implements SpmlHandler {
     } 
     */
     
-    public SqlService getSqlService() {
-    	
-        return m_sqlService;	
-    
-    }
+
 
     //////////////////////////////////////////////////////////////////////
     //
@@ -296,23 +284,23 @@ public class SPML implements SpmlHandler {
 
 	    	
 	    if (req instanceof AddRequest) {
-		AddRequest uctRequest = (AddRequest)req;
-		resp = spmlAddRequest(uctRequest);
+	    	AddRequest uctRequest = (AddRequest)req;
+	    	resp = spmlAddRequest(uctRequest);
 	    } else if (req instanceof ModifyRequest) {
 	    	LOG.info("SPMLRouter identified Modifyreq");
-		ModifyRequest uctRequest = (ModifyRequest)req;
-		resp = spmlModifyRequest(uctRequest);
+	    	ModifyRequest uctRequest = (ModifyRequest)req;
+	    	resp = spmlModifyRequest(uctRequest);
 	    } else if (req instanceof DeleteRequest) {
 	    	LOG.info("SPMLRouter identified delete request");
-		DeleteRequest uctRequest = (DeleteRequest)req;
-		resp = spmlDeleteRequest(uctRequest);
+	    	DeleteRequest uctRequest = (DeleteRequest)req;
+	    	resp = spmlDeleteRequest(uctRequest);
 	    }  else if (req instanceof BatchRequest) {
-		LOG.info("SPMLRouter identified batch request");
-		BatchRequest uctRequest = (BatchRequest)req;
-		resp = spmlBatchRequest(uctRequest);
+	    	LOG.info("SPMLRouter identified batch request");
+	    	BatchRequest uctRequest = (BatchRequest)req;
+	    	resp = spmlBatchRequest(uctRequest);
 			
 	    } else {
-		LOG.info("Method not implemented");
+	    	LOG.info("Method not implemented");
 	    }
 	    
 
@@ -322,8 +310,8 @@ public class SPML implements SpmlHandler {
 
 	    e.printStackTrace();
 	}
-	LOG.info (this + " " + profilesUpdated +" profiles updated");
-	return resp;
+		LOG.info (this + " " + profilesUpdated +" profiles updated");
+		return resp;
     }
 
 
@@ -616,8 +604,8 @@ private String addNewUser( String sessionid, String userid, String firstname, St
 	
 	if (!SecurityService.isSuperUser())
 	{
-		LOG.warn("WARN: NonSuperUser trying to add accounts: " + session.getUserId());
-        throw new Exception("NonSuperUser trying to add accounts: " + session.getUserId());
+		LOG.warn("NonSuperUser trying to add accounts: " + session.getUserEid());
+        //throw new Exception("NonSuperUser trying to add accounts: " + session.getUserId());
 	}
 	try {
 
@@ -691,7 +679,7 @@ public String login(String id,String pw) {
 		}
 		else
 		{
-			sakaiSession.setUserId(id);
+			sakaiSession.setUserId(user.getId());
 			sakaiSession.setUserEid(id);
 			return sakaiSession.getId();
 		}
@@ -743,16 +731,18 @@ private SakaiPerson getUserProfile(String userId, String type) {
     //lets see what happens without this
     AgentManager agentGroupManager = new AgentManager();
     Agent agent = null;
+    /*
     try{
     	//agentGroupManager = getAgentGroupManager();
-       	agent = agentGroupManager.getAgent(userId);
+    	User user = UserDirectoryService.getUserByEid(userId);
+    	agent = agentGroupManager.getAgent(user.getId());
     }catch(Exception e1){
         LOG.error("Failed to get agentgroupManager " + userId + ": " + e1);
         e1.printStackTrace();
         return null;
     }
     
-    
+    */
     Type _type = null;
     if (type.equals("UserMutableType")) {
     	setSakaiSessionUser(userId); // switch to that user's session
@@ -761,19 +751,20 @@ private SakaiPerson getUserProfile(String userId, String type) {
     	 _type = spm.getSystemMutableType();
     }
     SakaiPerson sakaiPerson = null;
-    if(agent != null){
+    //if(agent != null){
         try{
-            sakaiPerson = spm.getSakaiPerson(userId, _type);
+        	User user = UserDirectoryService.getUserByEid(userId);
+            sakaiPerson = spm.getSakaiPerson(user.getId(), _type);
             // create profile if it doesn't exist
             if(sakaiPerson == null){
-                sakaiPerson = spm.create(userId, userId, _type);
+                sakaiPerson = spm.create(user.getId(), userId, _type);
                 LOG.info(this + "creating profile for user " + userId + " of type " + _type);
             }
         }catch(Exception e){
             LOG.error("Unknown error occurred in getUserProfile(" + userId + "): " + e.getMessage());
             e.printStackTrace();
         }
-    }
+    //}
     
     if (type.equals("UserMutableType")) {
     	//return to the admin user
@@ -787,10 +778,16 @@ private SakaiPerson getUserProfile(String userId, String type) {
  * Set the session to the new user
  */
 private synchronized void setSakaiSessionUser(String id) {
-    
-    
-    sakaiSession.setUserId(id);
+    try {
+    User user = UserDirectoryService.getUserByEid(id);
+    sakaiSession.setUserId(user.getId());
     sakaiSession.setUserEid(id);
+    }
+    catch (Exception e)
+    {
+    	LOG.error(this +" " + e);
+    }
+    
     
 } 
 
@@ -834,7 +831,7 @@ private void updateUserProfile(String userId, String firstName, String lastName,
             	setSakaiSessionUser(spmlUser);  // get back the admin session
             }
         }catch(IllegalAccessError e){
-            LOG.error("Failed to update profile for user " + userId + " - no permissions: " + e.getMessage());
+            LOG.error("Failed to update profile for user " + userId + " - no permissions: " + e.getMessage() + "  by " + sakaiSession.getUserEid());
         }catch(Exception e){
             LOG.error("Failed to update profile for user " + userId + ": " + e.getMessage());
             e.printStackTrace();
@@ -849,8 +846,8 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 		try {
 			String escapeBody = body.replaceAll("'","''");
 			String statement = "insert into spml_log (spml_type,spml_body, ipaddress) values ('" + type +"','" + escapeBody + "','" + requestIp + "')";
-			LOG.info(this + "SQLservice:" + m_sqlService);
-			m_sqlService.dbWrite(statement);
+			//LOG.info(this + "SQLservice:" + m_sqlService);
+			//m_sqlService.dbWrite(statement);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -862,6 +859,18 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 	 * 
 	 */
 	private String addUserToCourse(String userId, String courseCode) {
+		
+		//use the CM
+		try
+		{
+			LOG.info(this + " adding user "+ userId + " to " + courseCode);
+			//CourseManagementAdministration.addOrUpdateEnrollment(userId,courseCode,"enroled","0","points");
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		/*
 		try {
 			String statement= "insert into UCT_MEMBERSHIP (SOURCEDID_ID, MEMBER_SOURCEDID_ID,MEMBER_ROLE_ROLETYPE) values ('" + courseCode +"," + courseYear +"','" + userId  +"','Student')";
 			getSqlService();
@@ -871,11 +880,31 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 			e.printStackTrace();
 			return "failure";
 		}
+		
+		*/
 		return "success";
 	}
 	
 	private String removeUserFromAllCourses(String userId) {
 		
+		/*
+		
+		Set enrolmentSet = CourseManagementService.findCurrentlyEnrolledEnrollmentSets(userId);
+		Iterator it = enrolmentSet.iterator();
+		while (it.hasNext())
+		{
+			
+			EnrollmentSet thisEnrolment = (EnrollmentSet)it.next();;
+			String thisEid = thisEnrolment.getEid();
+			if (thisEid.endsWith(",2006")) 
+			{
+				LOG.info(this + " removing user " + userId + "from course" + thisEid);
+				CourseManagementAdministration.removeEnrollment(userId,thisEid);
+			}
+			
+		}
+		*/
+		/*
 		try {
 			String statement= "delete from UCT_MEMBERSHIP  where MEMBER_SOURCEDID_ID = '" + userId +"' and SOURCEDID_ID like '%,2006'";
 			m_sqlService.dbWrite(statement);
@@ -884,6 +913,7 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 			e.printStackTrace();
 			return "failure";
 		}
+		*/
 		return "success";
 		
 	}

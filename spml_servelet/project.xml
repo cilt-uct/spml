@@ -2,7 +2,7 @@
 
 <project>
 	<pomVersion>3</pomVersion>
-	<extend>../master/project.xml</extend>
+	<extend>../../master/project.xml</extend>
 	<name>Sakai SPML component</name>
 	<groupId>sakaiproject</groupId>
 	<id>sakai-spml</id>
@@ -141,7 +141,27 @@
 			<version>${sakai.version}</version>
 		</dependency>
 
-		
+				<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-coursemanagement-api</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-coursemanagement-hibernate-impl</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+		</dependency>
+		 		<dependency>
+			<groupId>springframework</groupId>
+			<artifactId>spring</artifactId>
+			<version>${sakai.spring.version}</version>
+		</dependency>
 
 
 <!-- 
