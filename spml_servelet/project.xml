@@ -305,10 +305,7 @@ j2ee.ja
                 <dependency>
                         <groupId>sakaiproject</groupId>
                         <artifactId>sakai-db-api</artifactId>
-      			<properties>
-        			<war.bundle>true</war.bundle>
-      			</properties>
-                        <version>${sakai.version}</version>
+      			        <version>${sakai.version}</version>
                 </dependency>
                 <dependency>
                         <groupId>sakaiproject</groupId>

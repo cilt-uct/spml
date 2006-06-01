@@ -59,11 +59,12 @@ import org.sakaiproject.util.StringUtil;
 
 import org.sakaiproject.api.common.manager.Persistable;
 import org.sakaiproject.entity.api.Entity;
-
 //import org.sakaiproject.service.framework.session.cover.UsageSessionService;
 
 //no longer needed now we have the coursemanagement API
-//import org.sakaiproject.db.api.SqlReader;
+//import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.db.cover.SqlService;
+import org.sakaiproject.db.api.SqlReader;
 //import org.sakaiproject.db.api.SqlService;
 
 import org.apache.commons.logging.Log;
@@ -117,6 +118,8 @@ public class SPML implements SpmlHandler {
 	
 	private CourseManagementAdministration CourseManagementAdministration = new CourseManagementAdministrationHibernateImpl();
 	private CourseManagementService CourseManagementService = new CourseManagementServiceHibernateImpl();
+	
+	
 	
 	
     /**
@@ -233,6 +236,14 @@ public class SPML implements SpmlHandler {
             sakaiPersonManager = (SakaiPersonManager) ComponentManager.get(SakaiPersonManager.class.getName());
         }
         return sakaiPersonManager;
+    }
+    
+    private SqlService m_sqlService = null;
+    public SqlService getSqlService() {
+        if(m_sqlService == null){
+        	m_sqlService = (SqlService) ComponentManager.get(SqlService.class.getName());
+        }
+        return m_sqlService;
     }
     /*
     public AgentManager getAgentGroupManager() {
@@ -860,20 +871,11 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 	 */
 	private String addUserToCourse(String userId, String courseCode) {
 		
-		//use the CM
-		try
-		{
-			LOG.info(this + " adding user "+ userId + " to " + courseCode);
-			//CourseManagementAdministration.addOrUpdateEnrollment(userId,courseCode,"enroled","0","points");
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-		/*
+
+		
 		try {
 			String statement= "insert into UCT_MEMBERSHIP (SOURCEDID_ID, MEMBER_SOURCEDID_ID,MEMBER_ROLE_ROLETYPE) values ('" + courseCode +"," + courseYear +"','" + userId  +"','Student')";
-			getSqlService();
+			//getSqlService();
 			m_sqlService.dbWrite(statement);
 		}
 		catch(Exception e) {
@@ -881,31 +883,14 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 			return "failure";
 		}
 		
-		*/
 		return "success";
 	}
 	
 	private String removeUserFromAllCourses(String userId) {
 		
-		/*
-		
-		Set enrolmentSet = CourseManagementService.findCurrentlyEnrolledEnrollmentSets(userId);
-		Iterator it = enrolmentSet.iterator();
-		while (it.hasNext())
-		{
-			
-			EnrollmentSet thisEnrolment = (EnrollmentSet)it.next();;
-			String thisEid = thisEnrolment.getEid();
-			if (thisEid.endsWith(",2006")) 
-			{
-				LOG.info(this + " removing user " + userId + "from course" + thisEid);
-				CourseManagementAdministration.removeEnrollment(userId,thisEid);
-			}
-			
-		}
-		*/
-		/*
+
 		try {
+			m_sqlService = getSqlService();
 			String statement= "delete from UCT_MEMBERSHIP  where MEMBER_SOURCEDID_ID = '" + userId +"' and SOURCEDID_ID like '%,2006'";
 			m_sqlService.dbWrite(statement);
 		}
@@ -913,7 +898,7 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 			e.printStackTrace();
 			return "failure";
 		}
-		*/
+		
 		return "success";
 		
 	}
