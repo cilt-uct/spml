@@ -405,7 +405,7 @@ public class SPML implements SpmlHandler {
 		    
 		    if (addeduser.equals("success")) {
 		    	
-		    	String profileAdd = addnewUserProfile(sID,CN,GN,LN,thisEmail,type,passwd, mobile, orgUnit);
+		    	String profileAdd = addnewUserProfile(sID,CN,GN,LN,thisEmail,type,passwd, mobile, orgUnit, homeP);
 		    	if (profileAdd.equals("success")) {
 		    		response = req.createResponse();
 		    	} else {
@@ -647,14 +647,14 @@ private String addNewUser( String sessionid, String userid, String firstname, St
 /*
  *  populate a users profile
  */
-private String addnewUserProfile(String sessionid, String userid, String firstname, String lastname, String thisEmail, String type, String password, String mobile, String orgUnit) throws Exception 
+private String addnewUserProfile(String sessionid, String userid, String firstname, String lastname, String thisEmail, String type, String password, String mobile, String orgUnit, String homeP) throws Exception 
 {
 	LOG.info(this + " creating profile for "+ userid + " ");
 	String ret = "";
 	try {
 		//we need both a user editable and a system profile
-		updateUserProfile(userid, firstname, lastname, thisEmail,"", null, "UserMutableType", mobile, orgUnit);
-		updateUserProfile(userid, firstname, lastname, thisEmail,"", null, "SystemMutableType", mobile, orgUnit);
+		updateUserProfile(userid, firstname, lastname, thisEmail,"", null, "UserMutableType", mobile, orgUnit, homeP);
+		updateUserProfile(userid, firstname, lastname, thisEmail,"", null, "SystemMutableType", mobile, orgUnit, homeP);
 		return "success";		
 	}
 	catch (Exception e) {
@@ -933,7 +933,7 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 		String modMail= thisEmail;
 		String modMobile = mobile;
 		String modOrgUnit = orgUnit;
-		
+		String modHomeP = homePhone;
 		if (!systemSurname.equals(userProfile.getSurname())) {
 			modSurname = userProfile.getSurname();
 		}
@@ -961,7 +961,7 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 		
 		//set the SystemFields
 		
-		updateUserProfile(CN, GN, LN, thisEmail,"", null, "SystemMutableType", fixPhoneNumber(mobile), orgUnit, fixPhoneNumber(homeP));
+		updateUserProfile(CN, GN, LN, thisEmail,"", null, "SystemMutableType", fixPhoneNumber(mobile), orgUnit, fixPhoneNumber(homePhone));
 				
 		//set the userfields
 		updateUserProfile(CN, modGivenName, modSurname, modMail,"", null, "UserMutableType", modMobile, modOrgUnit, modHomeP);
@@ -974,9 +974,9 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 		
 	}
 	private String fixPhoneNumber(String number) {
-		number=replace('/',null);
-		number = replace('-',null);
-		number = replace(' ',null);
+		number=replaceAll("/","");
+		number = replaceAll("-","");
+		number = replaceAll(" ","");
 		return number;
 		
 	}
