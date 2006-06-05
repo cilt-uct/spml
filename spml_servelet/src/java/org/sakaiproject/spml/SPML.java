@@ -974,9 +974,9 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 		
 	}
 	private String fixPhoneNumber(String number) {
-		number=replace('/','');
-		number = replace('-','');
-		number = replace(' ','');
+		number=replace('/',null);
+		number = replace('-',null);
+		number = replace(' ',null);
 		return number;
 		
 	}
