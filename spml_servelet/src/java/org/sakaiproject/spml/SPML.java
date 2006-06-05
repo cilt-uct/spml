@@ -105,7 +105,7 @@ public class SPML implements SpmlHandler {
 	private String userType = "eduPersonPrimaryAffiliation";
 	private String courseMembership = "uctCourseCode";
 	private String school ="uctFaculty";
-	private String mobilePhone = "cellNumber";
+	private String mobilePhone = "mobile";
 	private String programCode = "uctProgramCode";
 	private String homePhone ="homePhone";
 	private String OU ="OU";
