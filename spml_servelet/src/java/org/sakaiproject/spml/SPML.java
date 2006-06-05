@@ -405,7 +405,7 @@ public class SPML implements SpmlHandler {
 		    
 		    if (addeduser.equals("success")) {
 		    	
-		    	String profileAdd = addnewUserProfile(sID,CN,GN,LN,thisEmail,type,passwd, mobile, orgUnit, homeP);
+		    	String profileAdd = addnewUserProfile(sID,CN,GN,LN,thisEmail,type,passwd, fixPhoneNumber(mobile), orgUnit, fixPhoneNumber(homeP));
 		    	if (profileAdd.equals("success")) {
 		    		response = req.createResponse();
 		    	} else {
