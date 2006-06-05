@@ -378,16 +378,16 @@ public class SPML implements SpmlHandler {
 		type = type.toLowerCase();
 		String passwd = "";
 		
-		String mobile = (String)req.getAttributeValue(mobilePhone);
+		String mobile = fixPhoneNumber((String)req.getAttributeValue(mobilePhone));
 		if (mobile == null ) {
 			mobile ="";
 		}
-		String homeP = (String)req.getAttributeValue(homePhone);
+		String homeP = fixPhoneNumber((String)req.getAttributeValue(homePhone));
 		if (homeP == null ) {
 			homeP ="";
 		}
 		
-		String orgUnit = (String)req.getAttributeValue(mobilePhone);
+		String orgUnit = (String)req.getAttributeValue(OU);
 		if (orgUnit == null ) {
 			orgUnit="";
 		}
@@ -840,6 +840,7 @@ private void updateUserProfile(String userId, String firstName, String lastName,
             sakaiPerson.setHidePrivateInfo(Boolean.TRUE);
             sakaiPerson.setMobile(mobile);
             sakaiPerson.setOrganizationalUnit(orgUnit);
+            sakaiPerson.setHomePhone(homePhone);
             SakaiPersonManager spm = getSakaiPersonManager();
             if (type.equals("UserMutableType")) {
             	setSakaiSessionUser(userId);
