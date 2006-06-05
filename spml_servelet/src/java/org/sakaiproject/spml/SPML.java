@@ -382,6 +382,10 @@ public class SPML implements SpmlHandler {
 		if (mobile == null ) {
 			mobile ="";
 		}
+		String homeP = (String)req.getAttributeValue(homePhone);
+		if (homeP == null ) {
+			homeP ="";
+		}
 		
 		String orgUnit = (String)req.getAttributeValue(mobilePhone);
 		if (orgUnit == null ) {
@@ -427,7 +431,7 @@ public class SPML implements SpmlHandler {
 		    	
 		    	//String change = changeUserInfo(sID,CN, GN, LN, thisEmail,type, "");
 		    	//String thisProfileAdd = addnewUserProfile(sID,CN,GN,LN,thisEmail,type,passwd, mobile);
-		    	String updated = updateUserIfo(sID,CN,GN,LN,thisEmail,type,passwd, mobile, orgUnit);
+		    	String updated = updateUserIfo(sID,CN,GN,LN,thisEmail,type,passwd, mobile, orgUnit, homeP);
 
 		    }
 		}
@@ -446,6 +450,7 @@ public class SPML implements SpmlHandler {
 			try {
 				String uctCourses =null;
 				uctCourses = (String)req.getAttributeValue(programCode);
+				
 				if ((String)req.getAttributeValue(courseMembership)!=null) {
 					uctCourses = uctCourses + "," +(String)req.getAttributeValue(courseMembership);
 				}
@@ -456,6 +461,10 @@ public class SPML implements SpmlHandler {
 						//System.out.println("got " + uctCourse.length + " courses");
 						for (int ai = 0; ai < uctCourse.length; ai ++ ) {
 							//System.out.println("got a coursecode " + uctCourse[ai]);
+							if (uctCourse[ai].length()==11)
+							{
+								uctCourse[ai]=uctCourse[ai].substring(0,8);
+							}
 							String x = addUserToCourse(CN,uctCourse[ai]);
 						}
 					}
@@ -807,7 +816,7 @@ private synchronized void setSakaiSessionUser(String id) {
 /*
  * update a profile
  */
-private void updateUserProfile(String userId, String firstName, String lastName, String thisEmail, String dept, byte[] jpegPhoto, String type, String mobile, String orgUnit) {
+private void updateUserProfile(String userId, String firstName, String lastName, String thisEmail, String dept, byte[] jpegPhoto, String type, String mobile, String orgUnit, String homePhone) {
     if(userId == null || userId.equals("")){
         LOG.error("Failed to update profile for user: (null or empty).");
         return;
@@ -902,7 +911,7 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 		return "success";
 		
 	}
-	private String	updateUserIfo(String sID,String CN,String GN,String LN,String thisEmail,String type,String  passwd,String  mobile, String orgUnit)
+	private String	updateUserIfo(String sID,String CN,String GN,String LN,String thisEmail,String type,String  passwd,String  mobile, String orgUnit, String homePhone)
 	{
 	
 		//do we need to update the profile?
@@ -917,7 +926,7 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 		//this last one could be null
 		String systemMobile = systemProfile.getMobile();
 		String systemOrgUnit = systemProfile.getOrganizationalUnit();
-		
+		String systemHomeP = systemProfile.getHomePhone();
 		//set up the strings for user update these will be overwriten for changed profiles
 		String modSurname = LN;
 		String modGivenName = GN;
@@ -936,7 +945,7 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 		}
 		if (systemMobile != null) {
 			if (!systemMobile.equals(userProfile.getMobile())) {
-				modMobile = userProfile.getMobile();
+				modMobile = fixPhoneNumber(userProfile.getMobile());
 			}
 		}
 		if (systemOrgUnit != null) {
@@ -944,19 +953,31 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 				modOrgUnit = userProfile.getOrganizationalUnit();
 			}
 		}
+		if (systemHomeP != null) {
+			if (!systemHomeP.equals(userProfile.getHomePhone())) {
+				modHomeP = fixPhoneNumber(userProfile.getHomePhone());
+			}
+		}
 		
 		//set the SystemFields
 		
-		updateUserProfile(CN, GN, LN, thisEmail,"", null, "SystemMutableType", mobile, orgUnit);
+		updateUserProfile(CN, GN, LN, thisEmail,"", null, "SystemMutableType", fixPhoneNumber(mobile), orgUnit, fixPhoneNumber(homeP));
 				
 		//set the userfields
-		updateUserProfile(CN, modGivenName, modSurname, modMail,"", null, "UserMutableType", modMobile, modOrgUnit);
+		updateUserProfile(CN, modGivenName, modSurname, modMail,"", null, "UserMutableType", modMobile, modOrgUnit, modHomeP);
 		
 		
 		//update the user object
 		String change = changeUserInfo(sID,CN, modGivenName, modSurname, modMail,type, "");
 		
 		return "Success";
+		
+	}
+	private String fixPhoneNumber(String number) {
+		number=replace('/','');
+		number = replace('-','');
+		number = replace(' ','');
+		return number;
 		
 	}
 	
