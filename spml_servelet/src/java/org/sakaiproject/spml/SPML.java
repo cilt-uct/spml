@@ -384,14 +384,13 @@ public class SPML implements SpmlHandler {
 		} else {
 			mobile = fixPhoneNumber(mobile);
 		}
-			
-			
 		
+			
 		String homeP = (String)req.getAttributeValue(homePhone);
 		if (homeP == null ) {
 			homeP ="";
 		} else {
-			homeP = fixPhoneNumber((String)req.getAttributeValue(homePhone))
+			homeP = fixPhoneNumber((String)req.getAttributeValue(homePhone));
 		}
 		
 		String orgUnit = (String)req.getAttributeValue(OU);
