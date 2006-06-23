@@ -378,13 +378,20 @@ public class SPML implements SpmlHandler {
 		type = type.toLowerCase();
 		String passwd = "";
 		
-		String mobile = fixPhoneNumber((String)req.getAttributeValue(mobilePhone));
+		String mobile = (String)req.getAttributeValue(mobilePhone);
 		if (mobile == null ) {
 			mobile ="";
+		} else {
+			mobile = fixPhoneNumber(mobile);
 		}
-		String homeP = fixPhoneNumber((String)req.getAttributeValue(homePhone));
+			
+			
+		
+		String homeP = (String)req.getAttributeValue(homePhone);
 		if (homeP == null ) {
 			homeP ="";
+		} else {
+			homeP = fixPhoneNumber((String)req.getAttributeValue(homePhone))
 		}
 		
 		String orgUnit = (String)req.getAttributeValue(OU);
