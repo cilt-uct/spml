@@ -445,42 +445,48 @@ public class SPML implements SpmlHandler {
 		    e.printStackTrace();
 		}
 		
-		//lets try the course membership 
-		// its a comma delimeted list in the uctCourseCode attribute
-		//however it might be null - if so ignore and move on
-		removeUserFromAllCourses(CN);
+		/*
+		 * lets try the course membership
+		 * its a comma delimeted list in the uctCourseCode attribute
+		 * however it might be null - if so ignore and move on
+		 * we should only do this if this is a student 
+		 */
+		if (type.equals("student")) {
+			removeUserFromAllCourses(CN);
 		
-		//only do this if the user is active -otherwiose the student is now no longer registered
-		String status = (String)req.getAttributeValue("uctStudentStatus");
-		if (! status.equals("Inactive")) { 
-			try {
-				String uctCourses =null;
-				uctCourses = (String)req.getAttributeValue(programCode);
-				
-				if ((String)req.getAttributeValue(courseMembership)!=null) {
-					uctCourses = uctCourses + "," +(String)req.getAttributeValue(courseMembership);
-				}
-				uctCourses = uctCourses + "," + (String)req.getAttributeValue("uctFaculty") + "_"+ (String)req.getAttributeValue("eduPersonPrimaryAffiliation");
-				if (uctCourses!=null) {
-					if (uctCourses.length()>0) {
-						String[] uctCourse =  StringUtil.split(uctCourses, ",");
-						//System.out.println("got " + uctCourse.length + " courses");
-						for (int ai = 0; ai < uctCourse.length; ai ++ ) {
-							//System.out.println("got a coursecode " + uctCourse[ai]);
-							if (uctCourse[ai].length()==11)
-							{
-								uctCourse[ai]=uctCourse[ai].substring(0,8);
+		
+			//only do this if the user is active -otherwiose the student is now no longer registered
+			String status = (String)req.getAttributeValue("uctStudentStatus");
+			if (! status.equals("Inactive")) { 
+				try {
+					String uctCourses =null;
+					uctCourses = (String)req.getAttributeValue(programCode);
+					
+					if ((String)req.getAttributeValue(courseMembership)!=null) {
+						uctCourses = uctCourses + "," +(String)req.getAttributeValue(courseMembership);
+					}
+					uctCourses = uctCourses + "," + (String)req.getAttributeValue("uctFaculty") + "_"+ (String)req.getAttributeValue("eduPersonPrimaryAffiliation");
+					if (uctCourses!=null) {
+						if (uctCourses.length()>0) {
+							String[] uctCourse =  StringUtil.split(uctCourses, ",");
+							//System.out.println("got " + uctCourse.length + " courses");
+							for (int ai = 0; ai < uctCourse.length; ai ++ ) {
+								//System.out.println("got a coursecode " + uctCourse[ai]);
+								if (uctCourse[ai].length()==11)
+								{
+									uctCourse[ai]=uctCourse[ai].substring(0,8);
+								}
+								String x = addUserToCourse(CN,uctCourse[ai]);
 							}
-							String x = addUserToCourse(CN,uctCourse[ai]);
 						}
 					}
 				}
-			}
-			catch (Exception e) {
-				//Nothing to do...
-				//error adding users to course
-				//e.printStackTrace();
-				
+				catch (Exception e) {
+					//Nothing to do...
+					//error adding users to course
+					//e.printStackTrace();
+					
+				}
 			}
 		}
 		return response;
