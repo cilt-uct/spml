@@ -54,6 +54,11 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.api.UserIdInvalidException;
+import org.sakaiproject.user.api.UserPermissionException;
+import org.sakaiproject.user.api.UserLockedException;
+import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.util.StringUtil;
 
@@ -97,18 +102,20 @@ public class SPML implements SpmlHandler {
 	//Atribute mappings to map SPML attributes to Sakai attributs
 	
 	
-	//common name will be used for the Sakai eid
-	private String cn = "CN";
-	private String surname = "Surname";
-	private String firstNames = "Given Name";
-	private String email = "Email";
-	private String userType = "eduPersonPrimaryAffiliation";
-	private String courseMembership = "uctCourseCode";
-	private String school ="uctFaculty";
-	private String mobilePhone = "mobile";
-	private String programCode = "uctProgramCode";
-	private String homePhone ="homePhone";
-	private String OU ="OU";
+	/*
+	 *  Field name mappings
+	 */
+	private static final String FIELD_CN = "CN";
+	private static final String FIELD_SURNAME = "Surname";
+	private static final String FIELD_GN = "Given Name";
+	private static final String FIELD_MAIL = "Email";
+	private static final String FIELD_TYPE = "eduPersonPrimaryAffiliation";
+	private static final String FIELD_MEMBERSHIP = "uctCourseCode";
+	private static final String FIELD_SCHOOL ="uctFaculty";
+	private static final String FIELD_MOBILE = "mobile";
+	private static final String FIELD_PROGAM = "uctProgramCode";
+	private static final String FIELD_HOMEPHONE ="homePhone";
+	private static final String FIELD_OU ="OU";
 	
 	//change this to the name of your campus
 	private String spmlCampus = "University of Cape Town";
@@ -119,7 +126,13 @@ public class SPML implements SpmlHandler {
 	private CourseManagementAdministration CourseManagementAdministration = new CourseManagementAdministrationHibernateImpl();
 	private CourseManagementService CourseManagementService = new CourseManagementServiceHibernateImpl();
 	
-	
+	/*
+	 *  Objects that will contain info about this user
+	 */
+	//private UserDirectoryService UserDirectoryService = new UserDirectoryService();
+	private UserEdit thisUser = null;
+	private SakaiPerson userProfile = null;
+	private SakaiPerson systemProfile = null;
 	
 	
     /**
@@ -366,19 +379,19 @@ public class SPML implements SpmlHandler {
 		*/
 		String CN = "";
 		String GN = "";
-		CN =(String)req.getAttributeValue(cn);
+		CN =(String)req.getAttributeValue(FIELD_CN);
 		CN = CN.toLowerCase();
-		GN = (String)req.getAttributeValue(firstNames);
-		String LN = (String)req.getAttributeValue(surname);
+		GN = (String)req.getAttributeValue(FIELD_GN);
+		String LN = (String)req.getAttributeValue(FIELD_SURNAME);
 		LN = LN.trim();
-		String thisEmail = (String)req.getAttributeValue(email);
+		String thisEmail = (String)req.getAttributeValue(FIELD_MAIL);
 		//always lower case
-		String type = (String)req.getAttributeValue(userType);
+		String type = (String)req.getAttributeValue(FIELD_TYPE);
 		//System.out.
 		type = type.toLowerCase();
 		String passwd = "";
 		
-		String mobile = (String)req.getAttributeValue(mobilePhone);
+		String mobile = (String)req.getAttributeValue(FIELD_MOBILE);
 		if (mobile == null ) {
 			mobile ="";
 		} else {
@@ -386,60 +399,136 @@ public class SPML implements SpmlHandler {
 		}
 		
 			
-		String homeP = (String)req.getAttributeValue(homePhone);
+		String homeP = (String)req.getAttributeValue(FIELD_HOMEPHONE);
 		if (homeP == null ) {
 			homeP ="";
 		} else {
-			homeP = fixPhoneNumber((String)req.getAttributeValue(homePhone));
+			homeP = fixPhoneNumber((String)req.getAttributeValue(FIELD_HOMEPHONE));
 		}
 		
-		String orgUnit = (String)req.getAttributeValue(OU);
+		String orgUnit = (String)req.getAttributeValue(FIELD_OU);
 		if (orgUnit == null ) {
 			orgUnit="";
 		}
 		
 		SpmlResponse response = null;
 		try {
+			//rather lets get an object
+			User user = UserDirectoryService.getUserByEid(CN);
+			thisUser = UserDirectoryService.editUser(user.getId());
+		} 
+		catch (UserNotDefinedException e)
+		{
+			//this user doesnt exist create it
+			try {
+				thisUser = UserDirectoryService.addUser(null,CN);
+			}
+			catch (UserIdInvalidException in) {
+				//should throw out here
+				System.out.println("ERROR: invalid username: " + CN);
+			}
+			catch (UserAlreadyDefinedException ex) {
+				//should throw out here
+				System.out.println("ERROR: UserAlready exists: " + CN);
+			}
+			catch (UserPermissionException ep) {
+				//should throw out here
+				System.out.println("ERROR no permision to add user " + e);
+			}
+			
+		}
+		catch (UserPermissionException e) {
+			//should throw out here
+			System.out.println("ERROR no permision " + e);
+		}
+		catch (UserLockedException ul) {
+			//should throw out here
+			System.out.println("ERROR user locked for editing " + CN);
+		}
+		
+		
+		try {
+		    		    
+		    //try get the profile
+			userProfile = getUserProfile(CN,"UserMutableType");
+		    systemProfile = getUserProfile(CN,"SystemMutableType");
+		        
+		    //ok we need to check the rules now
+		    //String updated = updateUserIfo(sID,CN,GN,LN,thisEmail,type,passwd, mobile, orgUnit, homeP);
+			//get the systemt strings
+			String systemSurname = systemProfile.getSurname();
+			String systemGivenName = systemProfile.getGivenName();
+			String systemMail = systemProfile.getMail();
+			//this last one could be null
+			String systemMobile = systemProfile.getMobile();
+			String systemOrgUnit = systemProfile.getOrganizationalUnit();
+			String systemHomeP = systemProfile.getHomePhone();
+			//set up the strings for user update these will be overwriten for changed profiles
+			String modSurname = LN;
+			String modGivenName = GN;
+			String modMail= thisEmail;
+			String modMobile = mobile;
+			String modOrgUnit = orgUnit;
+			String modHomeP = homeP;
+			
+			//if the user surname != system surname only update the system 
+			if (!systemSurname.equals(userProfile.getSurname())) {
+				systemProfile.setSurname(modSurname);
+			} else {
+				userProfile.setSurname(modSurname);
+				systemProfile.setSurname(modSurname);
+				thisUser.setLastName(modSurname);
+			}
+			
+			
+			if (!systemGivenName.equals(userProfile.getGivenName())) {
+				systemProfile.setGivenName(modGivenName);
+			} else {
+				systemProfile.setGivenName(modGivenName);
+				userProfile.setGivenName(modGivenName);
+				thisUser.setFirstName(modGivenName);
+			}
+			
+			if (!systemMail.equals(userProfile.getMail())) {
+				systemProfile.setMail(modMail);
+			} else {
+				systemProfile.setMail(modMail);
+				userProfile.setMail(modMail);
+				thisUser.setEmail(modMail);
+			}
+			
+			if (systemMobile != null) {
+				if (!systemMobile.equals(userProfile.getMobile())) {
+					systemProfile.setMobile(modMobile);
+				} else {
+					systemProfile.setMail(modMail);
+					userProfile.setMail(modMail);
+				}
+			}
+			
+			if (systemOrgUnit != null) {
+				if (!systemOrgUnit.equals(userProfile.getOrganizationalUnit())) {
+					systemProfile.setOrganizationalUnit(modOrgUnit);
+				} else {
+					systemProfile.setOrganizationalUnit(modMail);
+					userProfile.setOrganizationalUnit(modMail);
+				}
+			}
+			if (systemHomeP != null) {
+				if (!systemHomeP.equals(userProfile.getHomePhone())) {
+					systemProfile.setHomePhone(modHomeP);
+				} else {
+					systemProfile.setHomePhone(modHomeP);
+					userProfile.setHomePhone(modHomeP);
+				}
+			}
+			
+			//save the profiles
+			saveProfiles(CN);
+			//save the user
+			UserDirectoryService.commitEdit(thisUser);
 
-
-		    String addeduser = null;
-		    System.out.println("About to add " + CN + " of type " + type + " from " +(String)req.getAttributeValue("uctFaculty"));
-		    addeduser = addNewUser(sID,CN,GN,LN,thisEmail,type,passwd);
 		    
-		    //try populate the profile
-		    
-		    
-		    if (addeduser.equals("success")) {
-		    	
-		    	String profileAdd = addnewUserProfile(sID,CN,GN,LN,thisEmail,type,passwd, fixPhoneNumber(mobile), orgUnit, fixPhoneNumber(homeP));
-		    	if (profileAdd.equals("success")) {
-		    		response = req.createResponse();
-		    	} else {
-			    	response = req.createResponse();
-			    	//response.setError(profileAdd);
-			    	//response.setResult("Profile Failure - account added");		    		
-			    	System.out.println("WARN: "+ this + " profile error" + profileAdd);
-			    	
-			    	
-			    	
-		    	}
-		    	//this user already exists
-		    } else {
-		    	response = req.createResponse();
-		    	//for now were not sending these back to eds
-		    	System.out.println("WARN: "+ this + " adduser error" + addeduser);
-		    	/*
-		    	 *  we need rules and checks to see when we should do this
-		    	 *  if USernutable== Systemnutable updats
-		    	 *  always change sytemMutable 
-		    	 *  
-		    	 */
-		    	
-		    	//String change = changeUserInfo(sID,CN, GN, LN, thisEmail,type, "");
-		    	//String thisProfileAdd = addnewUserProfile(sID,CN,GN,LN,thisEmail,type,passwd, mobile);
-		    	String updated = updateUserIfo(sID,CN,GN,LN,thisEmail,type,passwd, mobile, orgUnit, homeP);
-
-		    }
 		}
 		catch(Exception e) {
 		    e.printStackTrace();
@@ -460,12 +549,12 @@ public class SPML implements SpmlHandler {
 			if (! status.equals("Inactive")) { 
 				try {
 					String uctCourses =null;
-					uctCourses = (String)req.getAttributeValue(programCode);
+					uctCourses = (String)req.getAttributeValue(FIELD_PROGAM);
 					
-					if ((String)req.getAttributeValue(courseMembership)!=null) {
-						uctCourses = uctCourses + "," +(String)req.getAttributeValue(courseMembership);
+					if ((String)req.getAttributeValue(FIELD_MEMBERSHIP)!=null) {
+						uctCourses = uctCourses + "," +(String)req.getAttributeValue(FIELD_MEMBERSHIP);
 					}
-					uctCourses = uctCourses + "," + (String)req.getAttributeValue("uctFaculty") + "_"+ (String)req.getAttributeValue("eduPersonPrimaryAffiliation");
+					uctCourses = uctCourses + "," + (String)req.getAttributeValue(FIELD_SCHOOL) + "_"+ (String)req.getAttributeValue(FIELD_TYPE);
 					if (uctCourses!=null) {
 						if (uctCourses.length()>0) {
 							String[] uctCourse =  StringUtil.split(uctCourses, ",");
@@ -543,11 +632,11 @@ public class SPML implements SpmlHandler {
 		    Modification mod = (Modification)mods.get(i);
 		    LOG.info(mod.getName());
 		    //map the SPML names to their atributes
-		    if (mod.getName().equals(firstNames)) {
+		    if (mod.getName().equals(FIELD_GN)) {
 			GN = (String)mod.getValue();
-		    } else if (mod.getName().equals(surname)) {
+		    } else if (mod.getName().equals(FIELD_SURNAME)) {
 			LN = (String)mod.getValue();
-		    } else if (mod.getName().equals(email)) {
+		    } else if (mod.getName().equals(FIELD_MAIL)) {
 			thisEmail = (String)mod.getValue();
 		    }
 
@@ -568,14 +657,11 @@ public class SPML implements SpmlHandler {
 		    //we need to login
 		    //this will need to be changed - login can be sent via attributes to the object?
 		String sID = login("admin","admin");
-		String addResp = changeUserInfo(sID, CN, GN, LN, thisEmail, type, passwd);
-		if (addResp.equals("success")) {
+		//this methd no longer exits
+		//String addResp = changeUserInfo(sID, CN, GN, LN, thisEmail, type, passwd);
+		
 		    response = req.createResponse();
-		} else {
-		    response = req.createResponse();
-		    response.setError(addResp);
-		    response.setResult("failure");
-		}
+		
 	    }
 	    catch(Exception e) {
 		e.printStackTrace();
@@ -656,25 +742,7 @@ private String addNewUser( String sessionid, String userid, String firstname, St
 	}
 	return "success";
 }
-/*
- *  populate a users profile
- */
-private String addnewUserProfile(String sessionid, String userid, String firstname, String lastname, String thisEmail, String type, String password, String mobile, String orgUnit, String homeP) throws Exception 
-{
-	LOG.info(this + " creating profile for "+ userid + " ");
-	String ret = "";
-	try {
-		//we need both a user editable and a system profile
-		updateUserProfile(userid, firstname, lastname, thisEmail,"", null, "UserMutableType", mobile, orgUnit, homeP);
-		updateUserProfile(userid, firstname, lastname, thisEmail,"", null, "SystemMutableType", mobile, orgUnit, homeP);
-		return "success";		
-	}
-	catch (Exception e) {
-		e.printStackTrace();
-		return e.getClass().getName() + " : " + e.getMessage();
-	}
-	//return ret;
-}
+
 private Session establishSession(String id) throws Exception
 {
 	Session s = SessionManager.getSession(id);
@@ -719,28 +787,6 @@ public String login(String id,String pw) {
 	return "usernull";
 }
 
-public String changeUserInfo(String sessionId, String userid, String firstname, String lastname, String thisEmail, String type, String password) 
-{
-
-    LOG.info("Editing info for " + userid + "," + firstname + "," + lastname + "," + thisEmail + "," + type +"," + password);
-	try {
-		//type is always lower case
-		
-	    UserEdit userEdit = null;
-		userEdit = UserDirectoryService.editUser(userid);
-		userEdit.setFirstName(firstname);
-		userEdit.setLastName(lastname);
-		userEdit.setEmail(thisEmail);
-		userEdit.setType(type);
-		userEdit.setPassword(password);
-		UserDirectoryService.commitEdit(userEdit);
-	
-	}
-	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
-	}
-	return "success";
-}
 
 
 /*
@@ -760,21 +806,6 @@ private SakaiPerson getUserProfile(String userId, String type) {
 	
     SakaiPersonManager spm = getSakaiPersonManager();
     
-    //lets see what happens without this
-    AgentManager agentGroupManager = new AgentManager();
-    Agent agent = null;
-    /*
-    try{
-    	//agentGroupManager = getAgentGroupManager();
-    	User user = UserDirectoryService.getUserByEid(userId);
-    	agent = agentGroupManager.getAgent(user.getId());
-    }catch(Exception e1){
-        LOG.error("Failed to get agentgroupManager " + userId + ": " + e1);
-        e1.printStackTrace();
-        return null;
-    }
-    
-    */
     Type _type = null;
     if (type.equals("UserMutableType")) {
     	setSakaiSessionUser(userId); // switch to that user's session
@@ -783,20 +814,21 @@ private SakaiPerson getUserProfile(String userId, String type) {
     	 _type = spm.getSystemMutableType();
     }
     SakaiPerson sakaiPerson = null;
-    //if(agent != null){
-        try{
-        	User user = UserDirectoryService.getUserByEid(userId);
-            sakaiPerson = spm.getSakaiPerson(user.getId(), _type);
-            // create profile if it doesn't exist
-            if(sakaiPerson == null){
-                sakaiPerson = spm.create(user.getId(), userId, _type);
-                LOG.info(this + "creating profile for user " + userId + " of type " + _type);
+       	try
+       {	
+       		User user = UserDirectoryService.getUserByEid(userId);
+       		sakaiPerson = spm.getSakaiPerson(user.getId(), _type);
+       		// create profile if it doesn't exist
+       		if(sakaiPerson == null){
+       			sakaiPerson = spm.create(user.getId(), userId, _type);
+       			LOG.info(this + "creating profile for user " + userId + " of type " + _type);
             }
-        }catch(Exception e){
+        }	
+       	catch(Exception e){
             LOG.error("Unknown error occurred in getUserProfile(" + userId + "): " + e.getMessage());
             e.printStackTrace();
         }
-    //}
+    
     
     if (type.equals("UserMutableType")) {
     	//return to the admin user
@@ -825,52 +857,6 @@ private synchronized void setSakaiSessionUser(String id) {
 
 
 
-/*
- * update a profile
- */
-private void updateUserProfile(String userId, String firstName, String lastName, String thisEmail, String dept, byte[] jpegPhoto, String type, String mobile, String orgUnit, String homePhone) {
-    if(userId == null || userId.equals("")){
-        LOG.error("Failed to update profile for user: (null or empty).");
-        return;
-    }
-    
-    System.out.println("Updating profile for " + userId + "of type: " + type);
-    userId = userId.toLowerCase();
-    SakaiPerson sakaiPerson = getUserProfile(userId, type);
-    System.out.println("got profile " + sakaiPerson);
-    if(sakaiPerson != null){
-        try{
-        	
-            //sakaiPerson.setJpegPhoto(jpegPhoto);
-            sakaiPerson.setSystemPicturePreferred(Boolean.FALSE);
-            sakaiPerson.setGivenName(firstName);
-            sakaiPerson.setSurname(lastName);
-            sakaiPerson.setDisplayName(firstName + " " + lastName);
-            sakaiPerson.setMail(thisEmail);
-            sakaiPerson.setCampus(spmlCampus);
-            sakaiPerson.setDepartmentNumber(dept);
-            sakaiPerson.setHidePrivateInfo(Boolean.TRUE);
-            sakaiPerson.setMobile(mobile);
-            sakaiPerson.setOrganizationalUnit(orgUnit);
-            sakaiPerson.setHomePhone(homePhone);
-            SakaiPersonManager spm = getSakaiPersonManager();
-            if (type.equals("UserMutableType")) {
-            	setSakaiSessionUser(userId);
-            }
-            spm.save(sakaiPerson);
-                       
-            profilesUpdated++;
-            if (type.equals("UserMutableType")) {
-            	setSakaiSessionUser(spmlUser);  // get back the admin session
-            }
-        }catch(IllegalAccessError e){
-            LOG.error("Failed to update profile for user " + userId + " - no permissions: " + e.getMessage() + "  by " + sakaiSession.getUserEid());
-        }catch(Exception e){
-            LOG.error("Failed to update profile for user " + userId + ": " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-} 
 
 	/*
 	 * Log the request
@@ -924,68 +910,7 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 		return "success";
 		
 	}
-	private String	updateUserIfo(String sID,String CN,String GN,String LN,String thisEmail,String type,String  passwd,String  mobile, String orgUnit, String homePhone)
-	{
-	
-		//do we need to update the profile?
-		//first get the profile
-		SakaiPerson systemProfile = getUserProfile(CN.toLowerCase(), "systemMutableType");
-		SakaiPerson userProfile = getUserProfile(CN.toLowerCase(), "UserMutableType");
-		
-		//get the systemt strings
-		String systemSurname = systemProfile.getSurname();
-		String systemGivenName = systemProfile.getGivenName();
-		String systemMail = systemProfile.getMail();
-		//this last one could be null
-		String systemMobile = systemProfile.getMobile();
-		String systemOrgUnit = systemProfile.getOrganizationalUnit();
-		String systemHomeP = systemProfile.getHomePhone();
-		//set up the strings for user update these will be overwriten for changed profiles
-		String modSurname = LN;
-		String modGivenName = GN;
-		String modMail= thisEmail;
-		String modMobile = mobile;
-		String modOrgUnit = orgUnit;
-		String modHomeP = homePhone;
-		if (!systemSurname.equals(userProfile.getSurname())) {
-			modSurname = userProfile.getSurname();
-		}
-		if (!systemGivenName.equals(userProfile.getGivenName())) {
-			modGivenName = userProfile.getGivenName();
-		}		
-		if (!systemMail.equals(userProfile.getMail())) {
-			modMail = userProfile.getMail();
-		}
-		if (systemMobile != null) {
-			if (!systemMobile.equals(userProfile.getMobile())) {
-				modMobile = fixPhoneNumber(userProfile.getMobile());
-			}
-		}
-		if (systemOrgUnit != null) {
-			if (!systemOrgUnit.equals(userProfile.getOrganizationalUnit())) {
-				modOrgUnit = userProfile.getOrganizationalUnit();
-			}
-		}
-		if (systemHomeP != null) {
-			if (!systemHomeP.equals(userProfile.getHomePhone())) {
-				modHomeP = fixPhoneNumber(userProfile.getHomePhone());
-			}
-		}
-		
-		//set the SystemFields
-		
-		updateUserProfile(CN, GN, LN, thisEmail,"", null, "SystemMutableType", fixPhoneNumber(mobile), orgUnit, fixPhoneNumber(homePhone));
-				
-		//set the userfields
-		updateUserProfile(CN, modGivenName, modSurname, modMail,"", null, "UserMutableType", modMobile, modOrgUnit, modHomeP);
-		
-		
-		//update the user object
-		String change = changeUserInfo(sID,CN, modGivenName, modSurname, modMail,type, "");
-		
-		return "Success";
-		
-	}
+
 	private String fixPhoneNumber(String number) {
 		number=number.replaceAll("/","");
 		number = number.replaceAll("-","");
@@ -993,5 +918,14 @@ private void updateUserProfile(String userId, String firstName, String lastName,
 		return number;
 		
 	}
-	
+	private void saveProfiles(String CN) {
+		//save the profiles
+		sakaiPersonManager = getSakaiPersonManager();
+		sakaiPersonManager.save(systemProfile);
+		setSakaiSessionUser(CN);
+        sakaiPersonManager.save(userProfile);
+        setSakaiSessionUser(spmlUser);  // get back the admin session
+        
+		
+	}
 } //end class
