@@ -119,8 +119,8 @@ public class SPML implements SpmlHandler {
 	
 	//change this to the name of your campus
 	private String spmlCampus = "University of Cape Town";
-	private String spmlUser = "spmluser";
-	private String spmlPassword = "spmlpass";
+	private static final String SPML_USER = "spmluser";
+	private static final String SPML_PASSWORD = "spmlpass";
 	private String courseYear = "2006";
 	
 	private CourseManagementAdministration CourseManagementAdministration = new CourseManagementAdministrationHibernateImpl();
@@ -299,7 +299,7 @@ public class SPML implements SpmlHandler {
 	    //we need to login
 	    //this will need to be changed - login can be sent via attributes to the object?
 	    System.out.println("About to login");
-	    sID = login(spmlUser,spmlPassword);
+	    sID = login(SPML_USER,SPML_PASSWORD);
 	    //get the session
 	    
 	    //HttpServletRequest request = (HttpServletRequest) ComponentManager.get(HttpServletRequest.class.getName());
@@ -783,6 +783,8 @@ public String login(String id,String pw) {
 			sakaiSession.setUserEid(id);
 			return sakaiSession.getId();
 		}
+	} else {
+		System.write.println(this + "login failed for " + id + "using " + password);
 	}
 	return "usernull";
 }
@@ -924,7 +926,7 @@ private synchronized void setSakaiSessionUser(String id) {
 		sakaiPersonManager.save(systemProfile);
 		setSakaiSessionUser(CN);
         sakaiPersonManager.save(userProfile);
-        setSakaiSessionUser(spmlUser);  // get back the admin session
+        setSakaiSessionUser(SPML_USER);  // get back the admin session
         
 		
 	}
