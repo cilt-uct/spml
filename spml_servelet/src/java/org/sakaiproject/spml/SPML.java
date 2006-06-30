@@ -415,6 +415,7 @@ public class SPML implements SpmlHandler {
 		try {
 			//rather lets get an object
 			User user = UserDirectoryService.getUserByEid(CN);
+			System.out.println(this + " Got user about to get edit");
 			thisUser = UserDirectoryService.editUser(user.getId());
 		} 
 		catch (UserNotDefinedException e)
@@ -781,6 +782,7 @@ public String login(String id,String pw) {
 		{
 			sakaiSession.setUserId(user.getId());
 			sakaiSession.setUserEid(id);
+			System.out.println("Logged in as user " + id + "with internal id of " + user.getId());
 			return sakaiSession.getId();
 		}
 	} else {
