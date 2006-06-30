@@ -784,7 +784,7 @@ public String login(String id,String pw) {
 			return sakaiSession.getId();
 		}
 	} else {
-		System.write.println(this + "login failed for " + id + "using " + password);
+		System.out.println(this + "login failed for " + id + "using " + pw);
 	}
 	return "usernull";
 }
@@ -834,7 +834,7 @@ private SakaiPerson getUserProfile(String userId, String type) {
     
     if (type.equals("UserMutableType")) {
     	//return to the admin user
-    	setSakaiSessionUser(spmlUser);
+    	setSakaiSessionUser(SPML_USER);
     }
     
     return sakaiPerson;
