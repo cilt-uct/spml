@@ -309,7 +309,13 @@ public class SPML implements SpmlHandler {
 	    	
 	    if (req instanceof AddRequest) {
 	    	AddRequest uctRequest = (AddRequest)req;
-	    	resp = spmlAddRequest(uctRequest);
+	    	try {
+	    		resp = spmlAddRequest(uctRequest);
+	    	}
+	    	catch (Exception e) {
+	    		e.printStackTrace();
+	    		
+	    	}
 	    } else if (req instanceof ModifyRequest) {
 	    	LOG.info("SPMLRouter identified Modifyreq");
 	    	ModifyRequest uctRequest = (ModifyRequest)req;
@@ -362,7 +368,7 @@ public class SPML implements SpmlHandler {
  *
 */    
 
-   	public SpmlResponse spmlAddRequest(AddRequest req) {
+   	public SpmlResponse spmlAddRequest(AddRequest req)  throws SpmlException {
 		LOG.info("SPML Webservice: Receiveid AddRequest "+req);
 		//LOG.info(req.toXml());
 		this.logSPMLRequest("Addrequest",req.toXml());
@@ -437,6 +443,7 @@ public class SPML implements SpmlHandler {
 			catch (UserPermissionException ep) {
 				//should throw out here
 				System.out.println("ERROR no permision to add user " + e);
+				throwErrors(null);
 			}
 			
 		}
