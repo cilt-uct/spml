@@ -836,7 +836,9 @@ private SakaiPerson getUserProfile(String userId, String type) {
     	//return to the admin user
     	setSakaiSessionUser(SPML_USER);
     }
-    
+    if (type.equals("UserMutableType")) {
+    	setSakaiSessionUser(SPML_USER);
+    }
     return sakaiPerson;
 }
 
