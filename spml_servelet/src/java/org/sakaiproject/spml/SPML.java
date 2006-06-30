@@ -414,9 +414,11 @@ public class SPML implements SpmlHandler {
 		SpmlResponse response = null;
 		try {
 			//rather lets get an object
+			
 			User user = UserDirectoryService.getUserByEid(CN);
 			System.out.println(this + " Got user about to get edit");
 			thisUser = UserDirectoryService.editUser(user.getId());
+			System.out.println(this + " Got UserEdit");
 		} 
 		catch (UserNotDefinedException e)
 		{
@@ -451,9 +453,11 @@ public class SPML implements SpmlHandler {
 		try {
 		    		    
 		    //try get the profile
+			System.out.println("About to get the profiles");
 			userProfile = getUserProfile(CN,"UserMutableType");
+			System.out.println("Got the user profile");
 		    systemProfile = getUserProfile(CN,"SystemMutableType");
-		        
+		    System.out.println("Got the system profile");    
 		    //ok we need to check the rules now
 		    //String updated = updateUserIfo(sID,CN,GN,LN,thisEmail,type,passwd, mobile, orgUnit, homeP);
 			//get the systemt strings
