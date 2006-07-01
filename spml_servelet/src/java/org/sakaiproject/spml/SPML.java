@@ -421,15 +421,16 @@ public class SPML implements SpmlHandler {
 		try {
 			//rather lets get an object
 			
+			
 			User user = UserDirectoryService.getUserByEid(CN);
-			System.out.println(this + " Got user about to get edit");
-			thisUser = UserDirectoryService.editUser(user.getId());
+			System.out.println(this + " this user useredit right is " + UserDirectoryService.allowAddUser());
 			System.out.println(this + " Got UserEdit");
 		} 
 		catch (UserNotDefinedException e)
 		{
 			//this user doesnt exist create it
 			try {
+				System.out.println("About to try adding the user "+ CN);
 				thisUser = UserDirectoryService.addUser(null,CN);
 			}
 			catch (UserIdInvalidException in) {
@@ -468,53 +469,79 @@ public class SPML implements SpmlHandler {
 		    //ok we need to check the rules now
 		    //String updated = updateUserIfo(sID,CN,GN,LN,thisEmail,type,passwd, mobile, orgUnit, homeP);
 			//get the systemt strings
-			String systemSurname = systemProfile.getSurname();
-			String systemGivenName = systemProfile.getGivenName();
-			String systemMail = systemProfile.getMail();
+		    
+		    
+		    if (systemProfile.getSurname()!=null) { 
+		    	String systemSurname = systemProfile.getSurname();
+		    	String modSurname = LN;		
+		    	if (!systemSurname.equals(userProfile.getSurname())) {
+		    		systemProfile.setSurname(modSurname);
+		    	} else {
+		    		userProfile.setSurname(modSurname);
+		    		systemProfile.setSurname(modSurname);
+		    		thisUser.setLastName(modSurname);
+		    	}	
+		    } else {
+	    		userProfile.setSurname(LN);
+	    		systemProfile.setSurname(LN);
+	    		thisUser.setLastName(LN); 	
+		    }
+		    
+		    if (systemProfile.getGivenName()!=null) {
+			    String systemGivenName = systemProfile.getGivenName();
+				String modGivenName = GN;	
+				if (!systemGivenName.equals(userProfile.getGivenName())) {
+					systemProfile.setGivenName(modGivenName);
+				} else {
+					systemProfile.setGivenName(modGivenName);
+					userProfile.setGivenName(modGivenName);
+					thisUser.setFirstName(modGivenName);
+				}
+		    } else {
+				systemProfile.setGivenName(GN);
+				userProfile.setGivenName(GN);
+				thisUser.setFirstName(GN);
+		    }
+
+		    if (systemProfile.getMail()!=null) {
+		    	String systemMail = systemProfile.getMail();
+				String modMail= thisEmail;
+				if (!systemMail.equals(userProfile.getMail())) {
+					systemProfile.setMail(modMail);
+				} else {
+					systemProfile.setMail(modMail);
+					userProfile.setMail(modMail);
+					thisUser.setEmail(modMail);
+				}
+				
+		    } else {
+		    	systemProfile.setMail(thisEmail);
+				userProfile.setMail(thisEmail);
+				thisUser.setEmail(thisEmail);
+		    }
 			//this last one could be null
 			String systemMobile = systemProfile.getMobile();
 			String systemOrgUnit = systemProfile.getOrganizationalUnit();
 			String systemHomeP = systemProfile.getHomePhone();
 			//set up the strings for user update these will be overwriten for changed profiles
-			String modSurname = LN;
-			String modGivenName = GN;
-			String modMail= thisEmail;
+			
+					
 			String modMobile = mobile;
 			String modOrgUnit = orgUnit;
 			String modHomeP = homeP;
 			
 			//if the user surname != system surname only update the system 
-			if (!systemSurname.equals(userProfile.getSurname())) {
-				systemProfile.setSurname(modSurname);
-			} else {
-				userProfile.setSurname(modSurname);
-				systemProfile.setSurname(modSurname);
-				thisUser.setLastName(modSurname);
-			}
+
 			
 			
-			if (!systemGivenName.equals(userProfile.getGivenName())) {
-				systemProfile.setGivenName(modGivenName);
-			} else {
-				systemProfile.setGivenName(modGivenName);
-				userProfile.setGivenName(modGivenName);
-				thisUser.setFirstName(modGivenName);
-			}
-			
-			if (!systemMail.equals(userProfile.getMail())) {
-				systemProfile.setMail(modMail);
-			} else {
-				systemProfile.setMail(modMail);
-				userProfile.setMail(modMail);
-				thisUser.setEmail(modMail);
-			}
-			
+
 			if (systemMobile != null) {
 				if (!systemMobile.equals(userProfile.getMobile())) {
 					systemProfile.setMobile(modMobile);
 				} else {
-					systemProfile.setMail(modMail);
-					userProfile.setMail(modMail);
+					systemProfile.setMail(modMobile);
+					userProfile.setMail(modMobile);
+					
 				}
 			}
 			
@@ -522,8 +549,8 @@ public class SPML implements SpmlHandler {
 				if (!systemOrgUnit.equals(userProfile.getOrganizationalUnit())) {
 					systemProfile.setOrganizationalUnit(modOrgUnit);
 				} else {
-					systemProfile.setOrganizationalUnit(modMail);
-					userProfile.setOrganizationalUnit(modMail);
+					systemProfile.setOrganizationalUnit(modOrgUnit);
+					userProfile.setOrganizationalUnit(modOrgUnit);
 				}
 			}
 			if (systemHomeP != null) {
@@ -793,6 +820,7 @@ public String login(String id,String pw) {
 		{
 			sakaiSession.setUserId(user.getId());
 			sakaiSession.setUserEid(id);
+			SessionManager.setCurrentSession(sakaiSession);
 			System.out.println("Logged in as user " + id + "with internal id of " + user.getId());
 			return sakaiSession.getId();
 		}
