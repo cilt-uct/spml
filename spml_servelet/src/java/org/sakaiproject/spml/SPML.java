@@ -416,25 +416,34 @@ public class SPML implements SpmlHandler  {
 			catch (UserIdInvalidException in) {
 				//should throw out here
 				LOG.error("ERROR: invalid username: " + CN);
+				response.setError("invalid username");
+				return response;
 			}
 			catch (UserAlreadyDefinedException ex) {
 				//should throw out here
 				LOG.error("ERROR: UserAlready exists: " + CN);
+				response.setError("user already exists");
+				return response;
 			}
 			catch (UserPermissionException ep) {
 				//should throw out here
 				LOG.error("ERROR no permision to add user " + e);
-				throwErrors(null);
+				response.setError("No permission to add user");
+				return response;
 			}
 			
 		}
 		catch (UserPermissionException e) {
 			//should throw out here
 			System.out.println("ERROR no permision " + e);
+			response.setError("No permission to edit user");
+			return response;
 		}
 		catch (UserLockedException ul) {
 			//should throw out here
 			System.out.println("ERROR user locked for editing " + CN);
+			response.setError("User is locked for editing");
+			return response;
 		}
 		
 		
