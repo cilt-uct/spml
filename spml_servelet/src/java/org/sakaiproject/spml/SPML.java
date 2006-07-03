@@ -366,6 +366,7 @@ public class SPML implements SpmlHandler  {
 		String GN = "";
 		CN =(String)req.getAttributeValue(FIELD_CN);
 		
+		SpmlResponse response = req.createResponse();
 		//we have had 1 null CN so this should be thrown
 		if (CN == null) {
 			LOG.error("ERROR: invalid username: " + CN);
@@ -406,7 +407,7 @@ public class SPML implements SpmlHandler  {
 			orgUnit="";
 		}
 		
-		SpmlResponse response = req.createResponse();
+		
 		try {
 			//rather lets get an object
 			
