@@ -450,7 +450,7 @@ public class SPML implements SpmlHandler  {
 		    //String updated = updateUserIfo(sID,CN,GN,LN,thisEmail,type,passwd, mobile, orgUnit, homeP);
 			//get the systemt strings
 		    
-		    
+
 		    if (systemProfile.getSurname()!=null) { 
 		    	String systemSurname = systemProfile.getSurname();
 		    	String modSurname = LN;		
@@ -499,6 +499,14 @@ public class SPML implements SpmlHandler  {
 				userProfile.setMail(thisEmail);
 				thisUser.setEmail(thisEmail);
 		    }
+		    
+		    if (type != null ) {
+		    	thisUser.setType(type);
+		    	systemProfile.setPrimaryAffiliation(type);
+		    	userProfile.setPrimaryAffiliation(type);
+		    }
+		    
+		    
 			//this last one could be null
 			String systemMobile = systemProfile.getMobile();
 			String systemOrgUnit = systemProfile.getOrganizationalUnit();
