@@ -428,7 +428,6 @@ public class SPML implements SpmlHandler  {
 			}
 			
 		}
-		/*
 		catch (UserPermissionException e) {
 			//should throw out here
 			System.out.println("ERROR no permision " + e);
@@ -437,7 +436,7 @@ public class SPML implements SpmlHandler  {
 			//should throw out here
 			System.out.println("ERROR user locked for editing " + CN);
 		}
-		*/
+		
 		
 		try {
 		    		    
