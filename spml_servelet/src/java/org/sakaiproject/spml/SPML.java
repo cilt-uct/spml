@@ -562,7 +562,7 @@ public class SPML implements SpmlHandler  {
 				}
 			} else if (systemMobile == null && modMobile != null) {
 				systemProfile.setMail(modMobile);
-				userProfile.setMail(modMobile)
+				userProfile.setMail(modMobile);
 			}
 			
 			if (systemOrgUnit != null) {
