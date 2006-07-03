@@ -532,6 +532,9 @@ public class SPML implements SpmlHandler  {
 		    	userProfile.setPrimaryAffiliation(type);
 		    }
 		    
+		    //set the profile Common name
+		    systemProfile.setCommonName(CN);
+		    userProfile.setCommonName(CN);
 		    
 			//this last one could be null
 			String systemMobile = systemProfile.getMobile();
@@ -557,6 +560,9 @@ public class SPML implements SpmlHandler  {
 					userProfile.setMail(modMobile);
 					
 				}
+			} elseif (systemMobile == null && modMobile != null) {
+				systemProfile.setMail(modMobile);
+				userProfile.setMail(modMobile)
 			}
 			
 			if (systemOrgUnit != null) {
@@ -566,7 +572,14 @@ public class SPML implements SpmlHandler  {
 					systemProfile.setOrganizationalUnit(modOrgUnit);
 					userProfile.setOrganizationalUnit(modOrgUnit);
 				}
+			} elseif (systemOrgUnit == null && modOrgUnit != null) {
+				systemProfile.setOrganizationalUnit(modOrgUnit);
+				userProfile.setOrganizationalUnit(modOrgUnit);				
 			}
+			
+			
+			
+			
 			if (systemHomeP != null) {
 				if (!systemHomeP.equals(userProfile.getHomePhone())) {
 					systemProfile.setHomePhone(modHomeP);
@@ -574,6 +587,9 @@ public class SPML implements SpmlHandler  {
 					systemProfile.setHomePhone(modHomeP);
 					userProfile.setHomePhone(modHomeP);
 				}
+			} elseif (systemHomeP == null && modHomeP != null) {
+				systemProfile.setHomePhone(modHomeP);
+				userProfile.setHomePhone(modHomeP);				
 			}
 			
 			//save the profiles
