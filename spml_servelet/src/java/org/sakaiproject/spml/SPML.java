@@ -91,13 +91,10 @@ import org.sakaiproject.api.common.type.UuidTypeResolvable;
 import org.sakaiproject.coursemanagement.api.*;
 import org.sakaiproject.coursemanagement.impl.*;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-//to get the usage session
-//import org.sakaiproject.service.framework.session.*;
-
-//import javax.xml.parsers;
 
 
-public class SPML implements SpmlHandler {
+
+public class SPML extends HttpServlet implements SpmlHandler  {
 	
 	//Atribute mappings to map SPML attributes to Sakai attributs
 	
@@ -286,19 +283,19 @@ public class SPML implements SpmlHandler {
     //////////////////////////////////////////////////////////////////////
 
 
+    
     public SpmlResponse doRequest(SpmlRequest req) {
 	
 	LOG.info("SPMLRouter recieved req " + req + " (id) ");
 	profilesUpdated = 0;
 	SpmlResponse resp = req.createResponse();
-	
-	
+		
 	//this.logSPMLRequest("Unknown",req.toXml());
 	try {
 
 	    //we need to login
 	    //this will need to be changed - login can be sent via attributes to the object?
-	    System.out.println("About to login");
+	    LOG.debug("About to login");
 	    sID = login(SPML_USER,SPML_PASSWORD);
 	    //get the session
 	    
@@ -423,27 +420,27 @@ public class SPML implements SpmlHandler {
 			
 			
 			User user = UserDirectoryService.getUserByEid(CN);
-			System.out.println(this + " this user useredit right is " + UserDirectoryService.allowAddUser());
-			System.out.println(this + " Got UserEdit");
+			LOG.debug(this + " this user useredit right is " + UserDirectoryService.allowAddUser());
+			LOG.debug(this + " Got UserEdit");
 		} 
 		catch (UserNotDefinedException e)
 		{
 			//this user doesnt exist create it
 			try {
-				System.out.println("About to try adding the user "+ CN);
+				LOG.debug("About to try adding the user "+ CN);
 				thisUser = UserDirectoryService.addUser(null,CN);
 			}
 			catch (UserIdInvalidException in) {
 				//should throw out here
-				System.out.println("ERROR: invalid username: " + CN);
+				LOG.error("ERROR: invalid username: " + CN);
 			}
 			catch (UserAlreadyDefinedException ex) {
 				//should throw out here
-				System.out.println("ERROR: UserAlready exists: " + CN);
+				LOG.error("ERROR: UserAlready exists: " + CN);
 			}
 			catch (UserPermissionException ep) {
 				//should throw out here
-				System.out.println("ERROR no permision to add user " + e);
+				LOG.error("ERROR no permision to add user " + e);
 				throwErrors(null);
 			}
 			
@@ -462,11 +459,11 @@ public class SPML implements SpmlHandler {
 		try {
 		    		    
 		    //try get the profile
-			System.out.println("About to get the profiles");
+			LOG.debug("About to get the profiles");
 			userProfile = getUserProfile(CN,"UserMutableType");
-			System.out.println("Got the user profile");
+			LOG.debug("Got the user profile");
 		    systemProfile = getUserProfile(CN,"SystemMutableType");
-		    System.out.println("Got the system profile");    
+		    LOG.debug("Got the system profile");    
 		    //ok we need to check the rules now
 		    //String updated = updateUserIfo(sID,CN,GN,LN,thisEmail,type,passwd, mobile, orgUnit, homeP);
 			//get the systemt strings
@@ -643,7 +640,7 @@ public class SPML implements SpmlHandler {
 	       nspmDistributionPassword
 	    */
 	    String CN = (String)req.getIdentifierString();
-	    System.out.println("got mods for " + CN);
+	    LOG.info("got mods for " + CN);
 	    //we now need to find what has changed 
 	    //first we need the exisiting values
 	    UserDirectoryService userDir = new UserDirectoryService();
@@ -661,7 +658,7 @@ public class SPML implements SpmlHandler {
 		type = thisUser.getType();
 	    }
 	    catch (Exception e) {
-		System.out.println(e);
+	    	LOG.error(e);
 	    }
 	    try {
 		List mods = req.getModifications();
@@ -822,11 +819,11 @@ public String login(String id,String pw) {
 			sakaiSession.setUserId(user.getId());
 			sakaiSession.setUserEid(id);
 			SessionManager.setCurrentSession(sakaiSession);
-			System.out.println("Logged in as user " + id + "with internal id of " + user.getId());
+			LOG.debug("Logged in as user " + id + "with internal id of " + user.getId());
 			return sakaiSession.getId();
 		}
 	} else {
-		System.out.println(this + "login failed for " + id + "using " + pw);
+		LOG.error(this + "login failed for " + id + "using " + pw);
 	}
 	return "usernull";
 }
