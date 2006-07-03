@@ -402,6 +402,7 @@ public class SPML implements SpmlHandler  {
 			
 			
 			User user = UserDirectoryService.getUserByEid(CN);
+			thisUser = UserDirectoryService.editUser(user.getId());
 			LOG.debug(this + " this user useredit right is " + UserDirectoryService.allowAddUser());
 			LOG.debug(this + " Got UserEdit");
 		} 
