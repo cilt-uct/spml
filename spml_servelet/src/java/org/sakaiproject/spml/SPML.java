@@ -556,13 +556,13 @@ public class SPML implements SpmlHandler  {
 				if (!systemMobile.equals(userProfile.getMobile())) {
 					systemProfile.setMobile(modMobile);
 				} else {
-					systemProfile.setMail(modMobile);
-					userProfile.setMail(modMobile);
+					systemProfile.setMobile(modMobile);
+					userProfile.setMobile(modMobile);
 					
 				}
 			} else if (systemMobile == null && modMobile != null) {
-				systemProfile.setMail(modMobile);
-				userProfile.setMail(modMobile);
+				systemProfile.setMobile(modMobile);
+				userProfile.setMobile(modMobile);
 			}
 			
 			if (systemOrgUnit != null) {
