@@ -442,7 +442,9 @@ public class SPML implements SpmlHandler  {
 		catch (UserLockedException ul) {
 			//should throw out here
 			System.out.println("ERROR user locked for editing " + CN);
+			//response = new SPMLResponse();
 			response.setError("User is locked for editing");
+			response.setResult("failure")
 			return response;
 		}
 		
