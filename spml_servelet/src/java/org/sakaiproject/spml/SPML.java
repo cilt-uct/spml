@@ -396,7 +396,7 @@ public class SPML implements SpmlHandler  {
 			orgUnit="";
 		}
 		
-		SpmlResponse response = null;
+		SpmlResponse response = req.createResponse();
 		try {
 			//rather lets get an object
 			
