@@ -94,7 +94,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 
 
-public class SPML extends HttpServlet implements SpmlHandler  {
+public class SPML implements SpmlHandler  {
 	
 	//Atribute mappings to map SPML attributes to Sakai attributs
 	
