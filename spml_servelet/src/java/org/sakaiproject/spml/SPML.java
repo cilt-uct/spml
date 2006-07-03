@@ -255,25 +255,7 @@ public class SPML implements SpmlHandler  {
         }
         return m_sqlService;
     }
-    /*
-    public AgentManager getAgentGroupManager() {
-    	
-        if(agentGroupManager == null){
-        	try 
-        	{
-        		System.out.println("Getting agentgroupmanager");
-        		agentGroupManager = (AgentManager) ComponentManager.get(AgentManager.class.getName());
-        		System.out.println("Got agentgroupmanager " + agentGroupManager);
-        	}
-        	catch (Exception e)
-        	{
-        		e.printStackTrace();
-        	}
-        }
-        return agentGroupManager;
-    } 
-    */
-    
+   
 
 
     //////////////////////////////////////////////////////////////////////
