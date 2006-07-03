@@ -365,7 +365,17 @@ public class SPML implements SpmlHandler  {
 		String CN = "";
 		String GN = "";
 		CN =(String)req.getAttributeValue(FIELD_CN);
+		
+		//we have had 1 null CN so this should be thrown
+		if (CN == null) {
+			LOG.error("ERROR: invalid username: " + CN);
+			response.setError("invalid username");
+			response.setResult("failure");
+			return response;			
+			
+		}
 		CN = CN.toLowerCase();
+		
 		GN = (String)req.getAttributeValue(FIELD_GN);
 		String LN = (String)req.getAttributeValue(FIELD_SURNAME);
 		LN = LN.trim();
