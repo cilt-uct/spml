@@ -560,7 +560,7 @@ public class SPML implements SpmlHandler  {
 					userProfile.setMail(modMobile);
 					
 				}
-			} elseif (systemMobile == null && modMobile != null) {
+			} else if (systemMobile == null && modMobile != null) {
 				systemProfile.setMail(modMobile);
 				userProfile.setMail(modMobile)
 			}
@@ -572,7 +572,7 @@ public class SPML implements SpmlHandler  {
 					systemProfile.setOrganizationalUnit(modOrgUnit);
 					userProfile.setOrganizationalUnit(modOrgUnit);
 				}
-			} elseif (systemOrgUnit == null && modOrgUnit != null) {
+			} else if (systemOrgUnit == null && modOrgUnit != null) {
 				systemProfile.setOrganizationalUnit(modOrgUnit);
 				userProfile.setOrganizationalUnit(modOrgUnit);				
 			}
@@ -587,7 +587,7 @@ public class SPML implements SpmlHandler  {
 					systemProfile.setHomePhone(modHomeP);
 					userProfile.setHomePhone(modHomeP);
 				}
-			} elseif (systemHomeP == null && modHomeP != null) {
+			} else if (systemHomeP == null && modHomeP != null) {
 				systemProfile.setHomePhone(modHomeP);
 				userProfile.setHomePhone(modHomeP);				
 			}
