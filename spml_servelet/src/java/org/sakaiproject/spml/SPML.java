@@ -940,8 +940,9 @@ private synchronized void setSakaiSessionUser(String id) {
 		try {
 			String escapeBody = body.replaceAll("'","''");
 			String statement = "insert into spml_log (spml_type,spml_body, ipaddress) values ('" + type +"','" + escapeBody + "','" + requestIp + "')";
-			//LOG.info(this + "SQLservice:" + m_sqlService);
-			//m_sqlService.dbWrite(statement);
+			m_sqlService = getSqlService();
+			LOG.info(this + "SQLservice:" + m_sqlService);
+			m_sqlService.dbWrite(statement);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
