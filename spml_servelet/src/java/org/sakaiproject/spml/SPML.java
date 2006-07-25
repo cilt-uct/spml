@@ -653,6 +653,17 @@ public class SPML implements SpmlHandler  {
 	public SpmlResponse spmlDeleteRequest(SpmlRequest req) {
 	    LOG.info("SPML Webservice: Recieveid DeleteRequest "+req);
 	    this.logSPMLRequest("DeleteRequest",req.toXml());
+	    /*
+	     * User user = UserDirectoryService.getUserByEid(CN);
+	     * thisUser = UserDirectoryService.editUser(user.getId());
+	     *  //try get the profile
+			userProfile = getUserProfile(CN,"UserMutableType");
+			systemProfile = getUserProfile(CN,"SystemMutableType");
+			SakaiPersonManager.delete(userProfile);
+			SakaiPersonManager.delete(systemProfile);
+		 *  UserDirectoryService.removeUser(thisUser);
+	     */
+	    
 	    SpmlResponse response = null;
 	    return response;
 	} 
