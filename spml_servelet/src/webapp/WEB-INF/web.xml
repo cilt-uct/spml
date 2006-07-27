@@ -129,10 +129,5 @@ Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
         <dispatcher>INCLUDE</dispatcher>
     </filter-mapping>
     
-    <listener>
-        <listener-class>org.sakaiproject.util.ToolListener</listener-class>
-    </listener>
-    <listener>
-        <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
-    </listener>
+
 </web-app>
