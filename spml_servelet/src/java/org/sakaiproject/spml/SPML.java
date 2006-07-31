@@ -638,7 +638,7 @@ public class SPML implements SpmlHandler  {
 								CourseManagementAdministration.addOrUpdateEnrollment(thisUser.getId(),uctCourse[ai],"Student","0","");
 							}
 							Set enrolements = CourseManagementService.findCurrentlyEnrolledEnrollmentSets(thisUser.getId());
-							Iterator er = enrolments.iterator();
+							Iterator er = enrolements.iterator();
 							while (er.hasNext())
 							{
 								boolean found = false;
