@@ -638,12 +638,14 @@ public class SPML implements SpmlHandler  {
 								CourseManagementAdministration.addOrUpdateEnrollment(thisUser.getId(),uctCourse[ai],"Student","0","");
 							}
 							Set enrolements = CourseManagementService.findCurrentlyEnrolledEnrollmentSets(thisUser.getId());
-							for (int ei = 0; ei < enrolements.size();ei++)
+							Iterator er = enrolments.iterator();
+							while (er.hasNext())
 							{
 								boolean found = false;
+								EnrollmentSet es = (EnrollmentSet)er.next();
 								for (int ai = 0; ai < uctCourse.length; ai ++ )
 								{	
-									EnrollmentSet es = (EnrollmentSet)enrolements.get(ei);
+									
 									if (uctCourse[ai].equals(es.getEid()))
 									{
 										found = true;
