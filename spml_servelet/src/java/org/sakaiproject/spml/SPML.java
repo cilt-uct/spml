@@ -615,6 +615,11 @@ public class SPML implements SpmlHandler  {
 		
 			//only do this if the user is active -otherwiose the student is now no longer registered
 			String status = (String)req.getAttributeValue("uctStudentStatus");
+			//for staff this could be null
+			if (status == null)
+			{
+				status = "Inactive";
+			}
 			if (! status.equals("Inactive")) { 
 				try {
 					String uctCourses =null;
@@ -634,6 +639,7 @@ public class SPML implements SpmlHandler  {
 								{
 									uctCourse[ai]=uctCourse[ai].substring(0,8);
 								}
+								LOG.info("adding this student to " + uctCourse[ai]);
 								String x = addUserToCourse(CN,uctCourse[ai]);
 								CourseManagementAdministration.addOrUpdateEnrollment(thisUser.getId(),uctCourse[ai],"Student","0","");
 							}
