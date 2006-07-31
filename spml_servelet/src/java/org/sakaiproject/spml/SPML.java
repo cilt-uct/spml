@@ -67,8 +67,8 @@ import org.sakaiproject.entity.api.Entity;
 //import org.sakaiproject.service.framework.session.cover.UsageSessionService;
 
 //no longer needed now we have the coursemanagement API
-//import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.db.cover.SqlService;
+import org.sakaiproject.db.api.SqlService;
+//import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.db.api.SqlReader;
 //import org.sakaiproject.db.api.SqlService;
 
