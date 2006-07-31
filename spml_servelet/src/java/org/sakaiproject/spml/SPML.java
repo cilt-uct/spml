@@ -91,7 +91,7 @@ import org.sakaiproject.api.common.type.UuidTypeResolvable;
 import org.sakaiproject.coursemanagement.api.*;
 import org.sakaiproject.coursemanagement.impl.*;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-
+import org.sakaiproject.coursemanagement.api.CourseManagementAdministration;
 
 
 public class SPML implements SpmlHandler  {
@@ -635,6 +635,7 @@ public class SPML implements SpmlHandler  {
 									uctCourse[ai]=uctCourse[ai].substring(0,8);
 								}
 								String x = addUserToCourse(CN,uctCourse[ai]);
+								CourseManagementAdministration.addOrUpdateEnrollment(userId,uctCourse[ai],"Student","0","");
 							}
 						}
 					}
