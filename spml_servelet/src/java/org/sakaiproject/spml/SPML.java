@@ -632,7 +632,7 @@ public class SPML implements SpmlHandler  {
 					if (uctCourses!=null) {
 						if (uctCourses.length()>0) {
 							String[] uctCourse =  StringUtil.split(uctCourses, ",");
-							//System.out.println("got " + uctCourse.length + " courses");
+							LOG.info(" got " + uctCourse.length + " courses");
 							for (int ai = 0; ai < uctCourse.length; ai ++ ) {
 								//System.out.println("got a coursecode " + uctCourse[ai]);
 								if (uctCourse[ai].length()==11)
