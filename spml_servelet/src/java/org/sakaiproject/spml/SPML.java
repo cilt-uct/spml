@@ -92,7 +92,7 @@ import org.sakaiproject.coursemanagement.api.*;
 import org.sakaiproject.coursemanagement.impl.*;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.sakaiproject.coursemanagement.api.CourseManagementAdministration;
-
+import org.sakaiproject.coursemanagement.api.exception.IdExistsException;
 
 public class SPML implements SpmlHandler  {
 	
