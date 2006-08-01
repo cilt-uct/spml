@@ -641,6 +641,7 @@ public class SPML implements SpmlHandler  {
 								}
 								LOG.info("adding this student to " + uctCourse[ai]);
 								String x = addUserToCourse(CN,uctCourse[ai]);
+								/* for now not using CM
 								try 
 								{
 									CourseManagementAdministration.createEnrollmentSet(uctCourse[ai], "Some course", "something about it", "afwef", "0", uctCourse[ai], null);
@@ -650,7 +651,9 @@ public class SPML implements SpmlHandler  {
 									//nothing
 								}
 								CourseManagementAdministration.addOrUpdateEnrollment(thisUser.getId(),uctCourse[ai],"Student","0","");
+								*/
 							}
+							/*
 							Set enrolements = CourseManagementService.findCurrentlyEnrolledEnrollmentSets(thisUser.getId());
 							Iterator er = enrolements.iterator();
 							while (er.hasNext())
@@ -673,7 +676,7 @@ public class SPML implements SpmlHandler  {
 									
 								}
 							}
-									
+							*/		
 						}
 					}
 				}
