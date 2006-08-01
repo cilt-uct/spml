@@ -641,7 +641,14 @@ public class SPML implements SpmlHandler  {
 								}
 								LOG.info("adding this student to " + uctCourse[ai]);
 								String x = addUserToCourse(CN,uctCourse[ai]);
-								CourseManagementAdministration.createEnrollmentSet(uctCourse[ai], "Some course", "something about it", "afwef", "0", uctCourse[ai], null);
+								try 
+								{
+									CourseManagementAdministration.createEnrollmentSet(uctCourse[ai], "Some course", "something about it", "afwef", "0", uctCourse[ai], null);
+								}
+								catch (IdExistsException ied)
+								{
+									//nothing
+								}
 								CourseManagementAdministration.addOrUpdateEnrollment(thisUser.getId(),uctCourse[ai],"Student","0","");
 							}
 							Set enrolements = CourseManagementService.findCurrentlyEnrolledEnrollmentSets(thisUser.getId());
