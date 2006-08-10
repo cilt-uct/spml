@@ -348,7 +348,7 @@ public class SPML implements SpmlHandler  {
 */    
 
    	public SpmlResponse spmlAddRequest(AddRequest req)  throws SpmlException {
-		LOG.info("SPML Webservice: Receiveid AddRequest "+req);
+		LOG.info("SPML Webservice: Received AddRequest "+req);
 		//LOG.info(req.toXml());
 		this.logSPMLRequest("Addrequest",req.toXml());
 	
