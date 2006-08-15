@@ -268,7 +268,7 @@ public class SPML implements SpmlHandler  {
     
     public SpmlResponse doRequest(SpmlRequest req) {
 	
-	LOG.info("SPMLRouter recieved req " + req + " (id) ");
+	LOG.info("SPMLRouter received req " + req + " (id) ");
 	profilesUpdated = 0;
 	SpmlResponse resp = req.createResponse();
 		
@@ -692,7 +692,7 @@ public class SPML implements SpmlHandler  {
 	} 
 	
 	public SpmlResponse spmlDeleteRequest(SpmlRequest req) {
-	    LOG.info("SPML Webservice: Recieveid DeleteRequest "+req);
+	    LOG.info("SPML Webservice: Received DeleteRequest "+req);
 	    this.logSPMLRequest("DeleteRequest",req.toXml());
 	    /*
 	     * User user = UserDirectoryService.getUserByEid(CN);
@@ -710,7 +710,7 @@ public class SPML implements SpmlHandler  {
 	} 
 
 	public SpmlResponse spmlModifyRequest(ModifyRequest req) {
-		LOG.info("SPML Webservice: Recieveid DeleteRequest "+req);
+		LOG.info("SPML Webservice: Received DeleteRequest "+req);
 
 		this.logSPMLRequest("ModifyRequest",req.toXml());
 	    //List attrList = req.getAttributes();
@@ -792,7 +792,7 @@ public class SPML implements SpmlHandler  {
 	} 		
 
 	public SpmlResponse spmlBatchRequest(BatchRequest req) {
-	    LOG.info("recieved SPML Batch Request");
+	    LOG.info("received SPML Batch Request");
 	    SpmlResponse resp = null;
 		
 	    try {
