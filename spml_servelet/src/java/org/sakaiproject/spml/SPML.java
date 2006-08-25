@@ -93,6 +93,7 @@ import org.sakaiproject.coursemanagement.impl.*;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.sakaiproject.coursemanagement.api.CourseManagementAdministration;
 import org.sakaiproject.coursemanagement.api.exception.IdExistsException;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 public class SPML implements SpmlHandler  {
 	
@@ -116,8 +117,8 @@ public class SPML implements SpmlHandler  {
 	
 	//change this to the name of your campus
 	private String spmlCampus = "University of Cape Town";
-	private static final String SPML_USER = "spmluser";
-	private static final String SPML_PASSWORD = "spmlpass";
+	private static final String SPML_USER = ServerConfigurationService.getString("spml.user");
+	private static final String SPML_PASSWORD = ServerConfigurationService.getString("spml.password");
 	private String courseYear = "2006";
 	
 	private CourseManagementAdministration CourseManagementAdministration = new CourseManagementAdministrationHibernateImpl();
