@@ -1070,7 +1070,7 @@ private synchronized void setSakaiSessionUser(String id) {
 	private String getOrgCodeById(String modOrgUnit) {
 		String statement = "Select org from UCT_ORG where ORG_UNIT = " + modOrgUnit;
 		m_sqlService = getSqlService();
-		List result = m_sqlService.dbRead(statement, fields, );
+		List result = m_sqlService.dbRead(statement);
 		if (result.size()>0) {
 			return result.get(0);
 		}
