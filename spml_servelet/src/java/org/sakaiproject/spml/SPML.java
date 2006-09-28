@@ -476,9 +476,7 @@ public class SPML implements SpmlHandler  {
 			LOG.debug("Got the user profile");
 		    systemProfile = getUserProfile(CN,"SystemMutableType");
 		    LOG.debug("Got the system profile");    
-		    //ok we need to check the rules now
-		    //String updated = updateUserIfo(sID,CN,GN,LN,thisEmail,type,passwd, mobile, orgUnit, homeP);
-			//get the systemt strings
+		    
 		    
 
 		    if (systemProfile.getSurname()!=null) { 
@@ -513,7 +511,7 @@ public class SPML implements SpmlHandler  {
 				thisUser.setFirstName(GN);
 		    }
 
-		    if (systemProfile.getMail()!=null) {
+		    if (systemProfile.getMail()!=null && thisEmail != null ) {
 		    	String systemMail = systemProfile.getMail();
 				String modMail= thisEmail;
 				if (!systemMail.equals(userProfile.getMail())) {
@@ -542,13 +540,15 @@ public class SPML implements SpmlHandler  {
 		    
 			//this last one could be null
 			String systemMobile = systemProfile.getMobile();
-			String systemOrgUnit = systemProfile.getOrganizationalUnit();
+			String systemOrgCode = systemProfile.getOrganizationalUnit();
+			String systemOrgUnit = systemProfile.getDepartmentNumber();
 			String systemHomeP = systemProfile.getHomePhone();
 			//set up the strings for user update these will be overwriten for changed profiles
 			
 					
 			String modMobile = mobile;
 			String modOrgUnit = orgUnit;
+			String modOrgCode = orgCode;
 			String modHomeP = homeP;
 			
 			//if the user surname != system surname only update the system 
@@ -585,6 +585,19 @@ public class SPML implements SpmlHandler  {
 			} else if (systemOrgUnit == null && modOrgUnit != null) {
 				systemProfile.setDepartmentNumber(modOrgUnit);
 				userProfile.setDepartmentNumber(modOrgUnit);				
+			}
+			
+			//the 3 letter code
+			if (systemOrgCode != null) {
+				if (!systemOrgCode.equals(userProfile.getOrganizationalUnit())) {
+					systemProfile.setOrganizationalUnit(modOrgCode);
+				} else {
+					systemProfile.setOrganizationalUnit(modOrgCode);
+					userProfile.setOrganizationalUnit(modOrgCode);
+				}
+			} else if (systemOrgCode == null && modOrgCode != null) {
+				systemProfile.setOrganizationalUnit(modOrgCode);
+				userProfile.setOrganizationalUnit(modOrgCode);				
 			}
 			
 			
@@ -1072,6 +1085,7 @@ private synchronized void setSakaiSessionUser(String id) {
 		m_sqlService = getSqlService();
 		List result = m_sqlService.dbRead(statement);
 		if (result.size()>0) {
+			LOG.info("got org unit of " + (String)result.get(0));
 			return (String)result.get(0);
 		}
 				
