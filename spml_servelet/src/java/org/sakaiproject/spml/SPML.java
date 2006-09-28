@@ -408,7 +408,7 @@ public class SPML implements SpmlHandler  {
 		if (orgUnit == null ) {
 			orgUnit="";
 		} else {
-			orgCode = getOrgCodeById(modOrgUnit);
+			orgCode = getOrgCodeById(orgUnit);
 		}
 		
 		
