@@ -404,8 +404,11 @@ public class SPML implements SpmlHandler  {
 		}
 		
 		String orgUnit = (String)req.getAttributeValue(FIELD_OU);
+		String orgCode = null;
 		if (orgUnit == null ) {
 			orgUnit="";
+		} else {
+			orgCode = getOrgCodeById(modOrgUnit);
 		}
 		
 		
@@ -567,7 +570,11 @@ public class SPML implements SpmlHandler  {
 			}
 			
 			
-			//this is actua;ly the department number
+			/*this is actua;ly the department number
+			 * we need to get the 3 letter code to set the org unit
+			 * 
+			 * 
+			 */
 			if (systemOrgUnit != null) {
 				if (!systemOrgUnit.equals(userProfile.getDepartmentNumber())) {
 					systemProfile.setDepartmentNumber(modOrgUnit);
@@ -996,7 +1003,7 @@ private synchronized void setSakaiSessionUser(String id) {
 			String escapeBody = body.replaceAll("'","''");
 			String statement = "insert into spml_log (spml_type,spml_body, ipaddress) values ('" + type +"','" + escapeBody + "','" + requestIp + "')";
 			m_sqlService = getSqlService();
-			LOG.info(this + "SQLservice:" + m_sqlService);
+			//LOG.info(this + "SQLservice:" + m_sqlService);
 			m_sqlService.dbWrite(statement);
 		}
 		catch (Exception e) {
@@ -1058,5 +1065,16 @@ private synchronized void setSakaiSessionUser(String id) {
         setSakaiSessionUser(SPML_USER);  // get back the admin session
         
 		
+	}
+	
+	private String getOrgCodeById(String modOrgUnit) {
+		String statement = "Select org from UCT_ORG where ORG_UNIT = " + modOrgUnit;
+		m_sqlService = getSqlService();
+		List result = m_sqlService.dbRead(statement, fields, );
+		if (result.size()>0) {
+			return result.get(0);
+		}
+				
+		return null;
 	}
 } //end class
