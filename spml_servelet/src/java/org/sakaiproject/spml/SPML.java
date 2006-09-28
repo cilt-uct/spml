@@ -566,16 +566,18 @@ public class SPML implements SpmlHandler  {
 				userProfile.setMobile(modMobile);
 			}
 			
+			
+			//this is actua;ly the department number
 			if (systemOrgUnit != null) {
-				if (!systemOrgUnit.equals(userProfile.getOrganizationalUnit())) {
-					systemProfile.setOrganizationalUnit(modOrgUnit);
+				if (!systemOrgUnit.equals(userProfile.getDepartmentNumber())) {
+					systemProfile.setDepartmentNumber(modOrgUnit);
 				} else {
-					systemProfile.setOrganizationalUnit(modOrgUnit);
-					userProfile.setOrganizationalUnit(modOrgUnit);
+					systemProfile.setDepartmentNumber(modOrgUnit);
+					userProfile.setDepartmentNumber(modOrgUnit);
 				}
 			} else if (systemOrgUnit == null && modOrgUnit != null) {
-				systemProfile.setOrganizationalUnit(modOrgUnit);
-				userProfile.setOrganizationalUnit(modOrgUnit);				
+				systemProfile.setDepartmentNumber(modOrgUnit);
+				userProfile.setDepartmentNumber(modOrgUnit);				
 			}
 			
 			
