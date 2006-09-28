@@ -1072,7 +1072,7 @@ private synchronized void setSakaiSessionUser(String id) {
 		m_sqlService = getSqlService();
 		List result = m_sqlService.dbRead(statement);
 		if (result.size()>0) {
-			return result.get(0);
+			return (String)result.get(0);
 		}
 				
 		return null;
