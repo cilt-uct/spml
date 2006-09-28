@@ -523,8 +523,8 @@ public class SPML implements SpmlHandler  {
 					userProfile.setMail(modMail);
 					thisUser.setEmail(modMail);
 				}
-				
-		    } else {
+				//the SPML might now send null emails
+		    } else if (thisEmail != null && !thisEmail.equals("")) {
 		    	systemProfile.setMail(thisEmail);
 				userProfile.setMail(thisEmail);
 				thisUser.setEmail(thisEmail);
