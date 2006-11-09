@@ -7,3 +7,8 @@ unixtime timestamp default now(),
 PRIMARY KEY (spml_id) )
 DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 
+CREATE TABLE UCT_ORG (
+
+Description varchar(255),
+org varchar(3),
+org_unit int);

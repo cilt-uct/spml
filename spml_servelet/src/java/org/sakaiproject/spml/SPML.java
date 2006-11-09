@@ -106,6 +106,7 @@ public class SPML implements SpmlHandler  {
 	private static final String FIELD_CN = "CN";
 	private static final String FIELD_SURNAME = "Surname";
 	private static final String FIELD_GN = "Given Name";
+	private static final String FIELD_PN = "Prefered Name";
 	private static final String FIELD_MAIL = "Email";
 	private static final String FIELD_TYPE = "eduPersonPrimaryAffiliation";
 	private static final String FIELD_MEMBERSHIP = "uctCourseCode";
@@ -377,8 +378,11 @@ public class SPML implements SpmlHandler  {
 			
 		}
 		CN = CN.toLowerCase();
+		if (req.getAttributeValue(FIELD_PN)!=null)
+			GN = (String)req.getAttributeValue(FIELD_PN);
+		else
+			GN = (String)req.getAttributeValue(FIELD_GN);
 		
-		GN = (String)req.getAttributeValue(FIELD_GN);
 		String LN = (String)req.getAttributeValue(FIELD_SURNAME);
 		LN = LN.trim();
 		String thisEmail = (String)req.getAttributeValue(FIELD_MAIL);
