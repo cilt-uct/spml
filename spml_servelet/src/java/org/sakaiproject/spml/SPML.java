@@ -1059,7 +1059,7 @@ private synchronized void setSakaiSessionUser(String id) {
 			SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
 			String thisYear = yearf.format(new Date());
 			m_sqlService = getSqlService();
-			String statement= "delete from UCT_MEMBERSHIP  where MEMBER_SOURCEDID_ID = '" + userId +"' and SOURCEDID_ID like '%," + thisYear + ""'";
+			String statement= "delete from UCT_MEMBERSHIP  where MEMBER_SOURCEDID_ID = '" + userId +"' and SOURCEDID_ID like '%," + thisYear + "'";
 			m_sqlService.dbWrite(statement);
 		}
 		catch(Exception e) {
