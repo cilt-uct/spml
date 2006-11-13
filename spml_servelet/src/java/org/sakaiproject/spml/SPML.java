@@ -31,6 +31,7 @@
  */
 package org.sakaiproject.SPML;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
@@ -1037,7 +1038,9 @@ private synchronized void setSakaiSessionUser(String id) {
 
 		
 		try {
-			String statement= "insert into UCT_MEMBERSHIP (SOURCEDID_ID, MEMBER_SOURCEDID_ID,MEMBER_ROLE_ROLETYPE) values ('" + courseCode +"," + courseYear +"','" + userId  +"','Student')";
+			SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
+			String thisYear = yearf.format(new Date());
+			String statement= "insert into UCT_MEMBERSHIP (SOURCEDID_ID, MEMBER_SOURCEDID_ID,MEMBER_ROLE_ROLETYPE) values ('" + courseCode +"," + thisYear +"','" + userId  +"','Student')";
 			//getSqlService();
 			m_sqlService.dbWrite(statement);
 		}
@@ -1051,10 +1054,12 @@ private synchronized void setSakaiSessionUser(String id) {
 	
 	private String removeUserFromAllCourses(String userId) {
 		
-
+		
 		try {
+			SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
+			String thisYear = yearf.format(new Date());
 			m_sqlService = getSqlService();
-			String statement= "delete from UCT_MEMBERSHIP  where MEMBER_SOURCEDID_ID = '" + userId +"' and SOURCEDID_ID like '%,2006'";
+			String statement= "delete from UCT_MEMBERSHIP  where MEMBER_SOURCEDID_ID = '" + userId +"' and SOURCEDID_ID like '%," + thisYear + ""'";
 			m_sqlService.dbWrite(statement);
 		}
 		catch(Exception e) {
