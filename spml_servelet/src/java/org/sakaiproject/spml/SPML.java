@@ -107,7 +107,7 @@ public class SPML implements SpmlHandler  {
 	private static final String FIELD_CN = "CN";
 	private static final String FIELD_SURNAME = "Surname";
 	private static final String FIELD_GN = "Given Name";
-	private static final String FIELD_PN = "Prefered Name";
+	private static final String FIELD_PN = "preferredName";
 	private static final String FIELD_MAIL = "Email";
 	private static final String FIELD_TYPE = "eduPersonPrimaryAffiliation";
 	private static final String FIELD_MEMBERSHIP = "uctCourseCode";
