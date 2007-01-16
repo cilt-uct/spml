@@ -975,6 +975,8 @@ private SakaiPerson getUserProfile(String userId, String type) {
        		if(sakaiPerson == null){
        			sakaiPerson = spm.create(user.getId(), userId, _type);
        			LOG.info(this + "creating profile for user " + userId + " of type " + _type);
+       			//we need to set the privacy
+       			sakaiPerson.setHidePrivateInfo(new Boolean(true));
             }
         }	
        	catch(Exception e){
