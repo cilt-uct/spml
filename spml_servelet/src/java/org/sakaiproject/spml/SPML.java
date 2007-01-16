@@ -977,6 +977,8 @@ private SakaiPerson getUserProfile(String userId, String type) {
        			LOG.info(this + "creating profile for user " + userId + " of type " + _type);
        			//we need to set the privacy
        			sakaiPerson.setHidePrivateInfo(new Boolean(true));
+       			sakaiPerson.setHidePublicInfo(new Boolean(false));
+       			
             }
         }	
        	catch(Exception e){
