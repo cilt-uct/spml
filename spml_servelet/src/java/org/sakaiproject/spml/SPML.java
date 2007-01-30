@@ -32,6 +32,7 @@
 package org.sakaiproject.SPML;
 
 import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
@@ -626,7 +627,7 @@ public class SPML implements SpmlHandler  {
 			String DOB = (String)req.getAttributeValue(FIELD_DOB);
 			if ( DOB != null) {
 				//format is YYYYMMDD
-				DateFormat fm = SimpleDateFormat("yyyyMMdd");
+				DateFormat fm = new SimpleDateFormat("yyyyMMdd");
 				Date date = fm.parse(DOB);
 				systemProfile.setDOB(Date);
 			}
