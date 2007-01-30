@@ -629,7 +629,7 @@ public class SPML implements SpmlHandler  {
 				//format is YYYYMMDD
 				DateFormat fm = new SimpleDateFormat("yyyyMMdd");
 				Date date = fm.parse(DOB);
-				systemProfile.setDOB(Date);
+				systemProfile.setDOB(date);
 			}
 			 
 			
