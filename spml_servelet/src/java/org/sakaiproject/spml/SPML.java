@@ -273,7 +273,7 @@ public class SPML implements SpmlHandler  {
     
     public SpmlResponse doRequest(SpmlRequest req) {
 	
-	LOG.info("SPMLRouter received req " + req + " (id) ");
+	LOG.debug("SPMLRouter received req " + req + " (id) ");
 	profilesUpdated = 0;
 	SpmlResponse resp = req.createResponse();
 		
@@ -352,7 +352,7 @@ public class SPML implements SpmlHandler  {
 */    
 
    	public SpmlResponse spmlAddRequest(AddRequest req)  throws SpmlException {
-		LOG.info("SPML Webservice: Received AddRequest "+req);
+		
 		//LOG.info(req.toXml());
 		this.logSPMLRequest("Addrequest",req.toXml());
 	
@@ -369,7 +369,7 @@ public class SPML implements SpmlHandler  {
 		String CN = "";
 		String GN = "";
 		CN =(String)req.getAttributeValue(FIELD_CN);
-		
+		LOG.info("SPML Webservice: Received AddRequest for user "+ CN);
 		SpmlResponse response = req.createResponse();
 		//we have had 1 null CN so this should be thrown
 		if (CN == null) {
