@@ -1,18 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="lib" path="target/sakai-spml/web-inf/lib/axis-1.2.1.jar"/>
-	<classpathentry kind="lib" path="target/sakai-spml/web-inf/lib/axis-jaxrpc-1.2.1.jar"/>
-	<classpathentry kind="lib" path="target/sakai-spml/web-inf/lib/axis-saaj-1.2.1.jar"/>
-	<classpathentry kind="lib" path="target/sakai-spml/web-inf/lib/axis-wsdl4j-1.2.1.jar"/>
-	<classpathentry kind="lib" path="target/sakai-spml/web-inf/lib/commons-discovery-0.2.jar"/>
-	<classpathentry kind="lib" path="target/sakai-spml/web-inf/lib/commons-logging-1.0.4.jar"/>
-	<classpathentry kind="lib" path="target/sakai-spml/web-inf/lib/j2ee-.jar"/>
-	<classpathentry kind="lib" path="target/sakai-spml/web-inf/lib/openspml-0.5.jar"/>
-	<classpathentry kind="lib" path="target/sakai-spml/web-inf/lib/sakai-legacy-service-2.1.0.003.jar"/>
-	<classpathentry kind="lib" path="target/sakai-spml/web-inf/lib/sakai-profile-api-2.1.0.003.jar"/>
-	<classpathentry kind="lib" path="target/sakai-spml/web-inf/lib/sakai-util-xml-2.1.0.003.jar"/>
-	<classpathentry kind="lib" path="target/sakai-spml/web-inf/lib/xml-apis-2.0.2.jar"/>
-	<classpathentry kind="lib" path="test/basic/axis.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

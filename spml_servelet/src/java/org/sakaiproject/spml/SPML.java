@@ -116,6 +116,7 @@ public class SPML implements SpmlHandler  {
 	private static final String FIELD_PROGAM = "uctProgramCode";
 	private static final String FIELD_HOMEPHONE ="homePhone";
 	private static final String FIELD_OU ="OU";
+	private static final String FIELD_DOB="DOB";
 	
 	//change this to the name of your campus
 	private String spmlCampus = "University of Cape Town";
@@ -619,6 +620,13 @@ public class SPML implements SpmlHandler  {
 				systemProfile.setHomePhone(modHomeP);
 				userProfile.setHomePhone(modHomeP);				
 			}
+			
+			
+			// set the DOB -no method at the moment
+			String DOB = (String)req.getAttributeValue(FIELD_DOB);
+			if ( DOB != null)
+			 systemProfile.setDOB(DOB);
+			
 			
 			//save the profiles
 			saveProfiles(CN);
