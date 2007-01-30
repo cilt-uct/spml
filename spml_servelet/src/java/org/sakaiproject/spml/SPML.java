@@ -624,8 +624,13 @@ public class SPML implements SpmlHandler  {
 			
 			// set the DOB -no method at the moment
 			String DOB = (String)req.getAttributeValue(FIELD_DOB);
-			if ( DOB != null)
-			 systemProfile.setDOB(DOB);
+			if ( DOB != null) {
+				//format is YYYYMMDD
+				DateFormat fm = SimpleDateFormat("yyyyMMdd");
+				Date date = fm.parse(DOB);
+				systemProfile.setDOB(Date);
+			}
+			 
 			
 			
 			//save the profiles
