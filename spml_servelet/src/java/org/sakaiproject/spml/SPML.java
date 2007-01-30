@@ -324,7 +324,6 @@ public class SPML implements SpmlHandler  {
 
 	    e.printStackTrace();
 	}
-		LOG.info (this + " " + profilesUpdated +" profiles updated");
 		return resp;
     }
 
