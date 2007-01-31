@@ -987,7 +987,7 @@ private SakaiPerson getUserProfile(String userId, String type) {
        		// create profile if it doesn't exist
        		if(sakaiPerson == null){
        			sakaiPerson = spm.create(user.getId(), userId, _type);
-       			LOG.info(this + "creating profile for user " + userId + " of type " + _type);
+       			LOG.info(this + "creating profile for user " + userId + " of type " + _type.getDisplayName());
        			//we need to set the privacy
        			sakaiPerson.setHidePrivateInfo(new Boolean(true));
        			sakaiPerson.setHidePublicInfo(new Boolean(false));
