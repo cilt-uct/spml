@@ -118,6 +118,7 @@ public class SPML implements SpmlHandler  {
 	private static final String FIELD_HOMEPHONE ="homePhone";
 	private static final String FIELD_OU ="OU";
 	private static final String FIELD_DOB="DOB";
+	private static final String FIELD_ONLINELEARNINGREQUIRED="uctOnlineLearningRequired";
 	
 	//change this to the name of your campus
 	private String spmlCampus = "University of Cape Town";
@@ -390,8 +391,18 @@ public class SPML implements SpmlHandler  {
 		String thisEmail = (String)req.getAttributeValue(FIELD_MAIL);
 		//always lower case
 		String type = (String)req.getAttributeValue(FIELD_TYPE);
+		
 		//System.out.
 		type = type.toLowerCase();
+		
+		//if this is a thirparty check the online learning required field
+		if (type.equalsIgnoreCase("thirdparty") && (String)req.getAttributeValue(FIELD_ONLINELEARNINGREQUIRED) != null && (String)req.getAttributeValue(FIELD_ONLINELEARNINGREQUIRED).equals("No")) {
+			//return 
+			return response;
+			
+		}
+		
+		
 		String passwd = "";
 		
 		String mobile = (String)req.getAttributeValue(FIELD_MOBILE);
