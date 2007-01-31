@@ -399,7 +399,7 @@ public class SPML implements SpmlHandler  {
 		String onlineRequired = (String)req.getAttributeValue(FIELD_ONLINELEARNINGREQUIRED);
 		if (type.equalsIgnoreCase("thirdparty") && onlineRequired != null && onlineRequired.equals("No")) {
 			//return 
-			LOG.warn(" Recieved a thirdparty with online learning == " + onlineRequired + ", skipping");
+			LOG.warn(" Received a thirdparty with online learning == " + onlineRequired + ", skipping");
 			return response;
 			
 		}
