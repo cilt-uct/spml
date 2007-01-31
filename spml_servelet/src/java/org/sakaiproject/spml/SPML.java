@@ -396,7 +396,8 @@ public class SPML implements SpmlHandler  {
 		type = type.toLowerCase();
 		
 		//if this is a thirparty check the online learning required field
-		if (type.equalsIgnoreCase("thirdparty") && (String)req.getAttributeValue(FIELD_ONLINELEARNINGREQUIRED) != null && (String)req.getAttributeValue(FIELD_ONLINELEARNINGREQUIRED).equals("No")) {
+		String onlineRequired = (String)req.getAttributeValue(FIELD_ONLINELEARNINGREQUIRED);
+		if (type.equalsIgnoreCase("thirdparty") && onlineRequired != null && onlineRequired.equals("No")) {
 			//return 
 			return response;
 			
