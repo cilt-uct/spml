@@ -446,6 +446,7 @@ public class SPML implements SpmlHandler  {
 			try {
 				LOG.debug("About to try adding the user "+ CN);
 				thisUser = UserDirectoryService.addUser(null,CN);
+				LOG.info("created account for user: " + CN);
 			}
 			catch (UserIdInvalidException in) {
 				//should throw out here
