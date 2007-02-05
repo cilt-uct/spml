@@ -66,13 +66,13 @@ import org.sakaiproject.util.StringUtil;
 
 import org.sakaiproject.api.common.manager.Persistable;
 import org.sakaiproject.entity.api.Entity;
-//import org.sakaiproject.service.framework.session.cover.UsageSessionService;
+
 
 //no longer needed now we have the coursemanagement API
 import org.sakaiproject.db.api.SqlService;
-//import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.db.api.SqlReader;
-//import org.sakaiproject.db.api.SqlService;
+
+
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -82,18 +82,16 @@ import org.sakaiproject.component.app.profile.*;
 import org.sakaiproject.component.common.edu.person.SakaiPersonImpl;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
-//import org.sakaiproject.api.common.agent.AgentGroupManager;
 import org.sakaiproject.metaobj.security.impl.sakai.AgentManager;
 import org.sakaiproject.metaobj.shared.model.Agent;
 import org.sakaiproject.component.cover.ComponentManager;
 
-//import org.sakaiproject.api.common.superstructure.DefaultContainer;
+
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.api.common.type.UuidTypeResolvable;
-import org.sakaiproject.coursemanagement.api.*;
-import org.sakaiproject.coursemanagement.impl.*;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.sakaiproject.coursemanagement.api.CourseManagementAdministration;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
 import org.sakaiproject.coursemanagement.api.exception.IdExistsException;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
@@ -262,6 +260,15 @@ public class SPML implements SpmlHandler  {
         return m_sqlService;
     }
    
+  
+    private CourseManagementAdministration courseAdmin;
+
+    public CourseManagementAdministration getCourseAdmin() {
+    	if(courseAdmin == null){
+    		courseAdmin = (CourseManagementAdministration) ComponentManager.get(CourseManagementAdministration.class.getName());
+        }
+        return courseAdmin;
+    }
 
 
     //////////////////////////////////////////////////////////////////////
@@ -1071,9 +1078,14 @@ private synchronized void setSakaiSessionUser(String id) {
 		try {
 			SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
 			String thisYear = yearf.format(new Date());
+			
+			courseAdmin = getCourseAdmin();
+			courseAdmin.addOrUpdateCourseOfferingMembership(userId, "student", courseCode, "enroled");
+			/* use CM
 			String statement= "insert into UCT_MEMBERSHIP (SOURCEDID_ID, MEMBER_SOURCEDID_ID,MEMBER_ROLE_ROLETYPE) values ('" + courseCode +"," + thisYear +"','" + userId  +"','Student')";
 			//getSqlService();
 			m_sqlService.dbWrite(statement);
+			*/
 		}
 		catch(Exception e) {
 			e.printStackTrace();
