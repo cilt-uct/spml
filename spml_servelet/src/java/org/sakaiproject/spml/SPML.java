@@ -124,8 +124,7 @@ public class SPML implements SpmlHandler  {
 	private static final String SPML_PASSWORD = ServerConfigurationService.getString("spml.password");
 	private String courseYear = "2006";
 	
-	private CourseManagementAdministration CourseManagementAdministration = new CourseManagementAdministrationHibernateImpl();
-	private CourseManagementService CourseManagementService = new CourseManagementServiceHibernateImpl();
+	
 	
 	/*
 	 *  Objects that will contain info about this user
@@ -1007,7 +1006,7 @@ private SakaiPerson getUserProfile(String userId, String type) {
        		sakaiPerson = spm.getSakaiPerson(user.getId(), _type);
        		// create profile if it doesn't exist
        		if(sakaiPerson == null){
-       			sakaiPerson = spm.create(user.getId(), userId, _type);
+       			sakaiPerson = spm.create(user.getId(),_type);
        			LOG.info("creating profile for user " + userId + " of type " + _type.getDisplayName());
        			//we need to set the privacy
        			sakaiPerson.setHidePrivateInfo(new Boolean(true));
