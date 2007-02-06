@@ -42,8 +42,7 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Set;
 import java.net.URLEncoder;
-import org.apache.axis.AxisFault;
-import javax.servlet.http.HttpServletRequest;
+
 
 import org.openspml.client.*;
 import org.openspml.util.*;
@@ -82,8 +81,8 @@ import org.sakaiproject.component.app.profile.*;
 import org.sakaiproject.component.common.edu.person.SakaiPersonImpl;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
-import org.sakaiproject.metaobj.security.impl.sakai.AgentManager;
-import org.sakaiproject.metaobj.shared.model.Agent;
+//import org.sakaiproject.metaobj.security.impl.sakai.AgentManager;
+//import org.sakaiproject.metaobj.shared.model.Agent;
 import org.sakaiproject.component.cover.ComponentManager;
 
 
@@ -1126,7 +1125,7 @@ private synchronized void setSakaiSessionUser(String id) {
 				
 				LOG.info("creating Section for " + courseCode + " in year " + thisYear);
 				getCanonicalCourse(courseCode);
-				courseAdmin.createSection(courseEid, "sometitle", "someDescription", "active", "2007", courseCode, new Date(), new Date());
+				courseAdmin.createSection(courseEid, "sometitle", "someDescription","course",null,courseEid,courseEid);
 			}
 			courseAdmin.addOrUpdateSectionMembership(userId, "student", courseEid, "enroled");
 		}
