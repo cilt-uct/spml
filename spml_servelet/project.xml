@@ -146,11 +146,6 @@
 			<artifactId>sakai-coursemanagement-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
- 		<dependency>
-			<groupId>springframework</groupId>
-			<artifactId>spring</artifactId>
-			<version>${sakai.spring.version}</version>
-		</dependency>
 
 
 <!-- 
