@@ -688,6 +688,10 @@ public class SPML implements SpmlHandler  {
 		if (type.equals("student")) {
 			removeUserFromAllCourses(CN);
 		
+			//just for now
+			//courseAdmin = getCourseAdmin();
+			//courseAdmin.createAcademicSession("2007", "2007", "2007 Academic year", new Date(), new Date());
+			//courseAdmin.createAcademicSession("2006", "2006", "2006 Academic year", new Date(), new Date());
 		
 			//only do this if the user is active -otherwiose the student is now no longer registered
 			String status = (String)req.getAttributeValue("uctStudentStatus");
@@ -1103,11 +1107,10 @@ private synchronized void setSakaiSessionUser(String id) {
 			catch (IdNotFoundException id) {
 				//create the CO
 				//lets create the 2007 academic year :-)
-				//courseAdmin.createAcademicSession("2007", "2007", "2007 Academic year", new Date(), new Date());
-				//courseAdmin.createAcademicSession("2006", "2006", "2006 Academic year", new Date(), new Date());
 				
-				courseAdmin.createCanonicalCourse(courseCode, "something", "something else");
-				courseAdmin.createCourseOffering(courseEid, "sometitle", "someDescription", "active", "3", courseCode, new Date(), new Date());
+				LOG.info("creating course offering for " + courseCode + " in year " + thisYear);
+				getCanonicalCourse(courseCode);
+				courseAdmin.createCourseOffering(courseEid, "sometitle", "someDescription", "active", "2007", courseCode, new Date(), new Date());
 			}
 			
 			courseAdmin.addOrUpdateCourseOfferingMembership(userId, "student", courseEid, "enroled");
@@ -1123,6 +1126,16 @@ private synchronized void setSakaiSessionUser(String id) {
 		}
 		
 		return "success";
+	}
+	
+	private void getCanonicalCourse(String courseCode) {
+		try {
+			cmService.getCanonicalCourse(courseCode);
+		}
+		catch (IdNotFoundException id) {
+			LOG.info("creating canonicalcourse " + courseCode);
+			courseAdmin.createCanonicalCourse(courseCode, "something", "something else");
+		}
 	}
 	
 	private String removeUserFromAllCourses(String userId) {
