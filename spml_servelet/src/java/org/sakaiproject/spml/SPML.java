@@ -92,6 +92,7 @@ import org.sakaiproject.api.common.type.UuidTypeResolvable;
 import org.sakaiproject.coursemanagement.api.CourseManagementAdministration;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.CourseOffering;
+import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 
 import org.sakaiproject.coursemanagement.api.exception.IdExistsException;
@@ -1114,11 +1115,20 @@ private synchronized void setSakaiSessionUser(String id) {
 			}
 			
 			courseAdmin.addOrUpdateCourseOfferingMembership(userId, "student", courseEid, "enroled");
-			/* use CM
-			String statement= "insert into UCT_MEMBERSHIP (SOURCEDID_ID, MEMBER_SOURCEDID_ID,MEMBER_ROLE_ROLETYPE) values ('" + courseCode +"," + thisYear +"','" + userId  +"','Student')";
-			//getSqlService();
-			m_sqlService.dbWrite(statement);
-			*/
+			
+			//now add the user to a section of the same name
+			try {
+				Section co = cmService.getSection(courseEid);
+			} 
+			catch (IdNotFoundException id) {
+				//create the CO
+				//lets create the 2007 academic year :-)
+				
+				LOG.info("creating Section for " + courseCode + " in year " + thisYear);
+				getCanonicalCourse(courseCode);
+				courseAdmin.createSection(courseEid, "sometitle", "someDescription", "active", "2007", courseCode, new Date(), new Date());
+			}
+			courseAdmin.addOrUpdateSectionMembership(userId, "student", courseEid, "enroled");
 		}
 		catch(Exception e) {
 			e.printStackTrace();
