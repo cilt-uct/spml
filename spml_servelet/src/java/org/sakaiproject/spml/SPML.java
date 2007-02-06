@@ -321,7 +321,7 @@ public class SPML implements SpmlHandler  {
 	    	resp = spmlBatchRequest(uctRequest);
 			
 	    } else {
-	    	LOG.info("Method not implemented");
+	    	LOG.error("Method not implemented");
 	    }
 	    
 
@@ -330,6 +330,10 @@ public class SPML implements SpmlHandler  {
 	catch (Exception e) {
 
 	    e.printStackTrace();
+		response.setError("Login failure");
+		response.setResult("failure");
+		return response;	
+	    
 	}
 		return resp;
     }
@@ -1096,7 +1100,7 @@ private synchronized void setSakaiSessionUser(String id) {
 	
 	private String removeUserFromAllCourses(String userId) {
 		
-		
+		/* We need to use CM here
 		try {
 			SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
 			String thisYear = yearf.format(new Date());
@@ -1108,7 +1112,7 @@ private synchronized void setSakaiSessionUser(String id) {
 			e.printStackTrace();
 			return "failure";
 		}
-		
+		*/
 		return "success";
 		
 	}
