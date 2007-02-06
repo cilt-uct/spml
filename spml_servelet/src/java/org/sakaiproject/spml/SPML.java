@@ -330,9 +330,9 @@ public class SPML implements SpmlHandler  {
 	catch (Exception e) {
 
 	    e.printStackTrace();
-		response.setError("Login failure");
-		response.setResult("failure");
-		return response;	
+	    resp.setError("Login failure");
+		resp.setResult("failure");
+		return resp;	
 	    
 	}
 		return resp;
