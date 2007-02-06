@@ -34,15 +34,7 @@ package org.sakaiproject.SPML;
 import java.text.SimpleDateFormat;
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Iterator;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Stack;
-import java.util.Set;
-import java.net.URLEncoder;
-
 
 import org.openspml.client.*;
 import org.openspml.util.*;
