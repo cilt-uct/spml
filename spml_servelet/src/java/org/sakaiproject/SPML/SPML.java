@@ -1105,7 +1105,7 @@ private synchronized void setSakaiSessionUser(String id) {
 				courseAdmin.createCourseOffering(courseEid, "sometitle", "someDescription", "active", "2007", courseCode, new Date(), new Date());
 			}
 			
-			courseAdmin.addOrUpdateCourseOfferingMembership(userId, "student", courseEid, "enroled");
+			courseAdmin.addOrUpdateCourseOfferingMembership(userId, "Student", courseEid, "enroled");
 			
 			//now add the user to a section of the same name
 			try {
@@ -1122,7 +1122,7 @@ private synchronized void setSakaiSessionUser(String id) {
 				getCanonicalCourse(courseCode);
 				courseAdmin.createSection(courseEid, "sometitle", "someDescription","course",null,courseEid,courseEid);
 			}
-			courseAdmin.addOrUpdateSectionMembership(userId, "student", courseEid, "enroled");
+			courseAdmin.addOrUpdateSectionMembership(userId, "Student", courseEid, "enroled");
 		}
 		catch(Exception e) {
 			e.printStackTrace();
