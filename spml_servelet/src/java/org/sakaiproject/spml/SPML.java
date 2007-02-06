@@ -90,7 +90,9 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.api.common.type.UuidTypeResolvable;
 import org.sakaiproject.coursemanagement.api.CourseManagementAdministration;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.coursemanagement.api.CourseOffering;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 
 import org.sakaiproject.coursemanagement.api.exception.IdExistsException;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -268,6 +270,15 @@ public class SPML implements SpmlHandler  {
         }
         return courseAdmin;
     }
+    
+    private CourseManagementService cmService;
+    
+    public CourseManagementService getCmService() {
+    	if(cmService == null){
+    		cmService = (CourseManagementService) ComponentManager.get(CourseManagementService.class.getName());
+        }
+        return cmService;
+    }    
 
 
     //////////////////////////////////////////////////////////////////////
@@ -1083,7 +1094,18 @@ private synchronized void setSakaiSessionUser(String id) {
 			String thisYear = yearf.format(new Date());
 			
 			courseAdmin = getCourseAdmin();
-			courseAdmin.addOrUpdateCourseOfferingMembership(userId, "student", courseCode, "enroled");
+			cmService = getCmService();
+			//does the 
+			String courseEid = courseCode + "," +thisYear;
+			try {
+				CourseOffering co = cmService.getCourseOffering(courseEid);
+			} 
+			catch (IdNotFoundException id) {
+				//create the CO
+				courseAdmin.createCourseOffering(courseEid, "sometitle", "someDescription", "active", "2007", courseCode, new Date(), new Date());
+			}
+			
+			courseAdmin.addOrUpdateCourseOfferingMembership(userId, "student", courseEid, "enroled");
 			/* use CM
 			String statement= "insert into UCT_MEMBERSHIP (SOURCEDID_ID, MEMBER_SOURCEDID_ID,MEMBER_ROLE_ROLETYPE) values ('" + courseCode +"," + thisYear +"','" + userId  +"','Student')";
 			//getSqlService();
