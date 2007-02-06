@@ -1103,11 +1103,11 @@ private synchronized void setSakaiSessionUser(String id) {
 			catch (IdNotFoundException id) {
 				//create the CO
 				//lets create the 2007 academic year :-)
-				courseAdmin.createAcademicSession("2007", "2007", "2007 Academic year", new Date(), new Date());
-				courseAdmin.createAcademicSession("2006", "2006", "2006 Academic year", new Date(), new Date());
+				//courseAdmin.createAcademicSession("2007", "2007", "2007 Academic year", new Date(), new Date());
+				//courseAdmin.createAcademicSession("2006", "2006", "2006 Academic year", new Date(), new Date());
 				
 				courseAdmin.createCanonicalCourse(courseCode, "something", "something else");
-				courseAdmin.createCourseOffering(courseEid, "sometitle", "someDescription", "active", "2007", courseCode, new Date(), new Date());
+				courseAdmin.createCourseOffering(courseEid, "sometitle", "someDescription", "active", "3", courseCode, new Date(), new Date());
 			}
 			
 			courseAdmin.addOrUpdateCourseOfferingMembership(userId, "student", courseEid, "enroled");
