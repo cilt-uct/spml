@@ -1114,6 +1114,9 @@ private synchronized void setSakaiSessionUser(String id) {
 			catch (IdNotFoundException id) {
 				//create the CO
 				//lets create the 2007 academic year :-)
+				//create enrolmentset
+				courseAdmin.createEnrollmentSet(courseEid, "title", "description", "category", "defaultEnrollmentCredits", courseEid, null);
+				
 				
 				LOG.info("creating Section for " + courseCode + " in year " + thisYear);
 				getCanonicalCourse(courseCode);
