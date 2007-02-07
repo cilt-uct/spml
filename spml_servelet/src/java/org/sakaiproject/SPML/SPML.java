@@ -35,6 +35,9 @@ import java.text.SimpleDateFormat;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.Iterator;
+import java.util.Arrays;
 
 import org.openspml.client.*;
 import org.openspml.util.*;
@@ -85,6 +88,7 @@ import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.CourseOffering;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
+import org.sakaiproject.coursemanagement.api.EnrollmentSet;
 
 import org.sakaiproject.coursemanagement.api.exception.IdExistsException;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -712,44 +716,17 @@ public class SPML implements SpmlHandler  {
 									uctCourse[ai]=uctCourse[ai].substring(0,8);
 								}
 								LOG.info("adding this student to " + uctCourse[ai]);
-								String x = addUserToCourse(CN,uctCourse[ai]);
-								/* for now not using CM
-								try 
-								{
-									CourseManagementAdministration.createEnrollmentSet(uctCourse[ai], "Some course", "something about it", "afwef", "0", uctCourse[ai], null);
-								}
-								catch (IdExistsException ied)
-								{
-									//nothing
-								}
-								CourseManagementAdministration.addOrUpdateEnrollment(thisUser.getId(),uctCourse[ai],"Student","0","");
-								*/
+								addUserToCourse(CN,uctCourse[ai]);
+								
 							}
-							/*
-							Set enrolements = CourseManagementService.findCurrentlyEnrolledEnrollmentSets(thisUser.getId());
-							Iterator er = enrolements.iterator();
-							while (er.hasNext())
-							{
-								boolean found = false;
-								EnrollmentSet es = (EnrollmentSet)er.next();
-								for (int ai = 0; ai < uctCourse.length; ai ++ )
-								{	
-									
-									if (uctCourse[ai].equals(es.getEid()))
-									{
-										found = true;
-									}
-								}
-								if (found == false)
-								{
-									//remove enrolment
-									LOG.info(" removing " + thisUser.getEid() + " from " + es.getEid());
-									CourseManagementAdministration.removeEnrollment(thisUser.getId(),es.getEid());
-									
-								}
-							}
-							*/		
+//							now synch 
+							synchCourses(uctCourse, CN);
+							
+							
 						}
+						
+						
+						
 					}
 				}
 				catch (Exception e) {
@@ -1081,7 +1058,7 @@ private synchronized void setSakaiSessionUser(String id) {
 	 * add the user to a course
 	 * 
 	 */
-	private String addUserToCourse(String userId, String courseCode) {
+	private void addUserToCourse(String userId, String courseCode) {
 		
 
 		
@@ -1126,11 +1103,37 @@ private synchronized void setSakaiSessionUser(String id) {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			return "failure";
+			
 		}
 		
-		return "success";
+		
 	}
+	
+	//remove user from old courses
+	private void synchCourses(String[] uctCourse, String userEid){
+		
+		Set enroled = cmService.findEnrolledSections(userEid);
+		Iterator it = enroled.iterator();
+		while (it.hasNext()) {
+			Section sec = (Section)it.next();
+			LOG.info("got enrollmentset: " + sec.getEid());
+			boolean found = false;
+			for (int i =0; i < uctCourse.length;i++ ) {
+				String thisEn = uctCourse[i];
+				if (thisEn.equalsIgnoreCase(sec.getEid()))
+					found = true;
+			}
+			if (!found) {
+				LOG.info("removing user from " + sec.getEid());
+				courseAdmin.removeSectionMembership(userEid, sec.getEid());
+				courseAdmin.	removeCourseOfferingMembership(userEid, sec.getEid());
+				
+				
+			}
+		}
+		
+	}
+	
 	
 	private void getCanonicalCourse(String courseCode) {
 		try {
