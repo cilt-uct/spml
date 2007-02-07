@@ -1111,8 +1111,9 @@ private synchronized void setSakaiSessionUser(String id) {
 	
 	//remove user from old courses
 	private void synchCourses(String[] uctCourse, String userEid){
-		
+		LOG.info("Checking enrolments for " + userEid);
 		Set enroled = cmService.findEnrolledSections(userEid);
+		LOG.info("got enrolement set of " + enroled.size());
 		Iterator it = enroled.iterator();
 		while (it.hasNext()) {
 			Section sec = (Section)it.next();
@@ -1126,7 +1127,7 @@ private synchronized void setSakaiSessionUser(String id) {
 			if (!found) {
 				LOG.info("removing user from " + sec.getEid());
 				courseAdmin.removeSectionMembership(userEid, sec.getEid());
-				courseAdmin.	removeCourseOfferingMembership(userEid, sec.getEid());
+				courseAdmin.removeCourseOfferingMembership(userEid, sec.getEid());
 				
 				
 			}
