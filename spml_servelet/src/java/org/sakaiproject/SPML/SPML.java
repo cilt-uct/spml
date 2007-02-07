@@ -1114,9 +1114,11 @@ private synchronized void setSakaiSessionUser(String id) {
 	private void synchCourses(String[] uctCourse, String userEid){
 		LOG.info("Checking enrolments for " + userEid);
 		Map enroled = cmService.findCourseOfferingRoles(userEid);
+		Set courses = enroled.keySet();
+		Iterator coursesIt = courses.iterator();
 		LOG.info("got enrolement set of " + enroled.size());
-		 for (int it = 0; it < enroled.size(); it++) {
-			String courseEid = (String)enroled.get(it);
+		 while(coursesIt.hasNext()) {
+			String courseEid = (String)coursesIt.next();
 			LOG.info("got section: " + courseEid);
 			boolean found = false;
 			for (int i =0; i < uctCourse.length;i++ ) {
