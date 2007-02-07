@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Iterator;
 import java.util.Arrays;
+import java.util.Map;
 
 import org.openspml.client.*;
 import org.openspml.util.*;
@@ -1112,22 +1113,22 @@ private synchronized void setSakaiSessionUser(String id) {
 	//remove user from old courses
 	private void synchCourses(String[] uctCourse, String userEid){
 		LOG.info("Checking enrolments for " + userEid);
-		Set enroled = cmService.findCurrentlyEnrolledEnrollmentSets(userEid);
+		Map enroled = cmService.findCourseOfferingRoles(userEid);
 		LOG.info("got enrolement set of " + enroled.size());
-		Iterator it = enroled.iterator();
-		while (it.hasNext()) {
-			EnrollmentSet sec = (EnrollmentSet)it.next();
-			LOG.info("got section: " + sec.getEid());
+		 for (int it = 0; it < enroled.size(); it++) {
+			String courseEid = (String)enroled.get(it);
+			LOG.info("got section: " + courseEid);
 			boolean found = false;
 			for (int i =0; i < uctCourse.length;i++ ) {
 				String thisEn = uctCourse[i];
-				if (thisEn.equalsIgnoreCase(sec.getEid()))
+				if (thisEn.equalsIgnoreCase(courseEid))
 					found = true;
 			}
 			if (!found) {
-				LOG.info("removing user from " + sec.getEid());
-				courseAdmin.removeSectionMembership(userEid, sec.getEid());
-				courseAdmin.removeCourseOfferingMembership(userEid, sec.getEid());
+				LOG.info("removing user from " + courseEid);
+				courseAdmin.removeCourseOfferingMembership(userEid, courseEid);
+				courseAdmin.removeSectionMembership(userEid, courseEid);
+				
 				
 				
 			}
