@@ -1113,6 +1113,9 @@ private synchronized void setSakaiSessionUser(String id) {
 	//remove user from old courses
 	private void synchCourses(String[] uctCourse, String userEid){
 		LOG.info("Checking enrolments for " + userEid);
+		SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
+		String thisYear = yearf.format(new Date());
+		
 		Map enroled = cmService.findCourseOfferingRoles(userEid);
 		Set courses = enroled.keySet();
 		Iterator coursesIt = courses.iterator();
@@ -1122,7 +1125,7 @@ private synchronized void setSakaiSessionUser(String id) {
 			LOG.info("got section: " + courseEid);
 			boolean found = false;
 			for (int i =0; i < uctCourse.length;i++ ) {
-				String thisEn = uctCourse[i];
+				String thisEn = uctCourse[i] + "," + thisYear;
 				if (thisEn.equalsIgnoreCase(courseEid))
 					found = true;
 			}
