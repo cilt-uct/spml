@@ -1112,17 +1112,17 @@ private synchronized void setSakaiSessionUser(String id) {
 	
 	//remove user from old courses
 	private void synchCourses(String[] uctCourse, String userEid){
-		LOG.info("Checking enrolments for " + userEid);
+		LOG.debug("Checking enrolments for " + userEid);
 		SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
 		String thisYear = yearf.format(new Date());
 		
 		Map enroled = cmService.findCourseOfferingRoles(userEid);
 		Set courses = enroled.keySet();
 		Iterator coursesIt = courses.iterator();
-		LOG.info("got enrolement set of " + enroled.size());
+		LOG.debug("got enrolement set of " + enroled.size());
 		 while(coursesIt.hasNext()) {
 			String courseEid = (String)coursesIt.next();
-			LOG.info("got section: " + courseEid);
+			LOG.debug("got section: " + courseEid);
 			boolean found = false;
 			for (int i =0; i < uctCourse.length;i++ ) {
 				String thisEn = uctCourse[i] + "," + thisYear;
