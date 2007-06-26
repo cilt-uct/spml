@@ -423,8 +423,7 @@ public class SPML implements SpmlHandler  {
 		}
 		
 		
-		String passwd = "";
-		
+			
 		String mobile = (String)req.getAttributeValue(FIELD_MOBILE);
 		if (mobile == null ) {
 			mobile ="";
@@ -451,8 +450,6 @@ public class SPML implements SpmlHandler  {
 		
 		try {
 			//rather lets get an object
-			
-			
 			User user = UserDirectoryService.getUserByEid(CN);
 			thisUser = UserDirectoryService.editUser(user.getId());
 			LOG.debug(this + " this user useredit right is " + UserDirectoryService.allowAddUser());
@@ -468,7 +465,7 @@ public class SPML implements SpmlHandler  {
 			}
 			catch (UserIdInvalidException in) {
 				//should throw out here
-				LOG.error("ERROR: invalid username: " + CN);
+				LOG.error("invalid username: " + CN);
 				response.setError("invalid username");
 				response.setResult("failure");
 				return response;
@@ -883,64 +880,11 @@ public class SPML implements SpmlHandler  {
  *
  */
 
-/*
- * Taken from SakaiScript
-*/
-private String addNewUser( String sessionid, String userid, String firstname, String lastname, String thisEmail, String type, String password) throws Exception
-{
-	Session session = establishSession(sessionid);
-	//type is always lower case
-	
-	if (!SecurityService.isSuperUser())
-	{
-		LOG.warn("NonSuperUser trying to add accounts: " + session.getUserEid());
-        //throw new Exception("NonSuperUser trying to add accounts: " + session.getUserId());
-	}
-	try {
 
-		UserEdit addeduser = null;
-		addeduser = UserDirectoryService.addUser(null, userid);
-		addeduser.setFirstName(firstname);
-		addeduser.setLastName(lastname);
-		addeduser.setEmail(thisEmail);
-		addeduser.setPassword(password);
-		addeduser.setType(type);
-		UserDirectoryService.commitEdit(addeduser);
-	
- 	}
-	catch (Exception e) {  
-	 return e.getClass().getName() + " : " + e.getMessage();
-	}
-	return "success";
-}
 
-private Session establishSession(String id) throws Exception
-{
-	Session s = SessionManager.getSession(id);
-	
-	if (s == null)
-	{
-		throw new Exception("Session "+id+" is not active");
-	}
-	s.setActive();
-	SessionManager.setCurrentSession(s);
-	return s;
-}
-
-public String checkSession(String id) {
-	Session s = SessionManager.getSession(id);
-	if (s == null)
-	{
-		return "null";
-	}
-	else
-	{
-		return id;
-	}
-}
 
 //well need to handle login ourselves
-public String login(String id,String pw) {
+private String login(String id,String pw) {
 	User user = UserDirectoryService.authenticate(id,pw);
 	if ( user != null ) {
 		sakaiSession = SessionManager.startSession();
@@ -1081,10 +1025,12 @@ private synchronized void setSakaiSessionUser(String id) {
 				LOG.info("creating course offering for " + courseCode + " in year " + thisYear);
 				getCanonicalCourse(courseCode);
 				courseAdmin.createCourseOffering(courseEid, "sometitle", "someDescription", "active", "2007", courseCode, new Date(), new Date());
+				courseAdmin.createSection(courseEid, courseEid, "description", "category", null, courseEid, null);
 			}
 			
-			courseAdmin.addOrUpdateCourseOfferingMembership(userId, "Student", courseEid, "enroled");
 			
+			
+			courseAdmin.addOrUpdateSectionMembership(userId, "Student", courseEid, "enroled");
 			//now add the user to a section of the same name
 			try {
 				Section co = cmService.getSection(courseEid);
