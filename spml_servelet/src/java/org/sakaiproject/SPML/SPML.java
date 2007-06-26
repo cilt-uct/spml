@@ -1025,6 +1025,7 @@ private synchronized void setSakaiSessionUser(String id) {
 				LOG.info("creating course offering for " + courseCode + " in year " + thisYear);
 				getCanonicalCourse(courseCode);
 				courseAdmin.createCourseOffering(courseEid, "sometitle", "someDescription", "active", "2007", courseCode, new Date(), new Date());
+				courseAdmin.createEnrollmentSet(courseEid, "title", "description", "category", "defaultEnrollmentCredits", courseEid, null);
 				courseAdmin.createSection(courseEid, courseEid, "description", "category", null, courseEid, null);
 			}
 			
