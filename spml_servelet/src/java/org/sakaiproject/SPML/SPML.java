@@ -680,7 +680,7 @@ public class SPML implements SpmlHandler  {
 		 * we should only do this if this is a student 
 		 */
 		if (type.equals("student")) {
-			removeUserFromAllCourses(CN);
+			
 		
 			//just for now
 			//courseAdmin = getCourseAdmin();
@@ -1032,7 +1032,7 @@ private synchronized void setSakaiSessionUser(String id) {
 			
 			
 			courseAdmin.addOrUpdateSectionMembership(userId, "Student", courseEid, "enroled");
-			courseAdmin.addOrUpdateEnrollment(userId, courseEid, "enrolled", null, null);
+			courseAdmin.addOrUpdateEnrollment(userId, courseEid, "enrolled", "NA", "0");
 			//now add the user to a section of the same name
 			try {
 				Section co = cmService.getSection(courseEid);
@@ -1081,7 +1081,7 @@ private synchronized void setSakaiSessionUser(String id) {
 				LOG.info("removing user from " + courseEid);
 				courseAdmin.removeCourseOfferingMembership(userEid, courseEid);
 				courseAdmin.removeSectionMembership(userEid, courseEid);
-				
+				courseAdmin.removeEnrollment(userEid, courseEid);
 				
 				
 			}
@@ -1100,24 +1100,7 @@ private synchronized void setSakaiSessionUser(String id) {
 		}
 	}
 	
-	private String removeUserFromAllCourses(String userId) {
-		
-		/* We need to use CM here
-		try {
-			SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
-			String thisYear = yearf.format(new Date());
-			m_sqlService = getSqlService();
-			String statement= "delete from UCT_MEMBERSHIP  where MEMBER_SOURCEDID_ID = '" + userId +"' and SOURCEDID_ID like '%," + thisYear + "'";
-			m_sqlService.dbWrite(statement);
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-			return "failure";
-		}
-		*/
-		return "success";
-		
-	}
+
 
 	private String fixPhoneNumber(String number) {
 		number=number.replaceAll("/","");
