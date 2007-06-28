@@ -1032,6 +1032,7 @@ private synchronized void setSakaiSessionUser(String id) {
 			
 			
 			courseAdmin.addOrUpdateSectionMembership(userId, "Student", courseEid, "enroled");
+			courseAdmin.addOrUpdateEnrollment(userId, courseEid, "enrolled", null, null);
 			//now add the user to a section of the same name
 			try {
 				Section co = cmService.getSection(courseEid);
