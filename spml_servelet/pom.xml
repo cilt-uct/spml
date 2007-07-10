@@ -8,7 +8,7 @@
     <relativePath>../../master/pom.xml</relativePath>
   </parent>
   <name>Sakai SPML component</name>
-  <groupId>sakaiproject</groupId>
+  <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-spml</artifactId>
   <organization>
     <name>University of Cape Town</name>
@@ -37,42 +37,42 @@
       <version>0.2</version>
     </dependency>
     <dependency>
-      <groupId>sakaiproject</groupId>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-component</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>sakaiproject</groupId>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-coursemanagement-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>sakaiproject</groupId>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-tool-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>sakaiproject</groupId>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-profile-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>sakaiproject</groupId>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-profile-component-shared</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>sakaiproject</groupId>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-common-composite-component-data</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>sakaiproject</groupId>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-common-edu-person-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>sakaiproject</groupId>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-common-manager-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
@@ -92,7 +92,7 @@
       <version>1.0.4</version>
     </dependency>
     <dependency>
-      <groupId>sakaiproject</groupId>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-common-type-api</artifactId>
 <!--properties:  -->
       <version>${sakai.version}</version>
@@ -111,54 +111,54 @@
     </dependency>
 <!--inserted post 2.2 -->
     <dependency>
-      <groupId>sakaiproject</groupId>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-tool-api</artifactId>
 <!--properties:  -->
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>sakaiproject</groupId>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-user-api</artifactId>
 <!--properties:  -->
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>sakaiproject</groupId>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util</artifactId>
 <!--properties:  war.bundle: true -->
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>sakaiproject</groupId>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-authz-api</artifactId>
 <!--properties:  -->
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>sakaiproject</groupId>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-db-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>sakaiproject</groupId>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-metaobj-impl</artifactId>
 <!--properties:  war.bundle: true -->
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>sakaiproject</groupId>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-metaobj-api</artifactId>
 <!--properties:  -->
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>sakaiproject</groupId>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-entity-api</artifactId>
 <!--properties:  -->
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>sakaiproject</groupId>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-component-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
