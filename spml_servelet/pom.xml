@@ -98,7 +98,7 @@
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>openspml</groupId>
+      <groupId>org.openspml</groupId>
       <artifactId>openspml</artifactId>
       <version>0.5</version>
 <!--properties:  war.bundle: true -->
