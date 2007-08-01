@@ -1026,6 +1026,10 @@ private synchronized void setSakaiSessionUser(String id) {
 				setCategory = "Department";
 			}
 			
+			//does the course set exist?
+			if (!cmService.isCourseSetDefined(setId)) 
+				courseAdmin.createCourseSet(setId, setId, setId, setCategory, null);
+			
 			if (!cmService.isCanonicalCourseDefined(courseCode)) {
 				courseAdmin.createCanonicalCourse(courseCode, courseCode, courseCode);
 				courseAdmin.addCanonicalCourseToCourseSet(setId, courseCode);
