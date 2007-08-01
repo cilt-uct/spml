@@ -1015,19 +1015,35 @@ private synchronized void setSakaiSessionUser(String id) {
 			cmService = getCmService();
 			//does the 
 			String courseEid = courseCode + "," +thisYear;
-			try {
-				CourseOffering co = cmService.getCourseOffering(courseEid);
-			} 
-			catch (IdNotFoundException id) {
-				//create the CO
-				//lets create the 2007 academic year :-)
-				
-				LOG.info("creating course offering for " + courseCode + " in year " + thisYear);
-				getCanonicalCourse(courseCode);
-				courseAdmin.createCourseOffering(courseEid, "sometitle", "someDescription", "active", "2007", courseCode, new Date(), new Date());
-				courseAdmin.createEnrollmentSet(courseEid, "title", "description", "category", "defaultEnrollmentCredits", courseEid, null);
-				courseAdmin.createSection(courseEid, courseEid, "description", "category", null, courseEid, null);
+			//is there a cannonical course?
+			String setId = null;
+			String setCategory = null;
+			if (courseCode.length() == 5) {
+				setId = courseCode.substring(0,2);
+				setCategory = "degree";
+			} else {
+				setId = courseCode.substring(0,3);
+				setCategory = "Department";
 			}
+			
+			if (!cmService.isCanonicalCourseDefined(courseCode)) {
+				courseAdmin.createCanonicalCourse(courseCode, courseCode, courseCode);
+				courseAdmin.addCanonicalCourseToCourseSet(setId, courseCode);
+			}
+			
+			
+			if (!cmService.isCourseOfferingDefined(courseEid)) {
+			 	LOG.info("creating course offering for " + courseCode + " in year " + thisYear);
+				courseAdmin.createCourseOffering(courseEid, "sometitle", "someDescription", "active", "2007", courseCode, new Date(), new Date());
+			}
+			 
+			 
+			if (! cmService.isEnrollmentSetDefined(courseEid))
+				courseAdmin.createEnrollmentSet(courseEid, "title", "description", "category", "defaultEnrollmentCredits", courseEid, null);
+			
+			if(! cmService.isSectionDefined(courseEid))
+				courseAdmin.createSection(courseEid, courseEid, "description", "category", null, courseEid, null);
+			
 			
 			
 			
@@ -1042,8 +1058,6 @@ private synchronized void setSakaiSessionUser(String id) {
 				//lets create the 2007 academic year :-)
 				//create enrolmentset
 				courseAdmin.createEnrollmentSet(courseEid, "title", "description", "category", "defaultEnrollmentCredits", courseEid, null);
-				
-				
 				LOG.info("creating Section for " + courseCode + " in year " + thisYear);
 				getCanonicalCourse(courseCode);
 				courseAdmin.createSection(courseEid, "sometitle", "someDescription","course",null,courseEid,courseEid);
