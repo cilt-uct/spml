@@ -1082,12 +1082,12 @@ private synchronized void setSakaiSessionUser(String id) {
 		SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
 		String thisYear = yearf.format(new Date());
 		
-		Map enroled = cmService.findCourseOfferingRoles(userEid);
-		Set courses = enroled.keySet();
-		Iterator coursesIt = courses.iterator();
+		Set enroled = cmService.findCurrentlyEnrolledEnrollmentSets(userEid);
+		Iterator coursesIt = enroled.iterator();
 		LOG.debug("got enrolement set of " + enroled.size());
 		 while(coursesIt.hasNext()) {
-			String courseEid = (String)coursesIt.next();
+			EnrollmentSet eSet = (EnrollmentSet)coursesIt.next();
+			String courseEid =  eSet.getEid();
 			LOG.debug("got section: " + courseEid);
 			boolean found = false;
 			for (int i =0; i < uctCourse.length;i++ ) {
