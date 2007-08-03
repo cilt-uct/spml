@@ -1011,6 +1011,7 @@ private synchronized void setSakaiSessionUser(String id) {
 			SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
 			String thisYear = yearf.format(new Date());
 			
+			SimpleDateFormat dateForm = new SimpleDateFormat("yyyy-mm-dd");
 			courseAdmin = getCourseAdmin();
 			cmService = getCmService();
 			//does the 
@@ -1038,7 +1039,9 @@ private synchronized void setSakaiSessionUser(String id) {
 			
 			if (!cmService.isCourseOfferingDefined(courseEid)) {
 			 	LOG.info("creating course offering for " + courseCode + " in year " + thisYear);
-				courseAdmin.createCourseOffering(courseEid, "sometitle", "someDescription", "active", "2007", courseCode, new Date(), new Date());
+			 	Date startDate = dateForm.parse(thisYear + "-01-01");
+			 	Date endDate = dateForm.parse(thisYear + "-12-31");
+				courseAdmin.createCourseOffering(courseEid, "sometitle", "someDescription", "active", "2007", courseCode, startDate, endDate);
 			}
 			 
 			 
@@ -1084,7 +1087,7 @@ private synchronized void setSakaiSessionUser(String id) {
 		
 		Set enroled = cmService.findCurrentlyEnrolledEnrollmentSets(userEid);
 		Iterator coursesIt = enroled.iterator();
-		LOG.debug("got enrolement set of " + enroled.size());
+		LOG.debug("got list of enrolement set with " + enroled.size());
 		 while(coursesIt.hasNext()) {
 			EnrollmentSet eSet = (EnrollmentSet)coursesIt.next();
 			String courseEid =  eSet.getEid();
