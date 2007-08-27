@@ -116,6 +116,7 @@ public class SPML implements SpmlHandler  {
 	private static final String FIELD_OU ="OU";
 	private static final String FIELD_DOB="DOB";
 	private static final String FIELD_ONLINELEARNINGREQUIRED="uctOnlineLearningRequired";
+	private static final String FIELD_RES_CODE="uctResidenceCode";
 	
 	//change this to the name of your campus
 	private String spmlCampus = "University of Cape Town";
@@ -703,6 +704,10 @@ public class SPML implements SpmlHandler  {
 						uctCourses = uctCourses + "," +(String)req.getAttributeValue(FIELD_MEMBERSHIP);
 					}
 					uctCourses = uctCourses + "," + (String)req.getAttributeValue(FIELD_SCHOOL) + "_"+ (String)req.getAttributeValue(FIELD_TYPE);
+					
+					if (req.getAttributeValue(FIELD_RES_CODE) != null ) {
+						uctCourses = uctCourses + "," + (String)req.getAttributeValue(FIELD_RES_CODE);
+					}
 					if (uctCourses!=null) {
 						if (uctCourses.length()>0) {
 							String[] uctCourse =  StringUtil.split(uctCourses, ",");
