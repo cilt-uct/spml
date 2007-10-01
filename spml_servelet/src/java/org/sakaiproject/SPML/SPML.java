@@ -1046,7 +1046,7 @@ private synchronized void setSakaiSessionUser(String id) {
 			 	LOG.info("creating course offering for " + courseCode + " in year " + thisYear);
 			 	Date startDate = dateForm.parse(thisYear + "-01-01");
 			 	Date endDate = dateForm.parse(thisYear + "-12-31");
-				courseAdmin.createCourseOffering(courseEid, "sometitle", "someDescription", "active", "2007", courseCode, startDate, endDate);
+				courseAdmin.createCourseOffering(courseEid, "sometitle", "someDescription", "active", thisYear, courseCode, startDate, endDate);
 			}
 			 
 			 
