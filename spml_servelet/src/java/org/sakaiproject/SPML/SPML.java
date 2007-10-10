@@ -662,11 +662,11 @@ public class SPML implements SpmlHandler  {
 			}
 			 
 			
-			
+			//save the user
+			UserDirectoryService.commitEdit(thisUser);			
 			//save the profiles
 			saveProfiles(CN);
-			//save the user
-			UserDirectoryService.commitEdit(thisUser);
+
 
 		    
 		}
