@@ -706,7 +706,9 @@ public class SPML implements SpmlHandler  {
 					uctCourses = uctCourses + "," + (String)req.getAttributeValue(FIELD_SCHOOL) + "_"+ (String)req.getAttributeValue(FIELD_TYPE);
 					
 					if (req.getAttributeValue(FIELD_RES_CODE) != null ) {
-						uctCourses = uctCourses + "," + (String)req.getAttributeValue(FIELD_RES_CODE);
+						String resCode = (String)req.getAttributeValue(FIELD_RES_CODE);
+						resCode = resCode.substring(0,resCode.indexOf("*"));
+						uctCourses = uctCourses + "," + resCode;
 					}
 					if (uctCourses!=null) {
 						if (uctCourses.length()>0) {
