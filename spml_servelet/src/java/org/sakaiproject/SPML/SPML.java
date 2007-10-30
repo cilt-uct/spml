@@ -630,7 +630,7 @@ public class SPML implements SpmlHandler  {
 			
 			//the 3 letter code
 			if (systemOrgCode != null) {
-				if (!systemOrgCode.equals(modOrgCode)) {
+				if (systemOrgCode.equals(modOrgCode)) {
 					systemProfile.setOrganizationalUnit(modOrgCode);
 				} else {
 					systemProfile.setOrganizationalUnit(modOrgCode);
