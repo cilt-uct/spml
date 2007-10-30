@@ -117,6 +117,7 @@ public class SPML implements SpmlHandler  {
 	private static final String FIELD_DOB="DOB";
 	private static final String FIELD_ONLINELEARNINGREQUIRED="uctOnlineLearningRequired";
 	private static final String FIELD_RES_CODE="uctResidenceCode";
+	private static final String FIELD_ORG_DECR = "Description";
 	
 	//change this to the name of your campus
 	private String spmlCampus = "University of Cape Town";
@@ -449,6 +450,10 @@ public class SPML implements SpmlHandler  {
 		}
 		
 		
+		String orgName = (String)req.getAttributeValue(FIELD_ORG_DECR);
+		if (orgName == null )
+			orgName = "";
+		
 		try {
 			//rather lets get an object
 			User user = UserDirectoryService.getUserByEid(CN);
@@ -625,15 +630,15 @@ public class SPML implements SpmlHandler  {
 			
 			//the 3 letter code
 			if (systemOrgCode != null) {
-				if (!systemOrgCode.equals(userProfile.getOrganizationalUnit())) {
+				if (!systemOrgCode.equals(modOrgCode)) {
 					systemProfile.setOrganizationalUnit(modOrgCode);
 				} else {
 					systemProfile.setOrganizationalUnit(modOrgCode);
-					userProfile.setOrganizationalUnit(modOrgCode);
+					userProfile.setOrganizationalUnit(orgName);
 				}
 			} else if (systemOrgCode == null && modOrgCode != null) {
 				systemProfile.setOrganizationalUnit(modOrgCode);
-				userProfile.setOrganizationalUnit(modOrgCode);				
+				userProfile.setOrganizationalUnit(orgName);				
 			}
 			
 			
