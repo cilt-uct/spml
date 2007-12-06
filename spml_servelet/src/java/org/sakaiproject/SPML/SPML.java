@@ -46,7 +46,7 @@ import org.openspml.message.*;
 import org.openspml.server.SpmlHandler;
 
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
@@ -56,10 +56,7 @@ import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserPermissionException;
 import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserAlreadyDefinedException;
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.util.StringUtil;
-
-import org.sakaiproject.api.common.manager.Persistable;
 import org.sakaiproject.entity.api.Entity;
 
 
@@ -236,6 +233,7 @@ public class SPML implements SpmlHandler  {
     //the sakaiSession object
     public Session sakaiSession;
     
+
     /*
      * Setup the Sakai person manager and the agentgroup manager
      * contibuted by Nuno Fernandez (nuno@ufp.pt)
@@ -893,13 +891,16 @@ public class SPML implements SpmlHandler  {
  */
 
 
-
+private SessionManager sessionManager;
+public void setSessionManager(SessionManager sm) {
+	sessionManager = sm;
+}
 
 //well need to handle login ourselves
 private String login(String id,String pw) {
 	User user = UserDirectoryService.authenticate(id,pw);
 	if ( user != null ) {
-		sakaiSession = SessionManager.startSession();
+		sakaiSession = sessionManager.startSession();
 		if (sakaiSession == null)
 		{
 			return "sessionnull";
@@ -908,7 +909,7 @@ private String login(String id,String pw) {
 		{
 			sakaiSession.setUserId(user.getId());
 			sakaiSession.setUserEid(id);
-			SessionManager.setCurrentSession(sakaiSession);
+			sessionManager.setCurrentSession(sakaiSession);
 			LOG.debug("Logged in as user " + id + "with internal id of " + user.getId());
 			return sakaiSession.getId();
 		}
