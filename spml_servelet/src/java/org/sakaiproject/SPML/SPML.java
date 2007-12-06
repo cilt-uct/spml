@@ -74,8 +74,6 @@ import org.sakaiproject.component.app.profile.*;
 import org.sakaiproject.component.common.edu.person.SakaiPersonImpl;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
-//import org.sakaiproject.metaobj.security.impl.sakai.AgentManager;
-//import org.sakaiproject.metaobj.shared.model.Agent;
 import org.sakaiproject.component.cover.ComponentManager;
 
 
@@ -242,22 +240,18 @@ public class SPML implements SpmlHandler  {
     private SakaiPersonManager sakaiPersonManager;
     //private AgentManager agentGroupManager = new AgentManager();
   
-    
-    public SakaiPersonManager getSakaiPersonManager() {
-        if(sakaiPersonManager == null){
-            sakaiPersonManager = (SakaiPersonManager) ComponentManager.get(SakaiPersonManager.class.getName());
-        }
-        return sakaiPersonManager;
+    public void setSakaiPersonManager(SakaiPersonManager spm) {
+    	sakaiPersonManager = spm;
+   
     }
+    
     
     private SqlService m_sqlService = null;
-    public SqlService getSqlService() {
-        if(m_sqlService == null){
-        	m_sqlService = (SqlService) ComponentManager.get(SqlService.class.getName());
-        }
-        return m_sqlService;
+    public void setSqlService(SqlService sqs) {
+    	this.m_sqlService = sqs;
+    	
     }
-   
+    
   
     private CourseManagementAdministration courseAdmin;
 
@@ -269,14 +263,10 @@ public class SPML implements SpmlHandler  {
     }
     
     private CourseManagementService cmService;
+    public void setCourseManagementService(CourseManagementService cms) {
+    	cmService = cms;
+    }
     
-    public CourseManagementService getCmService() {
-    	if(cmService == null){
-    		cmService = (CourseManagementService) ComponentManager.get(CourseManagementService.class.getName());
-        }
-        return cmService;
-    }    
-
 
     //////////////////////////////////////////////////////////////////////
     //
@@ -936,23 +926,23 @@ private SakaiPerson getUserProfile(String userId, String type) {
 	//Uid's must be lower case
 	userId = userId.toLowerCase();
 	
-    SakaiPersonManager spm = getSakaiPersonManager();
+    
     
     Type _type = null;
     if (type.equals("UserMutableType")) {
     	setSakaiSessionUser(userId); // switch to that user's session
-         _type = spm.getUserMutableType();
+         _type = sakaiPersonManager.getUserMutableType();
     } else {
-    	 _type = spm.getSystemMutableType();
+    	 _type = sakaiPersonManager.getSystemMutableType();
     }
     SakaiPerson sakaiPerson = null;
        	try
        {	
        		User user = UserDirectoryService.getUserByEid(userId);
-       		sakaiPerson = spm.getSakaiPerson(user.getId(), _type);
+       		sakaiPerson = sakaiPersonManager.getSakaiPerson(user.getId(), _type);
        		// create profile if it doesn't exist
        		if(sakaiPerson == null){
-       			sakaiPerson = spm.create(user.getId(),_type);
+       			sakaiPerson = sakaiPersonManager.create(user.getId(),_type);
        			LOG.info("creating profile for user " + userId + " of type " + _type.getDisplayName());
        			//we need to set the privacy
        			sakaiPerson.setHidePrivateInfo(new Boolean(true));
@@ -1003,7 +993,7 @@ private synchronized void setSakaiSessionUser(String id) {
 		try {
 			String escapeBody = body.replaceAll("'","''");
 			String statement = "insert into spml_log (spml_type,spml_body, ipaddress) values ('" + type +"','" + escapeBody + "','" + requestIp + "')";
-			m_sqlService = getSqlService();
+			
 			//LOG.info(this + "SQLservice:" + m_sqlService);
 			m_sqlService.dbWrite(statement);
 		}
@@ -1026,7 +1016,7 @@ private synchronized void setSakaiSessionUser(String id) {
 			
 			SimpleDateFormat dateForm = new SimpleDateFormat("yyyy-mm-dd");
 			courseAdmin = getCourseAdmin();
-			cmService = getCmService();
+			
 			//does the 
 			String courseEid = courseCode + "," +thisYear;
 			//is there a cannonical course?
@@ -1146,7 +1136,7 @@ private synchronized void setSakaiSessionUser(String id) {
 	}
 	private void saveProfiles(String CN) {
 		//save the profiles
-		sakaiPersonManager = getSakaiPersonManager();
+		
 		sakaiPersonManager.save(systemProfile);
 		setSakaiSessionUser(CN);
         sakaiPersonManager.save(userProfile);
@@ -1157,7 +1147,7 @@ private synchronized void setSakaiSessionUser(String id) {
 	
 	private String getOrgCodeById(String modOrgUnit) {
 		String statement = "Select org from UCT_ORG where ORG_UNIT = " + modOrgUnit;
-		m_sqlService = getSqlService();
+		
 		List result = m_sqlService.dbRead(statement);
 		if (result.size()>0) {
 			LOG.info("got org unit of " + (String)result.get(0));

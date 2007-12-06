@@ -2,8 +2,19 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-
-
-
-
+    <bean id="org.sakaiproject.spml.SPMLsevlet" class="org.sakaiproject.SPML.SPML">
+        <property name="sakaiPersonManager">
+            <ref bean="org.sakaiproject.api.common.edu.person.SakaiPersonManager"/>
+        </property>
+        <property name="userDirectoryService">
+            <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
+        </property>
+        <property name="sqlService">
+        	<ref bean="org.sakaiproject.service.framework.sql.SqlService"/>
+        </property>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        
+        <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
+        <property name="courseManagementService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
+    </bean>
 </beans>
