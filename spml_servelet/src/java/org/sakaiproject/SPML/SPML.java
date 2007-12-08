@@ -231,6 +231,8 @@ public class SPML implements SpmlHandler  {
     //the sakaiSession object
     public Session sakaiSession;
     
+  
+    
 
     /*
      * Setup the Sakai person manager and the agentgroup manager
@@ -245,6 +247,12 @@ public class SPML implements SpmlHandler  {
    
     }
     
+    private SakaiPersonManager getSakaiPersonaManager() {
+    	if (sakaiPersonManager == null)
+    		sakaiPersonManager = (SakaiPersonManager)ComponentManager.get("org.sakaiproject.api.common.edu.person.SakaiPersonManager");
+    	
+    	return sakaiPersonManager;
+    }
     
     private SqlService m_sqlService = null;
     public void setSqlService(SqlService sqs) {
@@ -252,6 +260,12 @@ public class SPML implements SpmlHandler  {
     	
     }
     
+    private SqlService getSqlService() {
+    	if (m_sqlService == null)
+    		m_sqlService = (SqlService)ComponentManager.get("org.sakaiproject.db.api.SqlService");
+    	
+    	return m_sqlService;
+    }
   
     private CourseManagementAdministration courseAdmin;
 
@@ -267,7 +281,14 @@ public class SPML implements SpmlHandler  {
     	cmService = cms;
     }
     
-
+    private SessionManager getSessionManager() {
+    	if(sessionManager == null){
+    		sessionManager = (SessionManager) ComponentManager.get("org.sakaiproject.tool.api.SessionManager");
+        }
+    	
+    	return sessionManager;
+    	
+    }
     //////////////////////////////////////////////////////////////////////
     //
     // Constructors
@@ -281,7 +302,8 @@ public class SPML implements SpmlHandler  {
 	LOG.debug("SPMLRouter received req " + req + " (id) ");
 	profilesUpdated = 0;
 	SpmlResponse resp = req.createResponse();
-		
+	
+	
 	//this.logSPMLRequest("Unknown",req.toXml());
 	try {
 
@@ -890,6 +912,7 @@ public void setSessionManager(SessionManager sm) {
 private String login(String id,String pw) {
 	User user = UserDirectoryService.authenticate(id,pw);
 	if ( user != null ) {
+		getSessionManager();
 		sakaiSession = sessionManager.startSession();
 		if (sakaiSession == null)
 		{
@@ -995,6 +1018,7 @@ private synchronized void setSakaiSessionUser(String id) {
 			String statement = "insert into spml_log (spml_type,spml_body, ipaddress) values ('" + type +"','" + escapeBody + "','" + requestIp + "')";
 			
 			//LOG.info(this + "SQLservice:" + m_sqlService);
+			getSqlService();
 			m_sqlService.dbWrite(statement);
 		}
 		catch (Exception e) {
