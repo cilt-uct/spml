@@ -77,11 +77,6 @@
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>servletapi</groupId>
-      <artifactId>servletapi</artifactId>
-      <version>2.4</version>
-    </dependency>
-    <dependency>
       <groupId>jspapi</groupId>
       <artifactId>jsp-api</artifactId>
       <version>2.0</version>
@@ -131,16 +126,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-db-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-metaobj-impl</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-metaobj-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
