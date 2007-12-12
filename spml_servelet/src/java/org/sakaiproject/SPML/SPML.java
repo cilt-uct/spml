@@ -1076,7 +1076,7 @@ private synchronized void setSakaiSessionUser(String id) {
 			 	LOG.info("creating course offering for " + courseCode + " in year " + thisYear);
 			 	Date startDate = dateForm.parse(thisYear + "-01-01");
 			 	Date endDate = dateForm.parse(thisYear + "-12-31");
-				courseAdmin.createCourseOffering(courseEid, "sometitle", "someDescription", "active", thisYear, courseCode, startDate, endDate);
+				courseAdmin.createCourseOffering(courseEid, courseEid, "someDescription", "active", thisYear, courseCode, startDate, endDate);
 				courseAdmin.addCourseOfferingToCourseSet(setId, courseEid);
 			}
 			 
@@ -1100,10 +1100,10 @@ private synchronized void setSakaiSessionUser(String id) {
 				//create the CO
 				//lets create the 2007 academic year :-)
 				//create enrolmentset
-				courseAdmin.createEnrollmentSet(courseEid, "title", "description", "category", "defaultEnrollmentCredits", courseEid, null);
+				courseAdmin.createEnrollmentSet(courseEid, courseEid, "description", "category", "defaultEnrollmentCredits", courseEid, null);
 				LOG.info("creating Section for " + courseCode + " in year " + thisYear);
 				getCanonicalCourse(courseCode);
-				courseAdmin.createSection(courseEid, "sometitle", "someDescription","course",null,courseEid,courseEid);
+				courseAdmin.createSection(courseEid, courseEid, "someDescription","course",null,courseEid,courseEid);
 			}
 			courseAdmin.addOrUpdateSectionMembership(userId, "Student", courseEid, "enroled");
 		}
