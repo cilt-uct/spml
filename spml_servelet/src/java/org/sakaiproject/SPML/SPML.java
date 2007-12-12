@@ -949,7 +949,7 @@ private SakaiPerson getUserProfile(String userId, String type) {
 	//Uid's must be lower case
 	userId = userId.toLowerCase();
 	
-    
+    this.getSakaiPersonaManager();
     
     Type _type = null;
     if (type.equals("UserMutableType")) {
