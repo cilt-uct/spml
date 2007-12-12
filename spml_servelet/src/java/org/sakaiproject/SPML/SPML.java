@@ -281,6 +281,13 @@ public class SPML implements SpmlHandler  {
     	cmService = cms;
     }
     
+    public CourseManagementService getCourseManagementService() {
+    	if(cmService == null){
+    		cmService = (CourseManagementService) ComponentManager.get(CourseManagementService.class.getName());
+        }
+        return cmService;
+    }
+    
     private SessionManager getSessionManager() {
     	if(sessionManager == null){
     		sessionManager = (SessionManager) ComponentManager.get("org.sakaiproject.tool.api.SessionManager");
@@ -1040,7 +1047,7 @@ private synchronized void setSakaiSessionUser(String id) {
 			
 			SimpleDateFormat dateForm = new SimpleDateFormat("yyyy-mm-dd");
 			courseAdmin = getCourseAdmin();
-			
+			cmService =getCourseManagementService();
 			//does the 
 			String courseEid = courseCode + "," +thisYear;
 			//is there a cannonical course?
@@ -1055,6 +1062,7 @@ private synchronized void setSakaiSessionUser(String id) {
 			}
 			
 			//does the course set exist?
+			
 			if (!cmService.isCourseSetDefined(setId)) 
 				courseAdmin.createCourseSet(setId, setId, setId, setCategory, null);
 			
