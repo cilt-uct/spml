@@ -1085,7 +1085,7 @@ private synchronized void setSakaiSessionUser(String id) {
 				courseAdmin.createEnrollmentSet(courseEid, "title", "description", "category", "defaultEnrollmentCredits", courseEid, null);
 			
 			if(! cmService.isSectionDefined(courseEid))
-				courseAdmin.createSection(courseEid, courseEid, "description", "category", null, courseEid, null);
+				courseAdmin.createSection(courseEid, courseEid, "description", "course", null, courseEid, null);
 			
 			
 			
