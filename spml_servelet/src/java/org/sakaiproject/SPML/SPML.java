@@ -933,7 +933,7 @@ private String login(String id,String pw) {
 			sakaiSession.setUserId(user.getId());
 			sakaiSession.setUserEid(id);
 			sessionManager.setCurrentSession(sakaiSession);
-			LOG.debug("Logged in as user " + id + "with internal id of " + user.getId());
+			LOG.debug("Logged in as user: " + id + " with internal id of: " + user.getId());
 			return sakaiSession.getId();
 		}
 	} else {
