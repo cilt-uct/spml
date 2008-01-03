@@ -573,7 +573,7 @@ public class SPML implements SpmlHandler  {
 		    if (systemProfile.getMail()!=null && !systemProfile.getMail().equals("") && thisEmail != null ) {
 		    	String systemMail = systemProfile.getMail();
 				String modMail= thisEmail;
-				if (!systemMail.equals(userProfile.getMail()) && !userProfile.getMail().equals("")) {
+				if (userProfile.getMail() != null && !systemMail.equals(userProfile.getMail()) && !userProfile.getMail().equals("")) {
 					systemProfile.setMail(modMail);
 				} else {
 					systemProfile.setMail(modMail);
