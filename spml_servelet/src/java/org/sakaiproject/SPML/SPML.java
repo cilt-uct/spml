@@ -429,7 +429,7 @@ public class SPML implements SpmlHandler  {
 		//always lower case
 		String type = (String)req.getAttributeValue(FIELD_TYPE);
 		
-		//System.out.
+		
 		type = type.toLowerCase();
 		
 		//if this is a thirparty check the online learning required field
@@ -570,7 +570,7 @@ public class SPML implements SpmlHandler  {
 		    }
 
 		    LOG.debug("this email is: " + thisEmail);
-		    if (systemProfile.getMail()!=null && thisEmail != null ) {
+		    if (systemProfile.getMail()!=null && !systemProfile.getMail().equals("") && thisEmail != null ) {
 		    	String systemMail = systemProfile.getMail();
 				String modMail= thisEmail;
 				if (!systemMail.equals(userProfile.getMail())) {
