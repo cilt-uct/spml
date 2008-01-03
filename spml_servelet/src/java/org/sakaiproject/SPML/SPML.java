@@ -569,6 +569,7 @@ public class SPML implements SpmlHandler  {
 				thisUser.setFirstName(GN);
 		    }
 
+		    LOG.debug("this email is: " + thisEmail);
 		    if (systemProfile.getMail()!=null && thisEmail != null ) {
 		    	String systemMail = systemProfile.getMail();
 				String modMail= thisEmail;
@@ -579,12 +580,14 @@ public class SPML implements SpmlHandler  {
 					userProfile.setMail(modMail);
 					thisUser.setEmail(modMail);
 				}
-				//the SPML might now send null emails
+			//the SPML might now send null emails
 		    } else if (thisEmail != null && !thisEmail.equals("")) {
 		    	systemProfile.setMail(thisEmail);
 				userProfile.setMail(thisEmail);
 				thisUser.setEmail(thisEmail);
 		    }
+		    
+		    LOG.debug("users email profile email is " + userProfile.getMail());
 		    
 		    if (type != null ) {
 		    	thisUser.setType(type);
