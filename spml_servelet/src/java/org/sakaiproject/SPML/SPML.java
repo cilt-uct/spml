@@ -570,7 +570,7 @@ public class SPML implements SpmlHandler  {
 		    }
 
 		    LOG.debug("this email is: " + thisEmail);
-		    if (systemProfile.getMail()!=null && !systemProfile.getMail().equals("") && thisEmail != null ) {
+		    if (systemProfile.getMail()!= null && !systemProfile.getMail().equals("") && thisEmail != null ) {
 		    	String systemMail = systemProfile.getMail();
 				String modMail= thisEmail;
 				if (userProfile.getMail() != null && !systemMail.equals(userProfile.getMail()) && !userProfile.getMail().equals("")) {
@@ -708,11 +708,7 @@ public class SPML implements SpmlHandler  {
 		if (type.equals("student")) {
 			
 		
-			//just for now
-			//courseAdmin = getCourseAdmin();
-			//courseAdmin.createAcademicSession("2007", "2007", "2007 Academic year", new Date(), new Date());
-			//courseAdmin.createAcademicSession("2006", "2006", "2006 Academic year", new Date(), new Date());
-		
+			
 			//only do this if the user is active -otherwiose the student is now no longer registered
 			String status = (String)req.getAttributeValue("uctStudentStatus");
 			//for staff this could be null
