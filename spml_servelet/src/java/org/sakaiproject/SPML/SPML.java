@@ -749,7 +749,8 @@ public class SPML implements SpmlHandler  {
 						}
 
 						
-					}
+					} //end if courseList not null
+					
 					SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
 					String thisYear = yearf.format(new Date());
 					//OK rescode may contain old data
@@ -758,7 +759,7 @@ public class SPML implements SpmlHandler  {
 						resCode = resCode.substring(0,resCode.indexOf("*"));
 						String year = (String)req.getAttributeValue(FIELD_RES_CODE);
 						year = year.substring(year.indexOf("*") + 1,  year.indexOf("-"));
-						LOG.debug("residence found for year: " + year);
+						LOG.debug("residence found for" + resCode +"  year: " + year);
 						//If its current add to the list for the sync job
 						if (year.equals(thisYear)) {
 							uctCourses = uctCourses + "," + resCode;
