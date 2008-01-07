@@ -748,30 +748,31 @@ public class SPML implements SpmlHandler  {
 
 						}
 
-						SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
-						String thisYear = yearf.format(new Date());
-						//OK rescode may contain old data
-						if (req.getAttributeValue(FIELD_RES_CODE) != null ) {
-							String resCode = (String)req.getAttributeValue(FIELD_RES_CODE);
-							resCode = resCode.substring(0,resCode.indexOf("*"));
-							String year = (String)req.getAttributeValue(FIELD_RES_CODE);
-							year = year.substring(year.indexOf("*") + 1,  year.indexOf("-"));
-							LOG.debug("residence found for year: " + year);
-							//If its current add to the list for the sync job
-							if (year.equals(thisYear)) {
-								uctCourses = uctCourses + "," + resCode;
-								checkList.add(resCode);
-								
-							}
-							this.addUserToCourse(CN, resCode, year);
-						}
-						
-//						now synch 
-						synchCourses(checkList, CN);
-						
-						
 						
 					}
+					SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
+					String thisYear = yearf.format(new Date());
+					//OK rescode may contain old data
+					if (req.getAttributeValue(FIELD_RES_CODE) != null ) {
+						String resCode = (String)req.getAttributeValue(FIELD_RES_CODE);
+						resCode = resCode.substring(0,resCode.indexOf("*"));
+						String year = (String)req.getAttributeValue(FIELD_RES_CODE);
+						year = year.substring(year.indexOf("*") + 1,  year.indexOf("-"));
+						LOG.debug("residence found for year: " + year);
+						//If its current add to the list for the sync job
+						if (year.equals(thisYear)) {
+							uctCourses = uctCourses + "," + resCode;
+							checkList.add(resCode);
+							
+						}
+						this.addUserToCourse(CN, resCode, year);
+					}
+					
+					//now synch 
+					synchCourses(checkList, CN);
+					
+					
+					
 				}
 				catch (Exception e) {
 					//Nothing to do...
