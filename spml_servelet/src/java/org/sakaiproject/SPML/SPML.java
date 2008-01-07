@@ -751,6 +751,7 @@ public class SPML implements SpmlHandler  {
 								String year = (String)req.getAttributeValue(FIELD_RES_CODE);
 								year = year.substring(year.indexOf("*") + 1,  year.indexOf("-"));
 								LOG.debug("residence found for year: " + year);
+								//If its current add to the list for the sync job
 								if (year.equals(thisYear))
 									uctCourses = uctCourses + "," + resCode;
 								
