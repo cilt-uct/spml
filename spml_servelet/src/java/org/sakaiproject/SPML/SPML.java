@@ -33,6 +33,7 @@ package org.sakaiproject.SPML;
 
 import java.text.SimpleDateFormat;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -727,7 +728,7 @@ public class SPML implements SpmlHandler  {
 					}
 					uctCourses = uctCourses + "," + (String)req.getAttributeValue(FIELD_SCHOOL) + "_"+ (String)req.getAttributeValue(FIELD_TYPE);
 					
-
+					List checkList = new ArrayList();
 					if (uctCourses!=null) {
 						if (uctCourses.length()>0) {
 							String[] uctCourse =  StringUtil.split(uctCourses, ",");
@@ -737,32 +738,36 @@ public class SPML implements SpmlHandler  {
 								if (uctCourse[ai].length()==11)
 								{
 									uctCourse[ai]=uctCourse[ai].substring(0,8);
+									
 								}
 								LOG.info("adding this student to " + uctCourse[ai]);
+								checkList.add(uctCourse[ai]);
 								addUserToCourse(CN,uctCourse[ai]);
 								
 							}
-							SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
-							String thisYear = yearf.format(new Date());
-							//OK rescode may contain old data
-							if (req.getAttributeValue(FIELD_RES_CODE) != null ) {
-								String resCode = (String)req.getAttributeValue(FIELD_RES_CODE);
-								resCode = resCode.substring(0,resCode.indexOf("*"));
-								String year = (String)req.getAttributeValue(FIELD_RES_CODE);
-								year = year.substring(year.indexOf("*") + 1,  year.indexOf("-"));
-								LOG.debug("residence found for year: " + year);
-								//If its current add to the list for the sync job
-								if (year.equals(thisYear))
-									uctCourses = uctCourses + "," + resCode;
-								
-								this.addUserToCourse(CN, resCode, year);
-							}
-							
-//							now synch 
-							synchCourses(uctCourse, CN);
-							
-							
+
 						}
+
+						SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
+						String thisYear = yearf.format(new Date());
+						//OK rescode may contain old data
+						if (req.getAttributeValue(FIELD_RES_CODE) != null ) {
+							String resCode = (String)req.getAttributeValue(FIELD_RES_CODE);
+							resCode = resCode.substring(0,resCode.indexOf("*"));
+							String year = (String)req.getAttributeValue(FIELD_RES_CODE);
+							year = year.substring(year.indexOf("*") + 1,  year.indexOf("-"));
+							LOG.debug("residence found for year: " + year);
+							//If its current add to the list for the sync job
+							if (year.equals(thisYear)) {
+								uctCourses = uctCourses + "," + resCode;
+								checkList.add(resCode);
+								
+							}
+							this.addUserToCourse(CN, resCode, year);
+						}
+						
+//						now synch 
+						synchCourses(checkList, CN);
 						
 						
 						
@@ -1143,7 +1148,7 @@ private synchronized void setSakaiSessionUser(String id) {
 	}
 	
 	//remove user from old courses
-	private void synchCourses(String[] uctCourse, String userEid){
+	private void synchCourses(List uctCourse, String userEid){
 		LOG.debug("Checking enrolments for " + userEid);
 		SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
 		String thisYear = yearf.format(new Date());
@@ -1156,8 +1161,8 @@ private synchronized void setSakaiSessionUser(String id) {
 			String courseEid =  eSet.getEid();
 			LOG.debug("got section: " + courseEid);
 			boolean found = false;
-			for (int i =0; i < uctCourse.length;i++ ) {
-				String thisEn = uctCourse[i] + "," + thisYear;
+			for (int i =0; i < uctCourse.size(); i++ ) {
+				String thisEn = (String)uctCourse.get(i) + "," + thisYear;
 				if (thisEn.equalsIgnoreCase(courseEid))
 					found = true;
 			}
