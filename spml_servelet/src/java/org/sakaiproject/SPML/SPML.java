@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.Iterator;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Calendar;
 
 import org.openspml.client.*;
 import org.openspml.util.*;
@@ -726,11 +727,7 @@ public class SPML implements SpmlHandler  {
 					}
 					uctCourses = uctCourses + "," + (String)req.getAttributeValue(FIELD_SCHOOL) + "_"+ (String)req.getAttributeValue(FIELD_TYPE);
 					
-					if (req.getAttributeValue(FIELD_RES_CODE) != null ) {
-						String resCode = (String)req.getAttributeValue(FIELD_RES_CODE);
-						resCode = resCode.substring(0,resCode.indexOf("*"));
-						uctCourses = uctCourses + "," + resCode;
-					}
+
 					if (uctCourses!=null) {
 						if (uctCourses.length()>0) {
 							String[] uctCourse =  StringUtil.split(uctCourses, ",");
@@ -745,6 +742,21 @@ public class SPML implements SpmlHandler  {
 								addUserToCourse(CN,uctCourse[ai]);
 								
 							}
+							SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
+							String thisYear = yearf.format(new Date());
+							//OK rescode may contain old data
+							if (req.getAttributeValue(FIELD_RES_CODE) != null ) {
+								String resCode = (String)req.getAttributeValue(FIELD_RES_CODE);
+								resCode = resCode.substring(0,resCode.indexOf("*"));
+								String year = (String)req.getAttributeValue(FIELD_RES_CODE);
+								year = year.substring(year.indexOf("*") + 1,  year.indexOf("-"));
+								LOG.debug("residence found for year: " + year);
+								if (year.equals(thisYear))
+									uctCourses = uctCourses + "," + resCode;
+								
+								this.addUserToCourse(CN, resCode, year);
+							}
+							
 //							now synch 
 							synchCourses(uctCourse, CN);
 							
@@ -1037,18 +1049,24 @@ private synchronized void setSakaiSessionUser(String id) {
 	 * 
 	 */
 	private void addUserToCourse(String userId, String courseCode) {
+		SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
+		String thisYear = yearf.format(new Date());
+		
+		addUserToCourse(userId,courseCode, thisYear);
+	}
+	
+	private void addUserToCourse(String userId, String courseCode, String term) {
 		
 
 		
 		try {
-			SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
-			String thisYear = yearf.format(new Date());
+			
 			
 			SimpleDateFormat dateForm = new SimpleDateFormat("yyyy-mm-dd");
 			courseAdmin = getCourseAdmin();
 			cmService =getCourseManagementService();
 			//does the 
-			String courseEid = courseCode + "," +thisYear;
+			String courseEid = courseCode + "," +term;
 			//is there a cannonical course?
 			String setId = null;
 			String setCategory = null;
@@ -1060,6 +1078,15 @@ private synchronized void setSakaiSessionUser(String id) {
 				setCategory = "Department";
 			}
 			
+			//do we have a accedemic session?
+			if (!cmService.isAcademicSessionDefined(term)) {
+				Calendar cal = Calendar.getInstance();
+				cal.set(new Integer(term).intValue(), 1, 1);
+				Date start =  cal.getTime();
+				cal.set(new Integer(term).intValue(), 12, 30);
+				Date end = cal.getTime();
+				courseAdmin.createAcademicSession(term, term, term, start, end);
+			}
 			//does the course set exist?
 			
 			if (!cmService.isCourseSetDefined(setId)) 
@@ -1072,10 +1099,10 @@ private synchronized void setSakaiSessionUser(String id) {
 			
 			
 			if (!cmService.isCourseOfferingDefined(courseEid)) {
-			 	LOG.info("creating course offering for " + courseCode + " in year " + thisYear);
-			 	Date startDate = dateForm.parse(thisYear + "-01-01");
-			 	Date endDate = dateForm.parse(thisYear + "-12-31");
-				courseAdmin.createCourseOffering(courseEid, courseEid, "someDescription", "active", thisYear, courseCode, startDate, endDate);
+			 	LOG.info("creating course offering for " + courseCode + " in year " + term);
+			 	Date startDate = dateForm.parse(term + "-01-01");
+			 	Date endDate = dateForm.parse(term + "-12-31");
+				courseAdmin.createCourseOffering(courseEid, courseEid, "someDescription", "active", term, courseCode, startDate, endDate);
 				courseAdmin.addCourseOfferingToCourseSet(setId, courseEid);
 			}
 			 
@@ -1100,7 +1127,7 @@ private synchronized void setSakaiSessionUser(String id) {
 				//lets create the 2007 academic year :-)
 				//create enrolmentset
 				courseAdmin.createEnrollmentSet(courseEid, courseEid, "description", "category", "defaultEnrollmentCredits", courseEid, null);
-				LOG.info("creating Section for " + courseCode + " in year " + thisYear);
+				LOG.info("creating Section for " + courseCode + " in year " + term);
 				getCanonicalCourse(courseCode);
 				courseAdmin.createSection(courseEid, courseEid, "someDescription","course",null,courseEid,courseEid);
 			}
