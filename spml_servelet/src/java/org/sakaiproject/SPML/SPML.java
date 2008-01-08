@@ -766,7 +766,7 @@ public class SPML implements SpmlHandler  {
 							checkList.add(resCode);
 							
 						}
-						this.addUserToCourse(CN, resCode, year);
+						this.addUserToCourse(CN, resCode, year, "residence");
 					}
 					
 					//now synch 
@@ -1060,10 +1060,10 @@ private synchronized void setSakaiSessionUser(String id) {
 		SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
 		String thisYear = yearf.format(new Date());
 		
-		addUserToCourse(userId,courseCode, thisYear);
+		addUserToCourse(userId,courseCode, thisYear, null);
 	}
 	
-	private void addUserToCourse(String userId, String courseCode, String term) {
+	private void addUserToCourse(String userId, String courseCode, String term, String setCategory) {
 		
 
 		
@@ -1077,14 +1077,15 @@ private synchronized void setSakaiSessionUser(String id) {
 			String courseEid = courseCode + "," +term;
 			//is there a cannonical course?
 			String setId = null;
-			String setCategory = null;
-			if (courseCode.length() == 5) {
-				setId = courseCode.substring(0,2);
-				setCategory = "degree";
-			} else {
-				setId = courseCode.substring(0,3);
-				setCategory = "Department";
-			}
+			if (setCategory == null ) {
+				if (courseCode.length() == 5) {
+					setId = courseCode.substring(0,2);
+					setCategory = "degree";
+				} else {
+					setId = courseCode.substring(0,3);
+					setCategory = "Department";
+				}
+				}
 			
 			//do we have a accedemic session?
 			if (!cmService.isAcademicSessionDefined(term)) {
