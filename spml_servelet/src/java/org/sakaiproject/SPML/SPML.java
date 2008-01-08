@@ -1085,7 +1085,9 @@ private synchronized void setSakaiSessionUser(String id) {
 					setId = courseCode.substring(0,3);
 					setCategory = "Department";
 				}
-				}
+			} else {
+				setId = courseCode;
+			}
 			
 			//do we have a accedemic session?
 			if (!cmService.isAcademicSessionDefined(term)) {
