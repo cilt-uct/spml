@@ -414,10 +414,11 @@ public class SPML implements SpmlHandler  {
 		//we have had 1 null CN so this should be thrown
 		if (CN == null) {
 			LOG.error("ERROR: invalid username: " + CN);
-			response.setError("invalid username");
-			response.setResult("failure");
+			response.setResult(SpmlResponse.RESULT_FAILURE);
+			response.setError(SpmlResponse.ERROR_CUSTOM_ERROR);
+			response.setErrorMessage("invalid username");
 			return response;			
-			
+
 		}
 		CN = CN.toLowerCase();
 		if (req.getAttributeValue(FIELD_PN)!=null)
@@ -433,8 +434,9 @@ public class SPML implements SpmlHandler  {
 		//If eduPerson is null reject
 		if (type == null || type.equals("")) {
 			LOG.error("ERROR: no eduPersonPrimaryAffiliation: " + CN);
-			response.setError("no eduPersonPrimaryAffiliation");
-			response.setResult("failure");
+			response.setResult(SpmlResponse.RESULT_FAILURE);
+			response.setError(SpmlResponse.ERROR_CUSTOM_ERROR);
+			response.setErrorMessage("no eduPersonPrimaryAffiliation");
 			return response;
 		}
 		
@@ -497,22 +499,25 @@ public class SPML implements SpmlHandler  {
 			catch (UserIdInvalidException in) {
 				//should throw out here
 				LOG.error("invalid username: " + CN);
-				response.setError("invalid username");
-				response.setResult("failure");
+				response.setResult(SpmlResponse.RESULT_FAILURE);
+				response.setError(SpmlResponse.ERROR_CUSTOM_ERROR);
+				response.setErrorMessage("invalid username");
 				return response;
 			}
 			catch (UserAlreadyDefinedException ex) {
 				//should throw out here
 				LOG.error("ERROR: UserAlready exists: " + CN);
-				response.setError("user already exists");
-				response.setResult("failure");
+				response.setResult(SpmlResponse.RESULT_FAILURE);
+				response.setError(SpmlResponse.ERROR_CUSTOM_ERROR);
+				response.setErrorMessage("user already exists");
 				return response;
 			}
 			catch (UserPermissionException ep) {
 				//should throw out here
 				LOG.error("ERROR no permision to add user " + e);
-				response.setError("No permission to add user");
-				response.setResult("failure");
+				response.setResult(SpmlResponse.RESULT_FAILURE);
+				response.setError(SpmlResponse.ERROR_CUSTOM_ERROR);
+				response.setErrorMessage("No permission to add user");
 				return response;
 			}
 			
@@ -520,16 +525,18 @@ public class SPML implements SpmlHandler  {
 		catch (UserPermissionException e) {
 			//should throw out here
 			LOG.error("ERROR no permision " + e);
-			response.setError("No permission to edit user");
-			response.setResult("failure");
+			response.setResult(SpmlResponse.RESULT_FAILURE);
+			response.setError(SpmlResponse.ERROR_CUSTOM_ERROR);
+			response.setErrorMessage("No permission to edit user");
 			return response;
 		}
 		catch (UserLockedException ul) {
 			//should throw out here
 			LOG.error("ERROR user locked for editing " + CN);
 			//response = new SPMLResponse();
-			response.setError("User is locked for editing");
-			response.setResult("failure");
+			response.setResult(SpmlResponse.RESULT_FAILURE);
+			response.setError(SpmlResponse.ERROR_CUSTOM_ERROR);
+			response.setErrorMessage("User is locked for editing");
 			return response;
 		}
 		
