@@ -1102,6 +1102,12 @@ private synchronized void setSakaiSessionUser(String id) {
 				setId = courseCode;
 			}
 			
+			String role = "Student";
+			if (setCategory.equalsIgnoreCase("residence")) {
+				role = "Participant";
+			}
+				
+			
 			//do we have a accedemic session?
 			if (!cmService.isAcademicSessionDefined(term)) {
 				Calendar cal = Calendar.getInstance();
@@ -1140,7 +1146,7 @@ private synchronized void setSakaiSessionUser(String id) {
 			
 			
 			
-			courseAdmin.addOrUpdateSectionMembership(userId, "Student", courseEid, "enroled");
+			courseAdmin.addOrUpdateSectionMembership(userId, role, courseEid, "enroled");
 			courseAdmin.addOrUpdateEnrollment(userId, courseEid, "enrolled", "NA", "0");
 			//now add the user to a section of the same name
 			try {
