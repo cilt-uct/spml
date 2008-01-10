@@ -1161,7 +1161,7 @@ private synchronized void setSakaiSessionUser(String id) {
 				getCanonicalCourse(courseCode);
 				courseAdmin.createSection(courseEid, courseEid, "someDescription","course",null,courseEid,courseEid);
 			}
-			courseAdmin.addOrUpdateSectionMembership(userId, "Student", courseEid, "enroled");
+			courseAdmin.addOrUpdateSectionMembership(userId, role, courseEid, "enroled");
 		}
 		catch(Exception e) {
 			e.printStackTrace();
