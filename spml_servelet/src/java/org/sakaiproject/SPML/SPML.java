@@ -430,7 +430,13 @@ public class SPML implements SpmlHandler  {
 		String thisEmail = (String)req.getAttributeValue(FIELD_MAIL);
 		//always lower case
 		String type = (String)req.getAttributeValue(FIELD_TYPE);
-		
+		//If eduPerson is null reject
+		if (type == null || type.equals("")) {
+			LOG.error("ERROR: no eduPersonPrimaryAffiliation: " + CN);
+			response.setError("no eduPersonPrimaryAffiliation");
+			response.setResult("failure");
+			return response;
+		}
 		
 		type = type.toLowerCase();
 		
