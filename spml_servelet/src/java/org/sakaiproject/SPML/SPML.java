@@ -59,6 +59,7 @@ import org.sakaiproject.user.api.UserPermissionException;
 import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.entity.api.Entity;
 
 
@@ -1130,6 +1131,7 @@ private synchronized void setSakaiSessionUser(String id) {
 			
 			if (!cmService.isCourseOfferingDefined(courseEid)) {
 			 	LOG.info("creating course offering for " + courseCode + " in year " + term);
+			 	EmailService.send("help@vula.uct.ac.za", "help@vula.uct.ac.za", "[CM]: new course created on vula: " + courseEid, null, null, null, null);
 			 	Date startDate = dateForm.parse(term + "-01-01");
 			 	Date endDate = dateForm.parse(term + "-12-31");
 				courseAdmin.createCourseOffering(courseEid, courseEid, "someDescription", "active", term, courseCode, startDate, endDate);
