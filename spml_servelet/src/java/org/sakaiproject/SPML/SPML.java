@@ -1135,9 +1135,7 @@ private synchronized void setSakaiSessionUser(String id) {
 			 	Calendar cal = Calendar.getInstance();
 			 	cal.set(Calendar.DAY_OF_MONTH, 1);
 			 	cal.set(Calendar.MONTH, 1);
-			 	
 			 	Date startDate = cal.getTime();
-			 	
 			 	cal.set(Calendar.DAY_OF_MONTH, 31);
 			 	cal.set(Calendar.MONTH, 12);
 			 	Date endDate = cal.getTime();
