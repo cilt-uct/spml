@@ -1132,8 +1132,15 @@ private synchronized void setSakaiSessionUser(String id) {
 			if (!cmService.isCourseOfferingDefined(courseEid)) {
 			 	LOG.info("creating course offering for " + courseCode + " in year " + term);
 			 	EmailService.send("help@vula.uct.ac.za", "help@vula.uct.ac.za", "[CM]: new course created on vula: " + courseEid, null, null, null, null);
-			 	Date startDate = dateForm.parse(term + "-01-01");
-			 	Date endDate = dateForm.parse(term + "-12-31");
+			 	Calendar cal = Calendar.getInstance();
+			 	cal.set(Calendar.DAY_OF_MONTH, 1);
+			 	cal.set(Calendar.MONTH, 1);
+			 	
+			 	Date startDate = cal.getTime();
+			 	
+			 	cal.set(Calendar.DAY_OF_MONTH, 31);
+			 	cal.set(Calendar.MONTH, 12);
+			 	Date endDate = cal.getTime();
 				courseAdmin.createCourseOffering(courseEid, courseEid, "someDescription", "active", term, courseCode, startDate, endDate);
 				courseAdmin.addCourseOfferingToCourseSet(setId, courseEid);
 			}
