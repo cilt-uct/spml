@@ -1136,7 +1136,7 @@ private synchronized void setSakaiSessionUser(String id) {
 			 	cal.set(Calendar.DAY_OF_MONTH, 1);
 			 	cal.set(Calendar.MONTH, 1);
 			 	Date startDate = cal.getTime();
-			 	cal.set(Calendar.DAY_OF_MONTH, 31);
+			 	cal.set(Calendar.DAY_OF_MONTH, 30);
 			 	cal.set(Calendar.MONTH, 12);
 			 	Date endDate = cal.getTime();
 				courseAdmin.createCourseOffering(courseEid, courseEid, "someDescription", "active", term, courseCode, startDate, endDate);
