@@ -749,14 +749,15 @@ public class SPML implements SpmlHandler  {
 							LOG.info(" got " + uctCourse.length + " courses");
 							for (int ai = 0; ai < uctCourse.length; ai ++ ) {
 								//System.out.println("got a coursecode " + uctCourse[ai]);
-								if (uctCourse[ai].length()==11)
+								String course = uctCourse[ai].trim();
+								if (course.length()==11)
 								{
-									uctCourse[ai]=uctCourse[ai].substring(0,8);
+									course = course.substring(0,8);
 									
 								}
-								LOG.info("adding this student to " + uctCourse[ai]);
-								checkList.add(uctCourse[ai]);
-								addUserToCourse(CN,uctCourse[ai]);
+								LOG.info("adding this student to " + course);
+								checkList.add(course);
+								addUserToCourse(CN,course);
 								
 							}
 
