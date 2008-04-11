@@ -31,6 +31,7 @@
  */
 package org.sakaiproject.SPML;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -776,7 +777,7 @@ public class SPML implements SpmlHandler  {
 						year = year.substring(year.indexOf("*") + 1,  year.indexOf("-"));
 						LOG.info("residence found for: " + resCode +"  year: " + year);
 						//If its current add to the list for the sync job
-						if (year.equals(thisYear)) {
+						if (year.equals(thisYear) && residenceIsCurrent(resCode)) {
 							uctCourses = uctCourses + "," + resCode;
 							checkList.add(resCode);
 							
@@ -1258,4 +1259,40 @@ private synchronized void setSakaiSessionUser(String id) {
 				
 		return null;
 	}
+	
+	private boolean residenceIsCurrent(String resCode) {
+		
+		if (resCode == null)
+			return false;
+		
+		/* rescode is of the form RES*YYYY-MM-DD*YYYY-MM-DD
+		 * we need to parse these to dates
+		 */
+		
+		String startDate = resCode.substring(4, 14);
+		String endDate =resCode.substring(15);
+		DateFormat df = new SimpleDateFormat("YYYY-MM-DD");
+		
+		Date end = null;
+		Date start = null;
+		
+		try {
+			start = df.parse(startDate);
+			end = df.parse(endDate);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		/* we should always add in this case - may not get their details again
+		if (start.after(new Date()))
+			return false;
+		*/
+		if (end.before(new Date()))
+			return false;
+		
+		return true;
+		
+	}
+	
 } //end class
