@@ -777,7 +777,7 @@ public class SPML implements SpmlHandler  {
 						year = year.substring(year.indexOf("*") + 1,  year.indexOf("-"));
 						LOG.info("residence found for: " + resCode +"  year: " + year);
 						//If its current add to the list for the sync job
-						if (year.equals(thisYear) && residenceIsCurrent(resCode)) {
+						if (year.equals(thisYear) && residenceIsCurrent((String)req.getAttributeValue(FIELD_RES_CODE))) {
 							uctCourses = uctCourses + "," + resCode;
 							checkList.add(resCode);
 							
@@ -1265,31 +1265,36 @@ private synchronized void setSakaiSessionUser(String id) {
 		if (resCode == null)
 			return false;
 		
+		LOG.debug("checking if this resCode is current: " + resCode);
+		
 		/* rescode is of the form RES*YYYY-MM-DD*YYYY-MM-DD
 		 * we need to parse these to dates
 		 */
-		
-		String startDate = resCode.substring(4, 14);
-		String endDate =resCode.substring(15);
-		DateFormat df = new SimpleDateFormat("YYYY-MM-DD");
-		
-		Date end = null;
-		Date start = null;
-		
 		try {
-			start = df.parse(startDate);
-			end = df.parse(endDate);
+			String startDate = resCode.substring(4, 14);
+			String endDate =resCode.substring(15);
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+			Date start = df.parse(startDate);
+			Date end = df.parse(endDate);
+			
+			/* we should always add in this case - may not get their details again
+			if (start.after(new Date()))
+				return false;
+			*/
+			if (end.before(new Date())) {
+				LOG.debug("residence end date is in the past");
+				return false;
+			
+			}
+			
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 		
-		/* we should always add in this case - may not get their details again
-		if (start.after(new Date()))
-			return false;
-		*/
-		if (end.before(new Date()))
-			return false;
+		
 		
 		return true;
 		
