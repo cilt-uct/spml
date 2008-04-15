@@ -767,17 +767,20 @@ public class SPML implements SpmlHandler  {
 					//OK rescode may contain old data
 					if (req.getAttributeValue(FIELD_RES_CODE) != null ) {
 						String resCode = (String)req.getAttributeValue(FIELD_RES_CODE);
-						resCode = resCode.substring(0,resCode.indexOf("*"));
-						String year = (String)req.getAttributeValue(FIELD_RES_CODE);
-						year = year.substring(year.indexOf("*") + 1,  year.indexOf("-"));
-						LOG.info("residence found for: " + resCode +"  year: " + year);
-						//If its current add to the list for the sync job
-						if (year.equals(thisYear) && residenceIsCurrent((String)req.getAttributeValue(FIELD_RES_CODE))) {
-							uctCourses = uctCourses + "," + resCode;
-							checkList.add(resCode);
-
-						}
+						//if its a wierd no date residence ignore it
+						if (resCode.indexOf("*") > 0 ) {
+							resCode = resCode.substring(0,resCode.indexOf("*"));
+							String year = (String)req.getAttributeValue(FIELD_RES_CODE);
+							year = year.substring(year.indexOf("*") + 1,  year.indexOf("-"));
+							LOG.info("residence found for: " + resCode +"  year: " + year);
+							//If its current add to the list for the sync job
+							if (year.equals(thisYear) && residenceIsCurrent((String)req.getAttributeValue(FIELD_RES_CODE))) {
+								uctCourses = uctCourses + "," + resCode;
+								checkList.add(resCode);
+	
+							}
 						this.addUserToCourse(CN, resCode, year, "residence");
+						}
 					}
 
 					//now synch 
