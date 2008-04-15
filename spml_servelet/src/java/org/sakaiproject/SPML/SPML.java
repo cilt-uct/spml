@@ -723,9 +723,9 @@ public class SPML implements SpmlHandler  {
 		 * we should only do this if this is a student 
 		 */
 		if (type.equals("student")) {
-			
-		
-			
+
+
+
 			//only do this if the user is active -otherwiose the student is now no longer registered
 			String status = (String)req.getAttributeValue("uctStudentStatus");
 			//for staff this could be null
@@ -737,12 +737,12 @@ public class SPML implements SpmlHandler  {
 				try {
 					String uctCourses =null;
 					uctCourses = (String)req.getAttributeValue(FIELD_PROGAM);
-					
+
 					if ((String)req.getAttributeValue(FIELD_MEMBERSHIP)!=null) {
 						uctCourses = uctCourses + "," +(String)req.getAttributeValue(FIELD_MEMBERSHIP);
 					}
+
 					uctCourses = uctCourses + "," + (String)req.getAttributeValue(FIELD_SCHOOL) + "_"+ (String)req.getAttributeValue(FIELD_TYPE);
-					
 					List checkList = new ArrayList();
 					if (uctCourses!=null) {
 						if (uctCourses.length()>0) {
@@ -754,19 +754,14 @@ public class SPML implements SpmlHandler  {
 								if (course.length()==11)
 								{
 									course = course.substring(0,8);
-									
 								}
 								LOG.info("adding this student to " + course);
 								checkList.add(course);
 								addUserToCourse(CN,course);
-								
 							}
-
 						}
-
-						
 					} //end if courseList not null
-					
+
 					SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
 					String thisYear = yearf.format(new Date());
 					//OK rescode may contain old data
@@ -780,15 +775,15 @@ public class SPML implements SpmlHandler  {
 						if (year.equals(thisYear) && residenceIsCurrent((String)req.getAttributeValue(FIELD_RES_CODE))) {
 							uctCourses = uctCourses + "," + resCode;
 							checkList.add(resCode);
-							
+
 						}
 						this.addUserToCourse(CN, resCode, year, "residence");
 					}
-					
+
 					//now synch 
 					synchCourses(checkList, CN);
-					
-					
+
+
 					
 				}
 				catch (Exception e) {
@@ -797,6 +792,8 @@ public class SPML implements SpmlHandler  {
 					//e.printStackTrace();
 					
 				}
+			} else if (status.equals("Inactive")){
+				synchCourses(new ArrayList(), CN);
 			}
 		}
 		return response;
