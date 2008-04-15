@@ -789,7 +789,7 @@ public class SPML implements SpmlHandler  {
 				catch (Exception e) {
 					//Nothing to do...
 					//error adding users to course
-					//e.printStackTrace();
+					e.printStackTrace();
 					
 				}
 			} else if (status.equals("Inactive")){
@@ -929,7 +929,7 @@ public class SPML implements SpmlHandler  {
 	
 	    }
 	    catch (Exception e) {
-		e.printStackTrace();
+	    	e.printStackTrace();
 	    }
 	    
 	    return resp;
