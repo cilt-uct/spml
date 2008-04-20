@@ -1190,6 +1190,9 @@ private synchronized void setSakaiSessionUser(String id) {
 		SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
 		String thisYear = yearf.format(new Date());
 		
+		courseAdmin = getCourseAdmin();
+		cmService =getCourseManagementService();
+		
 		Set enroled = cmService.findCurrentlyEnrolledEnrollmentSets(userEid);
 		Iterator coursesIt = enroled.iterator();
 		LOG.debug("got list of enrolement set with " + enroled.size());
