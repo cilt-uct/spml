@@ -120,8 +120,8 @@ public class SPML implements SpmlHandler  {
 	
 	//change this to the name of your campus
 	private String spmlCampus = "University of Cape Town";
-	private static final String SPML_USER = ServerConfigurationService.getString("spml.user");
-	private static final String SPML_PASSWORD = ServerConfigurationService.getString("spml.password");
+	private static final String SPML_USER = ServerConfigurationService.getString("spml.user", "admin");
+	private static final String SPML_PASSWORD = ServerConfigurationService.getString("spml.password", "admin");
 	private String courseYear = "2006";
 	
 	
@@ -911,7 +911,7 @@ public class SPML implements SpmlHandler  {
 		
 		    	//get a list of the actual methods
 			List requestList = req.getRequests(); 
-			for (int i =0 ; i < requestList.size();i++) {
+			for (int i =0 ; i < requestList.size(); i++) {
 				//each item in the list these should be a spml object...
 				//these can be any of the types
 				SpmlRequest currReq = (SpmlRequest)requestList.get(i);
