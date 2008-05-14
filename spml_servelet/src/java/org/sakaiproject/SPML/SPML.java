@@ -117,6 +117,7 @@ public class SPML implements SpmlHandler  {
 	private static final String FIELD_ONLINELEARNINGREQUIRED="uctOnlineLearningRequired";
 	private static final String FIELD_RES_CODE="uctResidenceCode";
 	private static final String FIELD_ORG_DECR = "Description";
+	private static final String FIELD_TITLE = "uctPersonalTitle";
 	
 	//change this to the name of your campus
 	private String spmlCampus = "University of Cape Town";
@@ -432,6 +433,10 @@ public class SPML implements SpmlHandler  {
 		LN = LN.trim();
 		String thisEmail = (String)req.getAttributeValue(FIELD_MAIL);
 		//always lower case
+		
+		
+		String thisTitle = (String)req.getAttributeValue(this.FIELD_TITLE);
+		
 		String type = (String)req.getAttributeValue(FIELD_TYPE);
 		//If eduPerson is null reject
 		if (type == null || type.equals("")) {
@@ -605,6 +610,23 @@ public class SPML implements SpmlHandler  {
 		    }
 		    
 		    LOG.debug("users email profile email is " + userProfile.getMail());
+		    
+		    
+		    
+		    if (systemProfile.getTitle()!= null && !systemProfile.getTitle().equals("") && thisTitle != null) {
+		    	String systemTitle = systemProfile.getTitle();
+		    	String modTitle = thisTitle;
+		    	if (userProfile.getTitle() != null && !systemTitle.equals(userProfile.getTitle()) && !userProfile.getTitle().equals("")) {
+		    		systemProfile.setTitle(modTitle);
+		    	}  else {
+		    		systemProfile.setTitle(modTitle);
+					userProfile.setTitle(modTitle);
+				}
+		    } else if (thisTitle != null && !thisTitle.equals("")) {
+		    	systemProfile.setTitle(thisTitle);
+				userProfile.setTitle(thisTitle);
+		    }
+		    
 		    
 		    if (type != null ) {
 		    	thisUser.setType(type);
