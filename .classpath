@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="spml_servelet/src/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/profile"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/user-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/cm-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/entity-api"/>
@@ -14,5 +13,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/authz-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/util-util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/email-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/sakaiperson"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

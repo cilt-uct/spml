@@ -73,9 +73,7 @@ import org.sakaiproject.db.api.SqlReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 // Profile stuff
-import org.sakaiproject.api.app.profile.*;
-import org.sakaiproject.component.app.profile.*;
-import org.sakaiproject.component.common.edu.person.SakaiPersonImpl;
+
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.component.cover.ComponentManager;
