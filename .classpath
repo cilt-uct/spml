@@ -13,6 +13,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/authz-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/util-util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/email-api"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/sakaiperson"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/profile"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
