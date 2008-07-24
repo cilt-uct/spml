@@ -448,6 +448,7 @@ public class SPML implements SpmlHandler  {
 		type = type.toLowerCase();
 		
 		//if this is a thirparty check the online learning required field
+		/*
 		String onlineRequired = (String)req.getAttributeValue(FIELD_ONLINELEARNINGREQUIRED);
 		if (type.equalsIgnoreCase("thirdparty") && onlineRequired != null && onlineRequired.equals("No")) {
 			//return 
@@ -455,7 +456,7 @@ public class SPML implements SpmlHandler  {
 			return response;
 			
 		}
-		
+		*/
 		
 			
 		String mobile = (String)req.getAttributeValue(FIELD_MOBILE);
