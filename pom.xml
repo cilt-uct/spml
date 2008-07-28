@@ -35,4 +35,11 @@
 			</snapshots>
 		</repository>
 	</repositories>
+	
+		<scm>
+		<connection>scm:svn:http://source.cet.uct.ac.za/svn/sakai/spml/trunk/</connection>
+		<developerConnection>scm:svn:http://source.cet.uct.ac.za/svn/sakai/spml/trunk/</developerConnection>
+		<url>http://source.cet.uct.ac.za/svn/sakai/spml/trunk/</url>
+	</scm>
+	
 </project>
