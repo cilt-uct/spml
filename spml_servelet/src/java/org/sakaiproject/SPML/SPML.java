@@ -1,6 +1,6 @@
 /**********************************************************************************
-* $URL: https://source.sakaiproject.org/contib/spml/src/java/org/sakaiporject/spml/SPML.java $
-* $Id: SPML.java 3197 2005-12-22 00:30:28Z dhorwitz@ched.uct.ac.za $
+* $URL: $
+* $Id: $
 ***********************************************************************************
 *
 * Copyright (c) 2003, 2004, 2005 Sakai Foundation
@@ -26,7 +26,7 @@
  * </p>
  * 
  * @author David Horwitz, University of Cape Town
- * @author Nuno Fernandez, Universidade Fernando Pessoa
+ * 
  * @version $Revision: 3197 $
  */
 package org.sakaiproject.SPML;
