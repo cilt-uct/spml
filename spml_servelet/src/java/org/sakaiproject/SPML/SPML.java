@@ -116,6 +116,7 @@ public class SPML implements SpmlHandler  {
 	private static final String FIELD_RES_CODE="uctResidenceCode";
 	private static final String FIELD_ORG_DECR = "Description";
 	private static final String FIELD_TITLE = "uctPersonalTitle";
+	private static final String FIELD_ACADEMIC_CARREER = "uctAcademicCareer";
 	
 	//change this to the name of your campus
 	private String spmlCampus = "University of Cape Town";
@@ -764,7 +765,7 @@ public class SPML implements SpmlHandler  {
 					}
 
 					uctCourses = uctCourses + "," + (String)req.getAttributeValue(FIELD_SCHOOL) + "_"+ (String)req.getAttributeValue(FIELD_TYPE);
-					List checkList = new ArrayList();
+					List<String> checkList = new ArrayList<String>();
 					if (uctCourses!=null) {
 						if (uctCourses.length()>0) {
 							String[] uctCourse =  StringUtil.split(uctCourses, ",");
@@ -802,6 +803,21 @@ public class SPML implements SpmlHandler  {
 							}
 						this.addUserToCourse(CN, resCode, year, "residence");
 						}
+					}
+					
+					
+					//academic career
+					if (req.getAttributeValue(FIELD_ACADEMIC_CARREER) != null) {
+						String career = (String)req.getAttributeValue(FIELD_ACADEMIC_CARREER);
+						LOG.debug("found accademinc Career: " + career);
+						addUserToCourse(CN, career, thisYear, "carrer");
+						checkList.add(career);
+						
+						//career_faculty
+						String facCareer= career + "_" + (String)req.getAttributeValue(FIELD_SCHOOL);
+						addUserToCourse(CN, facCareer, thisYear, "carrer");
+						checkList.add(facCareer);
+						
 					}
 
 					//now synch 
