@@ -602,8 +602,13 @@ public class SPML implements SpmlHandler  {
 					userProfile.setMail(modMail);
 					thisUser.setEmail(modMail);
 				}
-			//the SPML might now send null emails
-		    } else if (thisEmail != null && !thisEmail.equals("")) {
+			
+		    } else if (thisEmail !=null && systemProfile.getMail()!= null) {
+		    	//if the account was created manually - profile state may be inconsistent
+		    	systemProfile.setMail(thisEmail);
+		    	userProfile.setMail(thisUser.getEmail());
+		   } else if (thisEmail != null && !thisEmail.equals("")) {
+		    	//the SPML might now send null emails
 		    	systemProfile.setMail(thisEmail);
 				userProfile.setMail(thisEmail);
 				thisUser.setEmail(thisEmail);
