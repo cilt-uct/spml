@@ -603,7 +603,7 @@ public class SPML implements SpmlHandler  {
 					thisUser.setEmail(modMail);
 				}
 			
-		    } else if (thisEmail !=null && systemProfile.getMail()!= null) {
+		    } else if (thisEmail !=null && systemProfile.getMail() == null) {
 		    	//if the account was created manually - profile state may be inconsistent
 		    	systemProfile.setMail(thisEmail);
 		    	//email may not have been set
