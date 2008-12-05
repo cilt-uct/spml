@@ -1290,9 +1290,9 @@ private synchronized void setSakaiSessionUser(String id) {
 		//save the profiles
 		
 		sakaiPersonManager.save(systemProfile);
-		setSakaiSessionUser(CN);
+		//setSakaiSessionUser(CN);
         sakaiPersonManager.save(userProfile);
-        setSakaiSessionUser(SPML_USER);  // get back the admin session
+        //setSakaiSessionUser(SPML_USER);  // get back the admin session
         
 		
 	}
