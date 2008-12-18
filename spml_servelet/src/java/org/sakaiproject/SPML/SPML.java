@@ -36,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.Iterator;
@@ -61,6 +62,8 @@ import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.email.cover.EmailService;
+import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
+import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.Entity;
 
 
@@ -768,6 +771,11 @@ public class SPML implements SpmlHandler  {
 		catch(Exception e) {
 		    e.printStackTrace();
 		}
+		/*
+		 * Send new user a notification
+		 */
+		if (newUser)
+			notifyNewUser(thisUser, type);
 		
 		/*
 		 * lets try the course membership
@@ -776,9 +784,6 @@ public class SPML implements SpmlHandler  {
 		 * we should only do this if this is a student 
 		 */
 		if (type.equals("student")) {
-
-
-
 			//only do this if the user is active -otherwiose the student is now no longer registered
 			if (! status.equals("Inactive")) { 
 				try {
@@ -863,7 +868,28 @@ public class SPML implements SpmlHandler  {
 		}
 		return response;
 	} 
-	
+	private EmailTemplateService emailTemplateService;
+   	
+	private void notifyNewUser(User user, String type) {
+		String prefix = "spml.";
+		
+		if (user.getEmail() == null)
+				return;
+			
+		
+		Map<String, String> replacementValues = new HashMap<String, String>();
+		replacementValues.put("userFirstName", user.getFirstName());
+		replacementValues.put("userLastName", user.getLastName());
+		replacementValues.put("userEmail", user.getEmail());
+		
+		
+		RenderedTemplate template = emailTemplateService.getRenderedTemplateForUser(prefix + type, user.getReference() , replacementValues);
+		if (template != null)
+			EmailService.send("help@vula.uct.ac.za", user.getEmail(), template.getSubject(), template.getMessage(), null, null, null);
+		
+	}
+
+
 	public SpmlResponse spmlDeleteRequest(SpmlRequest req) {
 	    LOG.info("SPML Webservice: Received DeleteRequest "+req);
 	    this.logSPMLRequest("DeleteRequest",req.toXml());
