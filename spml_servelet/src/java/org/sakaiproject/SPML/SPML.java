@@ -118,11 +118,14 @@ public class SPML implements SpmlHandler  {
 	private static final String FIELD_TITLE = "uctPersonalTitle";
 	private static final String FIELD_ACADEMIC_CARREER = "uctAcademicCareer";
 	
+	private static final String TYPE_STUDENT = "student";
+	private static final String TYPE_STAFF = "staff";
+	
 	//change this to the name of your campus
 	private String spmlCampus = "University of Cape Town";
 	private static final String SPML_USER = ServerConfigurationService.getString("spml.user", "admin");
 	private static final String SPML_PASSWORD = ServerConfigurationService.getString("spml.password", "admin");
-	private String courseYear = "2006";
+	private String courseYear = "2008";
 	
 	
 	
@@ -447,7 +450,15 @@ public class SPML implements SpmlHandler  {
 		}
 		
 		type = type.toLowerCase();
+		String status = (String)req.getAttributeValue("uctStudentStatus");
+		//for staff this could be null
 		
+		if (status == null && TYPE_STUDENT.equals(type))
+		{
+			status = "Inactive";
+		} else {
+			status = "Active";
+		}
 		//if this is a thirparty check the online learning required field
 		/*
 		String onlineRequired = (String)req.getAttributeValue(FIELD_ONLINELEARNINGREQUIRED);
@@ -488,6 +499,7 @@ public class SPML implements SpmlHandler  {
 		if (orgName == null )
 			orgName = "";
 		
+		boolean newUser = false;
 		try {
 			//rather lets get an object
 			User user = UserDirectoryService.getUserByEid(CN);
@@ -500,6 +512,7 @@ public class SPML implements SpmlHandler  {
 			//this user doesnt exist create it
 			try {
 				LOG.debug("About to try adding the user "+ CN);
+				newUser = true;
 				thisUser = UserDirectoryService.addUser(null,CN);
 				LOG.info("created account for user: " + CN);
 			}
@@ -640,9 +653,16 @@ public class SPML implements SpmlHandler  {
 		    
 		    
 		    if (type != null ) {
-		    	thisUser.setType(type);
-		    	systemProfile.setPrimaryAffiliation(type);
-		    	userProfile.setPrimaryAffiliation(type);
+		    	
+		    	if (TYPE_STUDENT.equals(type) && "Inactive".equals(status) && newUser) {
+		    		type = "offer";  
+		    	} else if (TYPE_STUDENT.equals(type) && "Inactive".equals(status)) {
+		    		type = "Inactive";
+		    	}
+		    		thisUser.setType(type);
+		    		systemProfile.setPrimaryAffiliation(type);
+		    		userProfile.setPrimaryAffiliation(type);
+		    	
 		    }
 		    
 		    //set the profile Common name
@@ -760,12 +780,6 @@ public class SPML implements SpmlHandler  {
 
 
 			//only do this if the user is active -otherwiose the student is now no longer registered
-			String status = (String)req.getAttributeValue("uctStudentStatus");
-			//for staff this could be null
-			if (status == null)
-			{
-				status = "Inactive";
-			}
 			if (! status.equals("Inactive")) { 
 				try {
 					String uctCourses =null;
