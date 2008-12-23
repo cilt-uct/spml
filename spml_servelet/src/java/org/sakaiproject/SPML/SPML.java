@@ -65,6 +65,8 @@ import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 
 
 //no longer needed now we have the coursemanagement API
@@ -130,6 +132,8 @@ public class SPML implements SpmlHandler  {
 	private static final String SPML_PASSWORD = ServerConfigurationService.getString("spml.password", "admin");
 	private String courseYear = "2008";
 	
+	
+	private static final String PROPERTY_SENTEMAIL = "uctNewMailSent";
 	
 	
 	/*
@@ -297,6 +301,15 @@ public class SPML implements SpmlHandler  {
         }
         return cmService;
     }
+    
+	private EmailTemplateService getEmailTemplateService() {
+		if (emailTemplateService == null) {
+			emailTemplateService = (EmailTemplateService) ComponentManager.get(EmailTemplateService.class.getName());
+		}
+		return emailTemplateService;
+	}
+
+
     
     private SessionManager getSessionManager() {
     	if(sessionManager == null){
@@ -503,6 +516,8 @@ public class SPML implements SpmlHandler  {
 			orgName = "";
 		
 		boolean newUser = false;
+		boolean sendNotification = false;
+		
 		try {
 			//rather lets get an object
 			User user = UserDirectoryService.getUserByEid(CN);
@@ -608,6 +623,7 @@ public class SPML implements SpmlHandler  {
 		    }
 
 		    LOG.debug("this email is: " + thisEmail);
+		    
 		    if (systemProfile.getMail()!= null && !systemProfile.getMail().equals("") && thisEmail != null ) {
 		    	String systemMail = systemProfile.getMail();
 				String modMail= thisEmail;
@@ -622,8 +638,9 @@ public class SPML implements SpmlHandler  {
 		    } else if (thisEmail !=null && systemProfile.getMail() == null) {
 		    	//if the account was created manually - profile state may be inconsistent
 		    	systemProfile.setMail(thisEmail);
+		    	sendNotification = true;
 		    	//email may not have been set
-		    	if (thisUser.getEmail() == null ) {
+		    	if (thisUser.getEmail() == null || "".equals(thisUser.getEmail())) {
 		    		userProfile.setMail(thisEmail);
 					thisUser.setEmail(thisEmail);
 		    	} else {
@@ -774,8 +791,8 @@ public class SPML implements SpmlHandler  {
 		/*
 		 * Send new user a notification
 		 */
-		if (newUser)
-			notifyNewUser(thisUser, type);
+		if (sendNotification)
+			notifyNewUser(thisUser.getId(), type);
 		
 		/*
 		 * lets try the course membership
@@ -870,24 +887,54 @@ public class SPML implements SpmlHandler  {
 	} 
 	private EmailTemplateService emailTemplateService;
    	
-	private void notifyNewUser(User user, String type) {
+	private void notifyNewUser(String userId, String type) {
 		String prefix = "spml.";
 		
-		if (user.getEmail() == null)
+		UserEdit ue = null;
+		try {
+			ue = UserDirectoryService.editUser(userId);
+		}
+		catch (Exception uex) {
+			LOG.warn("failed to get user: " + userId);
+			return;
+		} 
+		LOG.info("got user:"  + ue.getDisplayId() + " with email " + ue.getEmail());
+		
+		if (ue.getEmail() == null)
+				return;
+		
+		ResourceProperties rp = ue.getProperties();
+		
+		if ( rp.getProperty(PROPERTY_SENTEMAIL) == null) {
+
+
+			Map<String, String> replacementValues = new HashMap<String, String>();
+			replacementValues.put("userFirstName", ue.getFirstName());
+			replacementValues.put("userLastName", ue.getLastName());
+			replacementValues.put("userEmail", ue.getEmail());
+
+			emailTemplateService = getEmailTemplateService();
+			
+			RenderedTemplate template = emailTemplateService.getRenderedTemplateForUser(prefix + type, ue.getReference() , replacementValues);
+			LOG.info("send mail to:" + ue.getEmail() + " subject: " + template.getSubject());
+			if (template != null)
+				EmailService.send("help@vula.uct.ac.za", ue.getEmail(), template.getSubject(), template.getMessage(), null, null, null);
+			else 
 				return;
 			
-		
-		Map<String, String> replacementValues = new HashMap<String, String>();
-		replacementValues.put("userFirstName", user.getFirstName());
-		replacementValues.put("userLastName", user.getLastName());
-		replacementValues.put("userEmail", user.getEmail());
-		
-		
-		RenderedTemplate template = emailTemplateService.getRenderedTemplateForUser(prefix + type, user.getReference() , replacementValues);
-		if (template != null)
-			EmailService.send("help@vula.uct.ac.za", user.getEmail(), template.getSubject(), template.getMessage(), null, null, null);
-		
+			try {
+				
+				ResourcePropertiesEdit rpe = ue.getPropertiesEdit();
+				rpe.addProperty(PROPERTY_SENTEMAIL, "true");
+				UserDirectoryService.commitEdit(ue);
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		}
 	}
+
 
 
 	public SpmlResponse spmlDeleteRequest(SpmlRequest req) {
