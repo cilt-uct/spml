@@ -901,7 +901,7 @@ public class SPML implements SpmlHandler  {
 		LOG.info("got user:"  + ue.getDisplayId() + " with email " + ue.getEmail());
 		
 		if (ue.getEmail() == null) {
-			UserDirectoryService.commitEdit(ue);
+			UserDirectoryService.cancelEdit(ue);
 			return;
 		}
 		
@@ -922,7 +922,7 @@ public class SPML implements SpmlHandler  {
 				LOG.info("send mail to:" + ue.getEmail() + " subject: " + template.getSubject());
 				EmailService.send("help@vula.uct.ac.za", ue.getEmail(), template.getSubject(), template.getMessage(), null, null, null);
 			} else {
-				UserDirectoryService.commitEdit(ue);
+				UserDirectoryService.cancelEdit(ue);
 				return;
 			}
 			
