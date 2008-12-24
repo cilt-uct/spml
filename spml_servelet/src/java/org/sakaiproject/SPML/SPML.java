@@ -916,11 +916,12 @@ public class SPML implements SpmlHandler  {
 			emailTemplateService = getEmailTemplateService();
 			
 			RenderedTemplate template = emailTemplateService.getRenderedTemplateForUser(prefix + type, ue.getReference() , replacementValues);
-			LOG.info("send mail to:" + ue.getEmail() + " subject: " + template.getSubject());
-			if (template != null)
+			if (template != null) {
+				LOG.info("send mail to:" + ue.getEmail() + " subject: " + template.getSubject());
 				EmailService.send("help@vula.uct.ac.za", ue.getEmail(), template.getSubject(), template.getMessage(), null, null, null);
-			else 
+			} else { 
 				return;
+			}
 			
 			try {
 				
