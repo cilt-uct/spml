@@ -900,8 +900,10 @@ public class SPML implements SpmlHandler  {
 		} 
 		LOG.info("got user:"  + ue.getDisplayId() + " with email " + ue.getEmail());
 		
-		if (ue.getEmail() == null)
-				return;
+		if (ue.getEmail() == null) {
+			UserDirectoryService.commitEdit(ue);
+			return;
+		}
 		
 		ResourceProperties rp = ue.getProperties();
 		
@@ -919,7 +921,8 @@ public class SPML implements SpmlHandler  {
 			if (template != null) {
 				LOG.info("send mail to:" + ue.getEmail() + " subject: " + template.getSubject());
 				EmailService.send("help@vula.uct.ac.za", ue.getEmail(), template.getSubject(), template.getMessage(), null, null, null);
-			} else { 
+			} else {
+				UserDirectoryService.commitEdit(ue);
 				return;
 			}
 			
