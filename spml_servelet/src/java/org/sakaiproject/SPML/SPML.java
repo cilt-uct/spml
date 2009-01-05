@@ -126,6 +126,9 @@ public class SPML implements SpmlHandler  {
 	private static final String TYPE_STUDENT = "student";
 	private static final String TYPE_STAFF = "staff";
 	
+	
+	private static final String STATUS_ACTIVE = "Active";
+	private static final String STATUS_INACTIVE = "inactive";
 	//change this to the name of your campus
 	private String spmlCampus = "University of Cape Town";
 	private static final String SPML_USER = ServerConfigurationService.getString("spml.user", "admin");
@@ -466,14 +469,18 @@ public class SPML implements SpmlHandler  {
 		}
 		
 		type = type.toLowerCase();
-		String status = (String)req.getAttributeValue("uctStudentStatus");
+		String status = STATUS_ACTIVE;
+		if (TYPE_STUDENT.equals(type))
+			status = (String)req.getAttributeValue("uctStudentStatus");
+		else 
+			status = (String)req.getAttributeValue("employeeStatus");
 		//for staff this could be null
 		
 		if (status == null && TYPE_STUDENT.equals(type))
 		{
-			status = "Inactive";
+			status = STATUS_INACTIVE;
 		} else {
-			status = "Active";
+			status = STATUS_INACTIVE;
 		}
 		//if this is a thirparty check the online learning required field
 		/*
@@ -674,10 +681,12 @@ public class SPML implements SpmlHandler  {
 		    
 		    if (type != null ) {
 		    	
-		    	if (TYPE_STUDENT.equals(type) && "Inactive".equals(status) && newUser) {
+		    	if (TYPE_STUDENT.equals(type) && STATUS_INACTIVE.equals(status) && newUser) {
 		    		type = "offer";  
-		    	} else if (TYPE_STUDENT.equals(type) && "Inactive".equals(status)) {
-		    		type = "Inactive";
+		    	} else if (TYPE_STUDENT.equals(type) && STATUS_INACTIVE.equals(status)) {
+		    		type = STATUS_INACTIVE;
+		    	} else if (TYPE_STAFF.equals(type) && STATUS_INACTIVE.equals(status)) {
+		    		type = "inactiveStaff";
 		    	}
 		    		thisUser.setType(type);
 		    		systemProfile.setPrimaryAffiliation(type);
