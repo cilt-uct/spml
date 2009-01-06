@@ -128,7 +128,7 @@ public class SPML implements SpmlHandler  {
 	
 	
 	private static final String STATUS_ACTIVE = "Active";
-	private static final String STATUS_INACTIVE = "inactive";
+	private static final String STATUS_INACTIVE = "Inactive";
 	//change this to the name of your campus
 	private String spmlCampus = "University of Cape Town";
 	private static final String SPML_USER = ServerConfigurationService.getString("spml.user", "admin");
