@@ -125,6 +125,7 @@ public class SPML implements SpmlHandler  {
 	
 	private static final String TYPE_STUDENT = "student";
 	private static final String TYPE_STAFF = "staff";
+	private static final Object TYPE_THIRDPARTY = "thirdparty";
 	
 	
 	private static final String STATUS_ACTIVE = "Active";
@@ -224,6 +225,7 @@ public class SPML implements SpmlHandler  {
     private int profilesUpdated = 0;
     
     private static final Log LOG = LogFactory.getLog(SPML.class);
+	
     
    //public String requestIp = ( (javax.servlet.http.HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getRemoteAddr();
     public String requestIp = "0.0.0.0"; 
@@ -472,8 +474,10 @@ public class SPML implements SpmlHandler  {
 		String status = STATUS_ACTIVE;
 		if (TYPE_STUDENT.equals(type))
 			status = (String)req.getAttributeValue("uctStudentStatus");
-		else 
+		else if (TYPE_STAFF.equals(type))
 			status = (String)req.getAttributeValue("employeeStatus");
+		else if (TYPE_THIRDPARTY.equals(type))
+			status = (String)req.getAttributeValue("ucttpstatus");
 		
 		LOG.info("user status is: " + status);
 		//for staff this could be null
@@ -687,6 +691,8 @@ public class SPML implements SpmlHandler  {
 		    		type = STATUS_INACTIVE;
 		    	} else if (TYPE_STAFF.equals(type) && STATUS_INACTIVE.equals(status)) {
 		    		type = "inactiveStaff";
+		    	} else if (TYPE_THIRDPARTY.equals(type) && STATUS_INACTIVE.equals(status)) {
+		    		type = "inactiveThirdparty";
 		    	}
 		    		thisUser.setType(type);
 		    		systemProfile.setPrimaryAffiliation(type);
@@ -809,9 +815,9 @@ public class SPML implements SpmlHandler  {
 		 * however it might be null - if so ignore and move on
 		 * we should only do this if this is a student 
 		 */
-		if (type.equals("student")) {
-			//only do this if the user is active -otherwiose the student is now no longer registered
-			if (! status.equals("Inactive")) { 
+		if (type.equals(TYPE_STUDENT)) {
+			//only do this if the user is active -otherwise the student is now no longer registered
+			if (! status.equals(STATUS_INACTIVE)) { 
 				try {
 					String uctCourses =null;
 					uctCourses = (String)req.getAttributeValue(FIELD_PROGAM);
