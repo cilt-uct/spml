@@ -474,14 +474,14 @@ public class SPML implements SpmlHandler  {
 			status = (String)req.getAttributeValue("uctStudentStatus");
 		else 
 			status = (String)req.getAttributeValue("employeeStatus");
-		//for staff this could be null
 		
+		LOG.info("user status is: " + status);
+		//for staff this could be null
 		if (status == null && TYPE_STUDENT.equals(type))
 		{
 			status = STATUS_INACTIVE;
-		} else {
-			status = STATUS_INACTIVE;
 		}
+		
 		//if this is a thirparty check the online learning required field
 		/*
 		String onlineRequired = (String)req.getAttributeValue(FIELD_ONLINELEARNINGREQUIRED);
