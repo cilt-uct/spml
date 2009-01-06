@@ -1405,7 +1405,7 @@ private synchronized void setSakaiSessionUser(String id) {
 			LOG.info("got org unit of " + (String)result.get(0));
 			return (String)result.get(0);
 		} else {
-			LOG.warn("Unkon or code of " + modOrgUnit + " recieved" );
+			LOG.warn("Unknown org code of " + modOrgUnit + " recieved" );
 		}
 				
 		return null;
