@@ -458,7 +458,7 @@ public class SPML implements SpmlHandler  {
 		//always lower case
 		
 		
-		String thisTitle = (String)req.getAttributeValue(this.FIELD_TITLE);
+		String thisTitle = (String)req.getAttributeValue(FIELD_TITLE);
 		
 		String type = (String)req.getAttributeValue(FIELD_TYPE);
 		//If eduPerson is null reject
@@ -767,7 +767,7 @@ public class SPML implements SpmlHandler  {
 			}
 			
 			
-			
+			/* causing privacy concerns)
 			
 			if (systemHomeP != null) {
 				if (!systemHomeP.equals(userProfile.getHomePhone())) {
@@ -781,7 +781,7 @@ public class SPML implements SpmlHandler  {
 				userProfile.setHomePhone(modHomeP);				
 			}
 			
-			
+			*/
 			// set the DOB -no method at the moment
 			String DOB = (String)req.getAttributeValue(FIELD_DOB);
 			if ( DOB != null) {
@@ -992,14 +992,14 @@ public class SPML implements SpmlHandler  {
 	    LOG.info("got mods for " + CN);
 	    //we now need to find what has changed 
 	    //first we need the exisiting values
-	    UserDirectoryService userDir = new UserDirectoryService();
+	    
 	    String GN= "";
 	    String LN = "";
 	    String thisEmail = "";
 	    String type = "";
 
 	    try {
-		User thisUser = userDir.getUser(CN);
+		User thisUser = UserDirectoryService.getUser(CN);
 	    
 		GN = thisUser.getFirstName();
 		LN = thisUser.getLastName();
@@ -1270,7 +1270,7 @@ private synchronized void setSakaiSessionUser(String id) {
 				Calendar cal = Calendar.getInstance();
 				cal.set(new Integer(term).intValue(), 1, 1);
 				Date start =  cal.getTime();
-				cal.set(new Integer(term).intValue(), 12, 30);
+				cal.set(new Integer(term).intValue(), Calendar.DECEMBER, 30);
 				Date end = cal.getTime();
 				courseAdmin.createAcademicSession(term, term, term, start, end);
 			}
