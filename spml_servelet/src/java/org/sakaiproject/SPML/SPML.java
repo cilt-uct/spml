@@ -817,7 +817,7 @@ public class SPML implements SpmlHandler  {
 		 */
 		if (type.equals(TYPE_STUDENT)) {
 			//only do this if the user is active -otherwise the student is now no longer registered
-			if (! status.equals(STATUS_INACTIVE)) { 
+			if (! STATUS_INACTIVE.equalsIgnoreCase(status)) { 
 				try {
 					String uctCourses =null;
 					uctCourses = (String)req.getAttributeValue(FIELD_PROGAM);
@@ -894,8 +894,8 @@ public class SPML implements SpmlHandler  {
 					e.printStackTrace();
 					
 				}
-			} else if (status.equals("Inactive")){
-				synchCourses(new ArrayList(), CN);
+			} else if (STATUS_INACTIVE.equalsIgnoreCase(status)){
+				synchCourses(new ArrayList<String>(), CN);
 			}
 		}
 		return response;
