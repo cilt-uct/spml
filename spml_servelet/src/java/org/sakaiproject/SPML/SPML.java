@@ -1164,8 +1164,8 @@ private SakaiPerson getUserProfile(String userId, String type) {
        			sakaiPerson = sakaiPersonManager.create(user.getId(),_type);
        			LOG.info("creating profile for user " + userId + " of type " + _type.getDisplayName());
        			//we need to set the privacy
-       			sakaiPerson.setHidePrivateInfo(new Boolean(true));
-       			sakaiPerson.setHidePublicInfo(new Boolean(false));
+       			sakaiPerson.setHidePrivateInfo(Boolean.valueOf(true));
+       			sakaiPerson.setHidePublicInfo(Boolean.valueOf(false));
        			
             }
         }	
