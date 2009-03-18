@@ -461,6 +461,7 @@ public class SPML implements SpmlHandler  {
 		String thisTitle = (String)req.getAttributeValue(FIELD_TITLE);
 		
 		String type = (String)req.getAttributeValue(FIELD_TYPE);
+		String origionalType = type;
 		//If eduPerson is null reject
 		if (type == null || type.equals("")) {
 			LOG.error("ERROR: no eduPersonPrimaryAffiliation: " + CN);
@@ -815,7 +816,7 @@ public class SPML implements SpmlHandler  {
 		 * however it might be null - if so ignore and move on
 		 * we should only do this if this is a student 
 		 */
-		if (type.equals(TYPE_STUDENT)) {
+		if (TYPE_STUDENT.equalsIgnoreCase(origionalType)) {
 			//only do this if the user is active -otherwise the student is now no longer registered
 			if (! STATUS_INACTIVE.equalsIgnoreCase(status)) { 
 				try {
@@ -1339,7 +1340,7 @@ private synchronized void setSakaiSessionUser(String id) {
 	}
 	
 	//remove user from old courses
-	private void synchCourses(List uctCourse, String userEid){
+	private void synchCourses(List<String> uctCourse, String userEid){
 		LOG.debug("Checking enrolments for " + userEid);
 		SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
 		String thisYear = yearf.format(new Date());
