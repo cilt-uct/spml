@@ -1005,7 +1005,7 @@ public class SPML implements SpmlHandler  {
 		GN = thisUser.getFirstName();
 		LN = thisUser.getLastName();
 		thisEmail = thisUser.getEmail();
-		type = thisUser.getType();
+		
 	    }
 	    catch (Exception e) {
 	    	LOG.error(e);
@@ -1041,9 +1041,9 @@ public class SPML implements SpmlHandler  {
 	    try {
 
 		
-		    //we need to login
-		    //this will need to be changed - login can be sent via attributes to the object?
-		String sID = login("admin","admin");
+		//we need to login
+		//this will need to be changed - login can be sent via attributes to the object?
+		login("admin","admin");
 		//this methd no longer exits
 		//String addResp = changeUserInfo(sID, CN, GN, LN, thisEmail, type, passwd);
 		
@@ -1065,7 +1065,7 @@ public class SPML implements SpmlHandler  {
 	    	//we need to iterate throug through the units in the batch
 		
 		    	//get a list of the actual methods
-			List requestList = req.getRequests(); 
+			List<SpmlRequest> requestList = req.getRequests(); 
 			for (int i =0 ; i < requestList.size(); i++) {
 				//each item in the list these should be a spml object...
 				//these can be any of the types
@@ -1241,7 +1241,7 @@ private synchronized void setSakaiSessionUser(String id) {
 		try {
 			
 			
-			SimpleDateFormat dateForm = new SimpleDateFormat("yyyy-mm-dd");
+			
 			courseAdmin = getCourseAdmin();
 			cmService =getCourseManagementService();
 			//does the 
@@ -1318,7 +1318,7 @@ private synchronized void setSakaiSessionUser(String id) {
 			courseAdmin.addOrUpdateEnrollment(userId, courseEid, "enrolled", "NA", "0");
 			//now add the user to a section of the same name
 			try {
-				Section co = cmService.getSection(courseEid);
+				cmService.getSection(courseEid);
 			} 
 			catch (IdNotFoundException id) {
 				//create the CO
@@ -1432,7 +1432,6 @@ private synchronized void setSakaiSessionUser(String id) {
 			String startDate = resCode.substring(4, 14);
 			String endDate =resCode.substring(15);
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-			Date start = df.parse(startDate);
 			Date end = df.parse(endDate);
 			
 			/* we should always add in this case - may not get their details again
