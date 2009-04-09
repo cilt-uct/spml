@@ -117,7 +117,7 @@ public class SPML implements SpmlHandler  {
 	private static final String FIELD_HOMEPHONE ="homePhone";
 	private static final String FIELD_OU ="OU";
 	private static final String FIELD_DOB="DOB";
-	private static final String FIELD_ONLINELEARNINGREQUIRED="uctOnlineLearningRequired";
+	
 	private static final String FIELD_RES_CODE="uctResidenceCode";
 	private static final String FIELD_ORG_DECR = "Description";
 	private static final String FIELD_TITLE = "uctPersonalTitle";
@@ -131,10 +131,10 @@ public class SPML implements SpmlHandler  {
 	private static final String STATUS_ACTIVE = "Active";
 	private static final String STATUS_INACTIVE = "Inactive";
 	//change this to the name of your campus
-	private String spmlCampus = "University of Cape Town";
+	
 	private static final String SPML_USER = ServerConfigurationService.getString("spml.user", "admin");
 	private static final String SPML_PASSWORD = ServerConfigurationService.getString("spml.password", "admin");
-	private String courseYear = "2008";
+	
 
 
 	private static final String PROPERTY_SENTEMAIL = "uctNewMailSent";
@@ -422,7 +422,7 @@ public class SPML implements SpmlHandler  {
 		//LOG.info(req.toXml());
 		this.logSPMLRequest("Addrequest",req.toXml());
 
-		List attrList = req.getAttributes();
+		
 		/* Attributes are:
 		   objectclass
 		   CN
@@ -1018,7 +1018,7 @@ public class SPML implements SpmlHandler  {
 			LOG.error(e);
 		}
 		try {
-			List mods = req.getModifications();
+			List<Modification> mods = req.getModifications();
 			LOG.info("got " + mods.size() + " modifications");
 			for (int i = 0; i <mods.size(); i++) {
 
@@ -1355,8 +1355,8 @@ public class SPML implements SpmlHandler  {
 		courseAdmin = getCourseAdmin();
 		cmService =getCourseManagementService();
 
-		Set enroled = cmService.findCurrentlyEnrolledEnrollmentSets(userEid);
-		Iterator coursesIt = enroled.iterator();
+		Set<EnrollmentSet> enroled = cmService.findCurrentlyEnrolledEnrollmentSets(userEid);
+		Iterator<EnrollmentSet> coursesIt = enroled.iterator();
 		LOG.debug("got list of enrolement set with " + enroled.size());
 		while(coursesIt.hasNext()) {
 			EnrollmentSet eSet = (EnrollmentSet)coursesIt.next();
