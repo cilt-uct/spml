@@ -1248,7 +1248,7 @@ public class SPML implements SpmlHandler  {
 		try {
 
 
-
+			courseCode = courseCode.toUpperCase();
 			courseAdmin = getCourseAdmin();
 			cmService =getCourseManagementService();
 			//does the 
