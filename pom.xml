@@ -6,7 +6,7 @@
 		<version>2.6.0RC1-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
 	</parent>
-	<name>Sakai</name>
+	<name>UCT SPML integrations</name>
 	<groupId>org.sakaiproject.spml</groupId>
 	<artifactId>spml</artifactId>
 	<version>2.2-SNAPSHOT</version>
