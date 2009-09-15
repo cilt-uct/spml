@@ -9,7 +9,7 @@
 	<name>UCT SPML integrations</name>
 	<groupId>org.sakaiproject</groupId>
 	<artifactId>spml</artifactId>
-	<version>2.3-SNAPSHOT</version>
+	<version>2.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>spml_servelet</module>
