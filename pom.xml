@@ -44,7 +44,7 @@
       <uniqueVersion>false</uniqueVersion>
       <id>release</id>
       <name>CET Release Repo</name>
-      <url>http://srvslscet001.uct.ac.za:8081/nexus/content/repositories/release/</url>
+      <url>http://srvslscet001.uct.ac.za:8081/nexus/content/repositories/releases</url>
       <layout>default</layout>
     </repository>
     <snapshotRepository>
