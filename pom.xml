@@ -3,7 +3,7 @@
 	<parent>
 		<artifactId>master</artifactId>
 		<groupId>org.sakaiproject</groupId>
-		<version>2.6.0-SNAPSHOT</version>
+		<version>2.6.0</version>
 		<relativePath>../master/pom.xml</relativePath>
 	</parent>
 	<name>UCT SPML integrations</name>
@@ -55,5 +55,4 @@
       <layout>default</layout>
     </snapshotRepository>
  </distributionManagement>
-	
 </project>
