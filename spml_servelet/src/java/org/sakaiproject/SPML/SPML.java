@@ -31,70 +31,59 @@
  */
 package org.sakaiproject.SPML;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
 import java.util.Iterator;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
-import java.util.Calendar;
-
-import org.openspml.client.*;
-import org.openspml.util.*;
-import org.openspml.message.*;
-import org.openspml.server.SpmlHandler;
-
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
-
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.user.api.UserEdit;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.api.UserIdInvalidException;
-import org.sakaiproject.user.api.UserPermissionException;
-import org.sakaiproject.user.api.UserLockedException;
-import org.sakaiproject.user.api.UserAlreadyDefinedException;
-import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.email.cover.EmailService;
-import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
-import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-
-
-//no longer needed now we have the coursemanagement API
-import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.db.api.SqlReader;
-
-
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-// Profile stuff
-
+import org.openspml.client.SOAPClient;
+import org.openspml.client.SOAPMonitor;
+import org.openspml.message.AddRequest;
+import org.openspml.message.BatchRequest;
+import org.openspml.message.DeleteRequest;
+import org.openspml.message.Modification;
+import org.openspml.message.ModifyRequest;
+import org.openspml.message.SpmlRequest;
+import org.openspml.message.SpmlResponse;
+import org.openspml.server.SpmlHandler;
+import org.openspml.util.SpmlBuffer;
+import org.openspml.util.SpmlException;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
-import org.sakaiproject.component.cover.ComponentManager;
-
-
 import org.sakaiproject.api.common.type.Type;
-import org.sakaiproject.api.common.type.UuidTypeResolvable;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.CourseManagementAdministration;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
-import org.sakaiproject.coursemanagement.api.CourseOffering;
-import org.sakaiproject.coursemanagement.api.Section;
-import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.coursemanagement.api.EnrollmentSet;
-
-import org.sakaiproject.coursemanagement.api.exception.IdExistsException;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
+import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.email.cover.EmailService;
+import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
+import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.sms.logic.external.NumberRoutingHelper;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserAlreadyDefinedException;
+import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.user.api.UserIdInvalidException;
+import org.sakaiproject.user.api.UserLockedException;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.api.UserPermissionException;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.StringUtil;
 
 public class SPML implements SpmlHandler  {
 
@@ -324,6 +313,17 @@ public class SPML implements SpmlHandler  {
 		return sessionManager;
 
 	}
+	
+	
+	private NumberRoutingHelper numberRoutingHelper;
+	private NumberRoutingHelper getNumberRoutingHelper() {
+		if (numberRoutingHelper == null) {
+			numberRoutingHelper = (NumberRoutingHelper) ComponentManager.get("org.sakaiproject.sms.logic.external.NumberRoutingHelper");
+		}
+		return numberRoutingHelper;
+	}
+
+
 	//////////////////////////////////////////////////////////////////////
 	//
 	// Constructors
@@ -709,31 +709,37 @@ public class SPML implements SpmlHandler  {
 		String systemMobile = systemProfile.getMobile();
 		String systemOrgCode = systemProfile.getOrganizationalUnit();
 		String systemOrgUnit = systemProfile.getDepartmentNumber();
-		String systemHomeP = systemProfile.getHomePhone();
+		String systemNormalizedMobile = systemProfile.getNormalizedMobile();
 		//set up the strings for user update these will be overwriten for changed profiles
 
 
 		String modMobile = mobile;
 		String modOrgUnit = orgUnit;
 		String modOrgCode = orgCode;
-		String modHomeP = homeP;
+		
 
 		//if the user surname != system surname only update the system 
 
 
-
+		String userMobileNormalized = normalizeMobile(userProfile.getMobile());
+		String newNuberNormalized = normalizeMobile(modMobile);
 
 		if (systemMobile != null) {
-			if (!systemMobile.equals(userProfile.getMobile())) {
+			if (!systemNormalizedMobile.equals(userMobileNormalized)) {
 				systemProfile.setMobile(modMobile);
+				systemProfile.setNormalizedMobile(newNuberNormalized);
 			} else {
 				systemProfile.setMobile(modMobile);
 				userProfile.setMobile(modMobile);
+				systemProfile.setNormalizedMobile(newNuberNormalized);
+				userProfile.setNormalizedMobile(newNuberNormalized);
 
 			}
 		} else if (systemMobile == null && modMobile != null) {
 			systemProfile.setMobile(modMobile);
 			userProfile.setMobile(modMobile);
+			systemProfile.setNormalizedMobile(normalizeMobile(mobile));
+			userProfile.setNormalizedMobile(normalizeMobile(mobile));
 		}
 
 
@@ -908,6 +914,21 @@ public class SPML implements SpmlHandler  {
 		}
 		return response;
 	} 
+	
+	
+	private String normalizeMobile(String mobile) {
+		numberRoutingHelper = getNumberRoutingHelper();
+		if (numberRoutingHelper == null) {
+			LOG.error("no numberrouting helper!");
+			return mobile;
+		}
+		
+		return numberRoutingHelper.normalizeNumber(mobile);
+	}
+
+
+
+
 	private EmailTemplateService emailTemplateService;
 
 	private void notifyNewUser(String userId, String type) {
