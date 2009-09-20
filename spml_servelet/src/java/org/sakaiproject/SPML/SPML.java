@@ -724,6 +724,10 @@ public class SPML implements SpmlHandler  {
 		String userMobileNormalized = normalizeMobile(userProfile.getMobile());
 		String newNuberNormalized = normalizeMobile(modMobile);
 
+		if (systemMobile != null && systemNormalizedMobile == null) {
+			systemNormalizedMobile = normalizeMobile(systemMobile);
+		}
+		
 		if (systemMobile != null) {
 			if (!systemNormalizedMobile.equals(userMobileNormalized)) {
 				systemProfile.setMobile(modMobile);
