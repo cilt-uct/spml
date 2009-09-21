@@ -1028,10 +1028,10 @@ public class SPML implements SpmlHandler  {
 		//we now need to find what has changed 
 		//first we need the exisiting values
 
-		String GN= "";
-		String LN = "";
-		String thisEmail = "";
-		String type = "";
+		String GN;
+		String LN;
+		String thisEmail; 
+		String type;
 
 		try {
 			User thisUser = UserDirectoryService.getUser(CN);
@@ -1069,7 +1069,7 @@ public class SPML implements SpmlHandler  {
 			e.printStackTrace();
 		}
 
-		String passwd = "";
+		
 		SpmlResponse response = null;
 
 		try {
@@ -1465,7 +1465,7 @@ public class SPML implements SpmlHandler  {
 		 * we need to parse these to dates
 		 */
 		try {
-			String startDate = resCode.substring(4, 14);
+			//String startDate = resCode.substring(4, 14);
 			String endDate =resCode.substring(15);
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 			Date end = df.parse(endDate);
