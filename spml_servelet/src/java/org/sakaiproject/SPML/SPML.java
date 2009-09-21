@@ -164,10 +164,7 @@ public class SPML implements SpmlHandler  {
 
 	boolean _autoAction;
 
-	//the Sakai Session ID
-	private String sID;
 
-	List attrList;
 	int i;
 	/**
 	 * Set the "SOAP action name" which may be requried by
@@ -211,7 +208,7 @@ public class SPML implements SpmlHandler  {
 
 
 
-	private int profilesUpdated = 0;
+
 
 	private static final Log LOG = LogFactory.getLog(SPML.class);
 
@@ -335,7 +332,6 @@ public class SPML implements SpmlHandler  {
 	public SpmlResponse doRequest(SpmlRequest req) {
 
 		LOG.debug("SPMLRouter received req " + req + " (id) ");
-		profilesUpdated = 0;
 		SpmlResponse resp = req.createResponse();
 
 
@@ -345,7 +341,12 @@ public class SPML implements SpmlHandler  {
 			//we need to login
 			//this will need to be changed - login can be sent via attributes to the object?
 			LOG.debug("About to login");
-			sID = login(SPML_USER,SPML_PASSWORD);
+			boolean sID = login(SPML_USER,SPML_PASSWORD);
+			if (sID == false) {
+				resp.setError("Login failure");
+				resp.setResult("failure");
+				return resp;
+			}
 			//get the session
 
 			//HttpServletRequest request = (HttpServletRequest) ComponentManager.get(HttpServletRequest.class.getName());
@@ -1007,6 +1008,7 @@ public class SPML implements SpmlHandler  {
 		return response;
 	} 
 
+	@SuppressWarnings("unchecked")
 	public SpmlResponse spmlModifyRequest(ModifyRequest req) {
 		LOG.info("SPML Webservice: Received DeleteRequest "+req);
 
@@ -1089,6 +1091,7 @@ public class SPML implements SpmlHandler  {
 		return response;
 	} 		
 
+	@SuppressWarnings("unchecked")
 	public SpmlResponse spmlBatchRequest(BatchRequest req) {
 		LOG.info("received SPML Batch Request");
 		SpmlResponse resp = null;
@@ -1138,14 +1141,14 @@ public class SPML implements SpmlHandler  {
 	}
 
 	//well need to handle login ourselves
-	private String login(String id,String pw) {
+	private boolean login(String id,String pw) {
 		User user = UserDirectoryService.authenticate(id,pw);
 		if ( user != null ) {
 			getSessionManager();
 			sakaiSession = sessionManager.startSession();
 			if (sakaiSession == null)
 			{
-				return "sessionnull";
+				return false;
 			}
 			else
 			{
@@ -1153,12 +1156,12 @@ public class SPML implements SpmlHandler  {
 				sakaiSession.setUserEid(id);
 				sessionManager.setCurrentSession(sakaiSession);
 				LOG.debug("Logged in as user: " + id + " with internal id of: " + user.getId());
-				return sakaiSession.getId();
+				return true;
 			}
 		} else {
 			LOG.error(this + "login failed for " + id + "using " + pw);
 		}
-		return "usernull";
+		return false;
 	}
 
 
@@ -1436,10 +1439,11 @@ public class SPML implements SpmlHandler  {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	private String getOrgCodeById(String modOrgUnit) {
 		String statement = "Select org from UCT_ORG where ORG_UNIT = " + modOrgUnit;
 
-		List result = m_sqlService.dbRead(statement);
+		List<String> result = m_sqlService.dbRead(statement);
 		if (result.size()>0) {
 			LOG.info("got org unit of " + (String)result.get(0));
 			return (String)result.get(0);
