@@ -1323,7 +1323,7 @@ public class SPML implements SpmlHandler  {
 
 			if (!cmService.isCourseOfferingDefined(courseEid)) {
 				LOG.info("creating course offering for " + courseCode + " in year " + term);
-				EmailService.send("help@vula.uct.ac.za", "help@vula.uct.ac.za", "[CM]: new course created on vula: " + courseEid, "[CM]: new course created on vula: " + courseEid, null, null, null);
+				EmailService.send("help-team@vula.uct.ac.za", "help-team@vula.uct.ac.za", "[CM]: new course created on vula: " + courseEid, "[CM]: new course created on vula: " + courseEid, null, null, null);
 
 				Calendar cal = Calendar.getInstance();
 				cal.set(Calendar.DAY_OF_MONTH, 1);
