@@ -4,13 +4,15 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="M2_REPO/org/openspml/openspml/0.5/openspml-0.5.jar"/>
 	<classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.1/commons-logging-1.1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-api/1.1-SNAPSHOT/sakai-kernel-api-1.1-SNAPSHOT.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-component-manager/1.1-SNAPSHOT/sakai-component-manager-1.1-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-api/1.0.9/sakai-kernel-api-1.0.9.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-component-manager/1.0.9/sakai-component-manager-1.0.9.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/sakaiproject/sakai-coursemanagement-api/2.6.0RC1-SNAPSHOT/sakai-coursemanagement-api-2.6.0RC1-SNAPSHOT.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/emailtemplateservice-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sakai-common-edu-person-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sakai-common-type-api"/>
-	<classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-util/1.1-SNAPSHOT/sakai-kernel-util-1.1-SNAPSHOT.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/sms-api"/>
+	<classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-util/1.0.9/sakai-kernel-util-1.0.9.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/sakaiproject/emailtemplateservice/emailtemplateservice-api/0.4-SNAPSHOT/emailtemplateservice-api-0.4-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/sakaiproject/common/sakai-common-manager-api/1.0.0-beta01/sakai-common-manager-api-1.0.0-beta01-javadoc.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/sakai-common-manager-api"/>
+	<classpathentry kind="var" path="M2_REPO/org/sakaiproject/sms/sms-api/0.12/sms-api-0.12.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

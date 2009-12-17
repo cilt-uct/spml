@@ -1276,9 +1276,12 @@ public class SPML implements SpmlHandler  {
 		try {
 
 
-			courseCode = courseCode.toUpperCase();
+			courseCode = courseCode.toUpperCase().trim();
 			courseAdmin = getCourseAdmin();
 			cmService =getCourseManagementService();
+			if (courseCode == null || courseCode.length() == 0) {
+				return;
+			}
 			//does the 
 			String courseEid = courseCode + "," +term;
 			//is there a cannonical course?
