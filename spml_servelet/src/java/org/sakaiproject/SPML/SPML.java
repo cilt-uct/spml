@@ -133,9 +133,7 @@ public class SPML implements SpmlHandler  {
 	 *  Objects that will contain info about this user
 	 */
 	//private UserDirectoryService UserDirectoryService = new UserDirectoryService();
-	private UserEdit thisUser = null;
-	private SakaiPerson userProfile = null;
-	private SakaiPerson systemProfile = null;
+
 
 
 	/**
@@ -420,6 +418,10 @@ public class SPML implements SpmlHandler  {
 
 	public SpmlResponse spmlAddRequest(AddRequest req)  throws SpmlException {
 
+		UserEdit thisUser = null;
+		SakaiPerson userProfile = null;
+		SakaiPerson systemProfile = null;
+		
 		//LOG.info(req.toXml());
 		this.logSPMLRequest("Addrequest",req.toXml());
 
@@ -815,7 +817,12 @@ public class SPML implements SpmlHandler  {
 		try {
 			UserDirectoryService.commitEdit(thisUser);
 			//save the profiles
-			saveProfiles(CN);
+			//save the profiles
+
+			sakaiPersonManager.save(systemProfile);
+			//setSakaiSessionUser(CN);
+			sakaiPersonManager.save(userProfile);
+			//setSakaiSessionUser(SPML_USER);  // get back the admin session
 		} catch (UserAlreadyDefinedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -1431,17 +1438,7 @@ public class SPML implements SpmlHandler  {
 		return number;
 
 	}
-	private void saveProfiles(String CN) {
-		//save the profiles
-
-		sakaiPersonManager.save(systemProfile);
-		//setSakaiSessionUser(CN);
-		sakaiPersonManager.save(userProfile);
-		//setSakaiSessionUser(SPML_USER);  // get back the admin session
-
-
-	}
-
+	
 	@SuppressWarnings("unchecked")
 	private String getOrgCodeById(String modOrgUnit) {
 		String statement = "Select org from UCT_ORG where ORG_UNIT = " + modOrgUnit;
