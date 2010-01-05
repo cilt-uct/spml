@@ -689,7 +689,7 @@ public class SPML implements SpmlHandler  {
 
 
 		if (type != null ) {
-			LOG.info("got type:  " + type + "  and status: " + status);
+			LOG.debug("got type:  " + type + "  and status: " + status);
 			if (TYPE_STUDENT.equals(type) && STATUS_INACTIVE.equals(status) && newUser) {
 				type = "offer";  
 			} else if (TYPE_STUDENT.equals(type) && STATUS_INACTIVE.equals(status)) {
@@ -702,7 +702,7 @@ public class SPML implements SpmlHandler  {
 				type = "offer";
 			}
 			
-			LOG.info("got type:  " + type + "  and status: " + status);
+			LOG.debug("got type:  " + type + "  and status: " + status);
 			thisUser.setType(type);
 			systemProfile.setPrimaryAffiliation(type);
 			userProfile.setPrimaryAffiliation(type);
