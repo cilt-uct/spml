@@ -119,6 +119,7 @@ public class SPML implements SpmlHandler  {
 
 	private static final String STATUS_ACTIVE = "Active";
 	private static final String STATUS_INACTIVE = "Inactive";
+	private static final String STATUS_ADMITTED = "Admitted";
 	//change this to the name of your campus
 	
 	private static final String SPML_USER = ServerConfigurationService.getString("spml.user", "admin");
@@ -489,7 +490,7 @@ public class SPML implements SpmlHandler  {
 		{
 			status = STATUS_INACTIVE;
 		}
-
+		
 		//if this is a thirparty check the online learning required field
 		/*
 		String onlineRequired = (String)req.getAttributeValue(FIELD_ONLINELEARNINGREQUIRED);
@@ -697,6 +698,8 @@ public class SPML implements SpmlHandler  {
 				type = "inactiveStaff";
 			} else if (TYPE_THIRDPARTY.equals(type) && STATUS_INACTIVE.equals(status)) {
 				type = "inactiveThirdparty";
+			} else	if (STATUS_ADMITTED.equals(status)) {
+				type = "offer";
 			}
 			thisUser.setType(type);
 			systemProfile.setPrimaryAffiliation(type);
