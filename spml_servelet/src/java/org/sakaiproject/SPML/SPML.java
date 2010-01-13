@@ -856,8 +856,15 @@ public class SPML implements SpmlHandler  {
 					if ((String)req.getAttributeValue(FIELD_MEMBERSHIP)!=null) {
 						uctCourses = uctCourses + "," +(String)req.getAttributeValue(FIELD_MEMBERSHIP);
 					}
-					if ((String)req.getAttributeValue(FIELD_SCHOOL) != null)
+					
+
+					if ((String)req.getAttributeValue(FIELD_SCHOOL) != null) {
 						uctCourses = uctCourses + "," + (String)req.getAttributeValue(FIELD_SCHOOL) + "_"+ (String)req.getAttributeValue(FIELD_TYPE);
+						/* offer students get put in a special faculty group */
+						if ("offer".equals(type)) {
+							uctCourses = uctCourses + "," + (String)req.getAttributeValue(FIELD_SCHOOL) + "offer_"+ (String)req.getAttributeValue(FIELD_TYPE);
+						}
+					}
 					List<String> checkList = new ArrayList<String>();
 					if (uctCourses!=null) {
 						if (uctCourses.length()>0) {
