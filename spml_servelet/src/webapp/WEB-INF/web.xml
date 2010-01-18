@@ -11,23 +11,6 @@ Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
     </listener>
     
   <servlet>
-    <servlet-name>AxisServlet</servlet-name>
-    <display-name>Apache-Axis Servlet</display-name>
-    <servlet-class>
-        org.apache.axis.transport.http.AxisServlet
-    </servlet-class>
-  </servlet>
-
-  <servlet>
-    <servlet-name>AdminServlet</servlet-name>
-    <display-name>Axis Admin Servlet</display-name>
-    <servlet-class>
-        org.apache.axis.transport.http.AdminServlet
-    </servlet-class>
-    <load-on-startup>100</load-on-startup>
-  </servlet>
-
-  <servlet>
     <servlet-name>SOAPMonitorService</servlet-name>
     <display-name>SOAPMonitorService</display-name>
     <servlet-class>
@@ -39,21 +22,6 @@ Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
     </init-param>
     <load-on-startup>100</load-on-startup>
   </servlet>
-
-  <servlet-mapping>
-    <servlet-name>AxisServlet</servlet-name>
-    <url-pattern>/servlet/AxisServlet</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>AxisServlet</servlet-name>
-    <url-pattern>*.jws</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>AxisServlet</servlet-name>
-    <url-pattern>/services/*</url-pattern>
-  </servlet-mapping>
 
   <servlet-mapping>
     <servlet-name>SOAPMonitorService</servlet-name>
