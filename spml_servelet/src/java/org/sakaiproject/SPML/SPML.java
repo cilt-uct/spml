@@ -73,7 +73,6 @@ import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.sms.logic.external.NumberRoutingHelper;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -455,7 +454,7 @@ public class SPML implements SpmlHandler  {
 		}
 		CN = CN.toLowerCase();
 		//LOG.info(req.toXml());
-		String logId = logSPMLRequest("Addrequest",req.toXml(),CN);
+		logSPMLRequest("Addrequest",req.toXml(),CN);
 		
 		
 		if (req.getAttributeValue(FIELD_PN)!=null)
@@ -1272,10 +1271,9 @@ public class SPML implements SpmlHandler  {
 	 * Log the request
 	 */
 	
-	private String logSPMLRequest(String type, String body, String CN) {
+	private void logSPMLRequest(String type, String body, String CN) {
 		try {
 			String escapeBody = StringEscapeUtils.escapeSql(body);
-			String id = IdManager.createUuid();
 			if (CN == null) {
 				CN = "null";
 			}
@@ -1284,12 +1282,12 @@ public class SPML implements SpmlHandler  {
 			//LOG.info(this + "SQLservice:" + m_sqlService);
 			getSqlService();
 			m_sqlService.dbWrite(statement);
-			return id;
+	
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 		}
-		return null;
+		
 	}
 
 
