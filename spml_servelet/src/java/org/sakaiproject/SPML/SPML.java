@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openspml.client.SOAPClient;
@@ -72,6 +73,7 @@ import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.sms.logic.external.NumberRoutingHelper;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -424,7 +426,7 @@ public class SPML implements SpmlHandler  {
 		SakaiPerson systemProfile = null;
 		
 		//LOG.info(req.toXml());
-		this.logSPMLRequest("Addrequest",req.toXml());
+		String logId = logSPMLRequest("Addrequest",req.toXml());
 
 		
 		/* Attributes are:
@@ -451,6 +453,11 @@ public class SPML implements SpmlHandler  {
 
 		}
 		CN = CN.toLowerCase();
+		
+		//we now have the cn update the log to reflect this
+		addEidToLog(logId, CN);
+		
+		
 		if (req.getAttributeValue(FIELD_PN)!=null)
 			GN = (String)req.getAttributeValue(FIELD_PN);
 		else
@@ -939,7 +946,8 @@ public class SPML implements SpmlHandler  {
 		return response;
 	} 
 	
-	
+
+
 	private String normalizeMobile(String mobile) {
 		numberRoutingHelper = getNumberRoutingHelper();
 		if (numberRoutingHelper == null) {
@@ -1263,18 +1271,29 @@ public class SPML implements SpmlHandler  {
 	/*
 	 * Log the request
 	 */
-	private void logSPMLRequest(String type, String body) {
+	
+	private String logSPMLRequest(String type, String body) {
 		try {
-			String escapeBody = body.replaceAll("'","''");
-			String statement = "insert into spml_log (spml_type,spml_body, ipaddress) values ('" + type +"','" + escapeBody + "','" + requestIp + "')";
-
+			String escapeBody = StringEscapeUtils.escapeSql(body);
+			String id = IdManager.createUuid();
+			String statement = "insert into spml_log (spml_type,spml_body, ipaddress, uuid) values ('" + type +"','" + escapeBody + "','" + requestIp + "','" + id +"')";
 			//LOG.info(this + "SQLservice:" + m_sqlService);
 			getSqlService();
 			m_sqlService.dbWrite(statement);
+			return id;
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 		}
+		return null;
+	}
+	//ad the eid to an exisiting log record
+	private void addEidToLog(String logId, String cN) {
+		
+		String sql = "update spml_log set userEid='" + StringEscapeUtils.escapeSql(cN)+ "' where uuid='"+logId+"'";
+		getSqlService();
+		m_sqlService.dbWrite(sql);
+		
 	}
 
 	/*
