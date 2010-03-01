@@ -425,8 +425,7 @@ public class SPML implements SpmlHandler  {
 		SakaiPerson userProfile = null;
 		SakaiPerson systemProfile = null;
 		
-		//LOG.info(req.toXml());
-		String logId = logSPMLRequest("Addrequest",req.toXml());
+		
 
 		
 		/* Attributes are:
@@ -449,13 +448,14 @@ public class SPML implements SpmlHandler  {
 			response.setResult(SpmlResponse.RESULT_FAILURE);
 			response.setError(SpmlResponse.ERROR_CUSTOM_ERROR);
 			response.setErrorMessage("invalid username");
+			//LOG.info(req.toXml());
+			logSPMLRequest("Addrequest",req.toXml(), null);
 			return response;			
 
 		}
 		CN = CN.toLowerCase();
-		
-		//we now have the cn update the log to reflect this
-		addEidToLog(logId, CN);
+		//LOG.info(req.toXml());
+		String logId = logSPMLRequest("Addrequest",req.toXml(),CN);
 		
 		
 		if (req.getAttributeValue(FIELD_PN)!=null)
@@ -1019,7 +1019,7 @@ public class SPML implements SpmlHandler  {
 
 	public SpmlResponse spmlDeleteRequest(SpmlRequest req) {
 		LOG.info("SPML Webservice: Received DeleteRequest "+req);
-		this.logSPMLRequest("DeleteRequest",req.toXml());
+		this.logSPMLRequest("DeleteRequest",req.toXml(), null);
 		/*
 		 * User user = UserDirectoryService.getUserByEid(CN);
 		 * thisUser = UserDirectoryService.editUser(user.getId());
@@ -1039,7 +1039,7 @@ public class SPML implements SpmlHandler  {
 	public SpmlResponse spmlModifyRequest(ModifyRequest req) {
 		LOG.info("SPML Webservice: Received DeleteRequest "+req);
 
-		this.logSPMLRequest("ModifyRequest",req.toXml());
+		this.logSPMLRequest("ModifyRequest",req.toXml(), null);
 		//List attrList = req.getAttributes();
 		/* Attributes are:
 	       objectclass
@@ -1272,11 +1272,15 @@ public class SPML implements SpmlHandler  {
 	 * Log the request
 	 */
 	
-	private String logSPMLRequest(String type, String body) {
+	private String logSPMLRequest(String type, String body, String CN) {
 		try {
 			String escapeBody = StringEscapeUtils.escapeSql(body);
 			String id = IdManager.createUuid();
-			String statement = "insert into spml_log (spml_type,spml_body, ipaddress, uuid) values ('" + type +"','" + escapeBody + "','" + requestIp + "','" + id +"')";
+			if (CN == null) {
+				CN = "null";
+			}
+			String statement = "insert into spml_log (spml_type,spml_body, ipaddress, userEid) values ('" + type +"','" + escapeBody + "','" + requestIp + "','" + StringEscapeUtils.escapeSql(CN)
+			+"')";
 			//LOG.info(this + "SQLservice:" + m_sqlService);
 			getSqlService();
 			m_sqlService.dbWrite(statement);
@@ -1287,14 +1291,7 @@ public class SPML implements SpmlHandler  {
 		}
 		return null;
 	}
-	//ad the eid to an exisiting log record
-	private void addEidToLog(String logId, String cN) {
-		
-		String sql = "update spml_log set userEid='" + StringEscapeUtils.escapeSql(cN)+ "' where uuid='"+logId+"'";
-		getSqlService();
-		m_sqlService.dbWrite(sql);
-		
-	}
+
 
 	/*
 	 * add the user to a course
