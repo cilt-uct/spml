@@ -857,36 +857,39 @@ public class SPML implements SpmlHandler  {
 			if (! STATUS_INACTIVE.equalsIgnoreCase(status)) { 
 				try {
 					String uctCourses =null;
-					uctCourses = (String)req.getAttributeValue(FIELD_PROGAM);
-
-					if ((String)req.getAttributeValue(FIELD_MEMBERSHIP)!=null) {
-						uctCourses = uctCourses + "," +(String)req.getAttributeValue(FIELD_MEMBERSHIP);
+					uctCourses = (String)req.getAttributeValue(FIELD_MEMBERSHIP);
+					
+					/*
+					 * offer students go into a special group
+					 */
+					if ((String)req.getAttributeValue(FIELD_SCHOOL) != null && "offer".equals(type)) {
+						uctCourses = (String)req.getAttributeValue(FIELD_SCHOOL) + "_offer_"+ (String)req.getAttributeValue(FIELD_TYPE);
 					}
 					
-
-					if ((String)req.getAttributeValue(FIELD_SCHOOL) != null) {
-						uctCourses = uctCourses + "," + (String)req.getAttributeValue(FIELD_SCHOOL) + "_"+ (String)req.getAttributeValue(FIELD_TYPE);
-						/* offer students get put in a special faculty group */
-						if ("offer".equals(type)) {
-							uctCourses = uctCourses + "," + (String)req.getAttributeValue(FIELD_SCHOOL) + "_offer_"+ (String)req.getAttributeValue(FIELD_TYPE);
-						}
-					}
+					
 					List<String> checkList = new ArrayList<String>();
-					if (uctCourses!=null) {
-						if (uctCourses.length()>0) {
-							String[] uctCourse =  StringUtil.split(uctCourses, ",");
-							LOG.info(" got " + uctCourse.length + " courses");
-							for (int ai = 0; ai < uctCourse.length; ai ++ ) {
-								//System.out.println("got a coursecode " + uctCourse[ai]);
-								String course = uctCourse[ai].trim();
-								if (course.length()==11)
-								{
-									course = course.substring(0,8);
-								}
-								LOG.info("adding this student to " + course);
-								checkList.add(course);
-								addUserToCourse(CN,course);
+					if (uctCourses!=null && uctCourses.length()>0) {
+
+						if ((String)req.getAttributeValue(FIELD_PROGAM)!=null) {
+							uctCourses = uctCourses + "," +(String)req.getAttributeValue(FIELD_PROGAM);
+						}
+						if ((String)req.getAttributeValue(FIELD_SCHOOL)!=null) {
+							uctCourses = uctCourses + "," +(String)req.getAttributeValue(FIELD_SCHOOL);
+						}
+						
+						String[] uctCourse =  StringUtil.split(uctCourses, ",");
+						LOG.info(" got " + uctCourse.length + " courses");
+						for (int ai = 0; ai < uctCourse.length; ai ++ ) {
+							//System.out.println("got a coursecode " + uctCourse[ai]);
+							String course = uctCourse[ai].trim();
+							if (course.length()==11)
+							{
+								course = course.substring(0,8);
 							}
+							LOG.info("adding this student to " + course);
+							checkList.add(course);
+							addUserToCourse(CN,course);
+
 						}
 					} //end if courseList not null
 
