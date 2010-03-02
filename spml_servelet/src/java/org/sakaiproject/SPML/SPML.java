@@ -865,7 +865,11 @@ public class SPML implements SpmlHandler  {
 					 * offer students go into a special group
 					 */
 					if ((String)req.getAttributeValue(FIELD_SCHOOL) != null && "offer".equals(type)) {
-						uctCourses = (String)req.getAttributeValue(FIELD_SCHOOL) + "_offer_"+ (String)req.getAttributeValue(FIELD_TYPE);
+						String courseCode = (String)req.getAttributeValue(FIELD_SCHOOL) + "_offer_"+ (String)req.getAttributeValue(FIELD_TYPE);
+						LOG.info("adding this student to " + courseCode);
+						addUserToCourse(CN, courseCode);
+						checkList.add(courseCode);
+						
 					} else if (uctCourses!=null && uctCourses.length()>0) {
 
 						if ((String)req.getAttributeValue(FIELD_PROGAM)!=null) {
