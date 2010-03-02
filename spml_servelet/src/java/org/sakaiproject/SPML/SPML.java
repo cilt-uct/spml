@@ -858,17 +858,15 @@ public class SPML implements SpmlHandler  {
 				try {
 					String uctCourses =null;
 					uctCourses = (String)req.getAttributeValue(FIELD_MEMBERSHIP);
-					
+
+					List<String> checkList = new ArrayList<String>();
+
 					/*
 					 * offer students go into a special group
 					 */
 					if ((String)req.getAttributeValue(FIELD_SCHOOL) != null && "offer".equals(type)) {
 						uctCourses = (String)req.getAttributeValue(FIELD_SCHOOL) + "_offer_"+ (String)req.getAttributeValue(FIELD_TYPE);
-					}
-					
-					
-					List<String> checkList = new ArrayList<String>();
-					if (uctCourses!=null && uctCourses.length()>0) {
+					} else if (uctCourses!=null && uctCourses.length()>0) {
 
 						if ((String)req.getAttributeValue(FIELD_PROGAM)!=null) {
 							uctCourses = uctCourses + "," +(String)req.getAttributeValue(FIELD_PROGAM);
@@ -876,7 +874,7 @@ public class SPML implements SpmlHandler  {
 						if ((String)req.getAttributeValue(FIELD_SCHOOL)!=null) {
 							uctCourses = uctCourses + "," +(String)req.getAttributeValue(FIELD_SCHOOL);
 						}
-						
+
 						String[] uctCourse =  StringUtil.split(uctCourses, ",");
 						LOG.info(" got " + uctCourse.length + " courses");
 						for (int ai = 0; ai < uctCourse.length; ai ++ ) {
