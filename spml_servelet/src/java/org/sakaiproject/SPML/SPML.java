@@ -848,7 +848,7 @@ public class SPML implements SpmlHandler  {
 
 		/*
 		 * lets try the course membership
-		 * its a comma delimeted list in the uctCourseCode attribute
+		 * its a comma delimited list in the uctCourseCode attribute
 		 * however it might be null - if so ignore and move on
 		 * we should only do this if this is a student 
 		 */
