@@ -1365,15 +1365,16 @@ public class SPML implements SpmlHandler  {
 			if (!cmService.isCourseOfferingDefined(courseEid)) {
 				LOG.info("creating course offering for " + courseCode + " in year " + term);
 				EmailService.send("help-team@vula.uct.ac.za", "help-team@vula.uct.ac.za", "[CM]: new course created on vula: " + courseEid, "[CM]: new course created on vula: " + courseEid, null, null, null);
-
-				Calendar cal = Calendar.getInstance();
-				cal.set(Calendar.DAY_OF_MONTH, 1);
-				cal.set(Calendar.MONTH, Calendar.JANUARY);
-				Date startDate = cal.getTime();
-
+				//if this is being created by SPML its current now
+				Date startDate = new Date();
+				
+				//use the term date
 				Calendar cal2 = Calendar.getInstance();
 				cal2.set(Calendar.DAY_OF_MONTH, 30);
 				cal2.set(Calendar.MONTH, Calendar.DECEMBER);
+				if (term !=null) {
+					cal2.set(Calendar.YEAR, Integer.valueOf(term));
+				}
 				Date endDate = cal2.getTime();
 				LOG.debug("got cal:" + cal2.get(Calendar.YEAR) + "/" + cal2.get(Calendar.MONTH) + "/" + cal2.get(Calendar.DAY_OF_MONTH));
 				courseAdmin.createCourseOffering(courseEid, courseEid, "someDescription", "active", term, courseCode, startDate, endDate);
