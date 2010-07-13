@@ -86,6 +86,8 @@ import org.sakaiproject.user.api.UserPermissionException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.StringUtil;
 
+import sun.awt.RepaintArea;
+
 public class SPML implements SpmlHandler  {
 
 	//Atribute mappings to map SPML attributes to Sakai attributs
@@ -991,6 +993,7 @@ public class SPML implements SpmlHandler  {
 
 
 			Map<String, String> replacementValues = new HashMap<String, String>();
+			replacementValues.put("userEid", ue.getDisplayId());
 			replacementValues.put("userFirstName", ue.getFirstName());
 			replacementValues.put("userLastName", ue.getLastName());
 			replacementValues.put("userEmail", ue.getEmail());
