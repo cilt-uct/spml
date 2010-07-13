@@ -69,6 +69,7 @@ import org.sakaiproject.coursemanagement.api.EnrollmentSet;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.email.cover.EmailService;
+import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
 import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -998,10 +999,13 @@ public class SPML implements SpmlHandler  {
 
 			emailTemplateService = getEmailTemplateService();
 
-			RenderedTemplate template = emailTemplateService.getRenderedTemplateForUser(prefix + type, ue.getReference() , replacementValues);
+			EmailTemplate template = emailTemplateService.getEmailTemplate(prefix + type, null);
 			if (template != null) {
 				LOG.info("send mail to:" + ue.getEmail() + " subject: " + template.getSubject());
-				EmailService.send("help@vula.uct.ac.za", ue.getEmail(), template.getSubject(), template.getMessage(), null, null, null);
+				List<String> recipient = new ArrayList<String>();
+				recipient.add(ue.getReference());
+				LOG.info("setting list" + recipient.size());
+				emailTemplateService.sendRenderedMessages(prefix + type, recipient, replacementValues, "help@vula.uct.ac.za", "Vula Help");
 			} else {
 				UserDirectoryService.cancelEdit(ue);
 				return;
