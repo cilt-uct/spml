@@ -86,8 +86,6 @@ import org.sakaiproject.user.api.UserPermissionException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.StringUtil;
 
-import sun.awt.RepaintArea;
-
 public class SPML implements SpmlHandler  {
 
 	//Atribute mappings to map SPML attributes to Sakai attributs
