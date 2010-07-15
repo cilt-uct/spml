@@ -82,7 +82,7 @@
 		<dependency>
 			<groupId>org.sakaiproject.sms</groupId>
 			<artifactId>sms-api</artifactId>
-			<version>[0.16,1.0)</version>
+			<version>[0.16,0.99)</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
