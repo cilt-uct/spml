@@ -70,7 +70,6 @@ import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
-import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -92,6 +91,7 @@ public class SPML implements SpmlHandler  {
 	//Atribute mappings to map SPML attributes to Sakai attributs
 
 
+	private static final String TYPE_OFFER = "offer";
 	/*
 	 *  Field name mappings
 	 */
@@ -698,7 +698,7 @@ public class SPML implements SpmlHandler  {
 		if (type != null ) {
 			LOG.debug("got type:  " + type + "  and status: " + status);
 			if (TYPE_STUDENT.equals(type) && STATUS_INACTIVE.equals(status) && newUser) {
-				type = "offer";  
+				type = TYPE_OFFER;  
 			} else if (TYPE_STUDENT.equals(type) && STATUS_INACTIVE.equals(status)) {
 				type = STATUS_INACTIVE;
 			} else if (TYPE_STAFF.equals(type) && STATUS_INACTIVE.equals(status)) {
@@ -706,7 +706,7 @@ public class SPML implements SpmlHandler  {
 			} else if (TYPE_THIRDPARTY.equals(type) && STATUS_INACTIVE.equals(status)) {
 				type = "inactiveThirdparty";
 			} else	if (STATUS_ADMITTED.equals(status)) {
-				type = "offer";
+				type = TYPE_OFFER;
 			}
 			
 			LOG.debug("got type:  " + type + "  and status: " + status);
@@ -865,7 +865,7 @@ public class SPML implements SpmlHandler  {
 					/*
 					 * offer students go into a special group
 					 */
-					if ((String)req.getAttributeValue(FIELD_SCHOOL) != null && "offer".equals(type)) {
+					if ((String)req.getAttributeValue(FIELD_SCHOOL) != null && TYPE_OFFER.equals(type)) {
 						String courseCode = (String)req.getAttributeValue(FIELD_SCHOOL) + "_offer_"+ (String)req.getAttributeValue(FIELD_TYPE);
 						LOG.info("adding this student to " + courseCode);
 						addUserToCourse(CN, courseCode);
@@ -988,8 +988,16 @@ public class SPML implements SpmlHandler  {
 
 		ResourceProperties rp = ue.getProperties();
 
+		//offer students have email accounts treat them as students
+		
+		if (TYPE_OFFER.equals(type)) {
+			type = TYPE_STUDENT;
+		}
+		
 		if ( rp.getProperty(PROPERTY_SENTEMAIL) == null) {
-
+			
+			//offer students have email accounts
+			
 
 			Map<String, String> replacementValues = new HashMap<String, String>();
 			replacementValues.put("userEid", ue.getDisplayId());
