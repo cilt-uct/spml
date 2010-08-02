@@ -676,6 +676,11 @@ public class SPML implements SpmlHandler  {
 			thisUser.setEmail(thisEmail);
 		}
 
+		
+		
+		
+		
+		
 		LOG.debug("users email profile email is " + userProfile.getMail());
 
 
@@ -697,14 +702,17 @@ public class SPML implements SpmlHandler  {
 
 		if (type != null ) {
 			LOG.debug("got type:  " + type + "  and status: " + status);
+			//VULA-1006 special case for inactive staff and 3p we set the email to eid@uct.ac.za
 			if (TYPE_STUDENT.equals(type) && STATUS_INACTIVE.equals(status) && newUser) {
 				type = TYPE_OFFER;  
 			} else if (TYPE_STUDENT.equals(type) && STATUS_INACTIVE.equals(status)) {
 				type = STATUS_INACTIVE;
 			} else if (TYPE_STAFF.equals(type) && STATUS_INACTIVE.equals(status)) {
 				type = "inactiveStaff";
+				thisUser.setEmail(thisUser.getEid() + "@uct.ac.za");
 			} else if (TYPE_THIRDPARTY.equals(type) && STATUS_INACTIVE.equals(status)) {
 				type = "inactiveThirdparty";
+				thisUser.setEmail(thisUser.getEid() + "@uct.ac.za");
 			} else	if (STATUS_ADMITTED.equals(status)) {
 				type = TYPE_OFFER;
 			}
