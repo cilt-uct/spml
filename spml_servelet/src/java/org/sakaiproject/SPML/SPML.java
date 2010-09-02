@@ -1020,7 +1020,7 @@ public class SPML implements SpmlHandler  {
 				LOG.info("send mail to:" + ue.getEmail() + " subject: " + template.getSubject());
 				List<String> recipient = new ArrayList<String>();
 				recipient.add(ue.getReference());
-				LOG.info("setting list" + recipient.size());
+				LOG.debug("setting list" + recipient.size());
 				emailTemplateService.sendRenderedMessages(prefix + type, recipient, replacementValues, "help@vula.uct.ac.za", "Vula Help");
 			} else {
 				UserDirectoryService.cancelEdit(ue);
@@ -1299,15 +1299,20 @@ public class SPML implements SpmlHandler  {
 	
 	private void logSPMLRequest(String type, String body, String CN) {
 		try {
-			String escapeBody = StringEscapeUtils.escapeSql(body);
 			if (CN == null) {
 				CN = "null";
 			}
-			String statement = "insert into spml_log (spml_type,spml_body, ipaddress, userEid) values ('" + type +"','" + escapeBody + "','" + requestIp + "','" + StringEscapeUtils.escapeSql(CN)
-			+"')";
+			String statement = "insert into spml_log (spml_type,spml_body, ipaddress, userEid) values (? ,? ,? ,?)";
+			
+			Object[] fields = new Object[]{
+					type,
+					body,
+					requestIp,
+					CN
+			};
 			//LOG.info(this + "SQLservice:" + m_sqlService);
 			getSqlService();
-			m_sqlService.dbWrite(statement);
+			m_sqlService.dbWrite(statement, fields);
 	
 		}
 		catch (Exception e) {
