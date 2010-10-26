@@ -43,7 +43,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openspml.client.SOAPClient;
@@ -116,12 +115,15 @@ public class SPML implements SpmlHandler  {
 
 	private static final String TYPE_STUDENT = "student";
 	private static final String TYPE_STAFF = "staff";
-	private static final Object TYPE_THIRDPARTY = "thirdparty";
+	private static final String TYPE_THIRDPARTY = "thirdparty";
+	
 
 
 	private static final String STATUS_ACTIVE = "Active";
 	private static final String STATUS_INACTIVE = "Inactive";
 	private static final String STATUS_ADMITTED = "Admitted";
+	private static final String STATUS_PREGRAD = "pregrad";
+	
 	//change this to the name of your campus
 	
 	private static final String SPML_USER = ServerConfigurationService.getString("spml.user", "admin");
@@ -941,7 +943,9 @@ public class SPML implements SpmlHandler  {
 					}
 
 					//now synch 
-					synchCourses(checkList, CN);
+					if (STATUS_PREGRAD.equalsIgnoreCase(status)) {
+						synchCourses(checkList, CN);
+					}
 
 
 
