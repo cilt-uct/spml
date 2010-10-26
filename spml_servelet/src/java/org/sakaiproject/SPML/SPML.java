@@ -62,8 +62,10 @@ import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CourseManagementAdministration;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.coursemanagement.api.CourseOffering;
 import org.sakaiproject.coursemanagement.api.EnrollmentSet;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.db.api.SqlService;
@@ -107,7 +109,7 @@ public class SPML implements SpmlHandler  {
 	private static final String FIELD_HOMEPHONE ="homePhone";
 	private static final String FIELD_OU ="OU";
 	private static final String FIELD_DOB="DOB";
-	
+
 	private static final String FIELD_RES_CODE="uctResidenceCode";
 	private static final String FIELD_ORG_DECR = "Description";
 	private static final String FIELD_TITLE = "uctPersonalTitle";
@@ -116,19 +118,19 @@ public class SPML implements SpmlHandler  {
 	private static final String TYPE_STUDENT = "student";
 	private static final String TYPE_STAFF = "staff";
 	private static final String TYPE_THIRDPARTY = "thirdparty";
-	
+
 
 
 	private static final String STATUS_ACTIVE = "Active";
 	private static final String STATUS_INACTIVE = "Inactive";
 	private static final String STATUS_ADMITTED = "Admitted";
 	private static final String STATUS_PREGRAD = "pregrad";
-	
+
 	//change this to the name of your campus
-	
+
 	private static final String SPML_USER = ServerConfigurationService.getString("spml.user", "admin");
 	private static final String SPML_PASSWORD = ServerConfigurationService.getString("spml.password", "admin");
-	
+
 
 
 	private static final String PROPERTY_SENTEMAIL = "uctNewMailSent";
@@ -313,8 +315,8 @@ public class SPML implements SpmlHandler  {
 		return sessionManager;
 
 	}
-	
-	
+
+
 	private NumberRoutingHelper numberRoutingHelper;
 	private NumberRoutingHelper getNumberRoutingHelper() {
 		if (numberRoutingHelper == null) {
@@ -426,10 +428,10 @@ public class SPML implements SpmlHandler  {
 		UserEdit thisUser = null;
 		SakaiPerson userProfile = null;
 		SakaiPerson systemProfile = null;
-		
-		
 
-		
+
+
+
 		/* Attributes are:
 		   objectclass
 		   CN
@@ -458,8 +460,8 @@ public class SPML implements SpmlHandler  {
 		CN = CN.toLowerCase();
 		//LOG.info(req.toXml());
 		logSPMLRequest("Addrequest",req.toXml(),CN);
-		
-		
+
+
 		if (req.getAttributeValue(FIELD_PN)!=null)
 			GN = (String)req.getAttributeValue(FIELD_PN);
 		else
@@ -499,7 +501,7 @@ public class SPML implements SpmlHandler  {
 		{
 			status = STATUS_INACTIVE;
 		}
-		
+
 		//if this is a thirparty check the online learning required field
 		/*
 		String onlineRequired = (String)req.getAttributeValue(FIELD_ONLINELEARNINGREQUIRED);
@@ -678,11 +680,11 @@ public class SPML implements SpmlHandler  {
 			thisUser.setEmail(thisEmail);
 		}
 
-		
-		
-		
-		
-		
+
+
+
+
+
 		LOG.debug("users email profile email is " + userProfile.getMail());
 
 
@@ -718,7 +720,7 @@ public class SPML implements SpmlHandler  {
 			} else	if (STATUS_ADMITTED.equals(status)) {
 				type = TYPE_OFFER;
 			}
-			
+
 			LOG.debug("got type:  " + type + "  and status: " + status);
 			thisUser.setType(type);
 			systemProfile.setPrimaryAffiliation(type);
@@ -741,7 +743,7 @@ public class SPML implements SpmlHandler  {
 		String modMobile = mobile;
 		String modOrgUnit = orgUnit;
 		String modOrgCode = orgCode;
-		
+
 
 		//if the user surname != system surname only update the system 
 
@@ -752,7 +754,7 @@ public class SPML implements SpmlHandler  {
 		if (systemMobile != null && systemNormalizedMobile == null) {
 			systemNormalizedMobile = normalizeMobile(systemMobile);
 		}
-		
+
 		if (systemMobile != null) {
 			if (!systemNormalizedMobile.equals(userMobileNormalized)) {
 				systemProfile.setMobile(modMobile);
@@ -880,7 +882,7 @@ public class SPML implements SpmlHandler  {
 						LOG.info("adding this student to " + courseCode);
 						addUserToCourse(CN, courseCode);
 						checkList.add(courseCode);
-						
+
 					} else if (uctCourses!=null && uctCourses.length()>0) {
 
 						if ((String)req.getAttributeValue(FIELD_PROGAM)!=null) {
@@ -962,7 +964,7 @@ public class SPML implements SpmlHandler  {
 		}
 		return response;
 	} 
-	
+
 
 
 	private String normalizeMobile(String mobile) {
@@ -971,7 +973,7 @@ public class SPML implements SpmlHandler  {
 			LOG.error("no numberrouting helper!");
 			return mobile;
 		}
-		
+
 		return numberRoutingHelper.normalizeNumber(mobile);
 	}
 
@@ -1001,15 +1003,15 @@ public class SPML implements SpmlHandler  {
 		ResourceProperties rp = ue.getProperties();
 
 		//offer students have email accounts treat them as students
-		
+
 		if (TYPE_OFFER.equals(type)) {
 			type = TYPE_STUDENT;
 		}
-		
+
 		if ( rp.getProperty(PROPERTY_SENTEMAIL) == null) {
-			
+
 			//offer students have email accounts
-			
+
 
 			Map<String, String> replacementValues = new HashMap<String, String>();
 			replacementValues.put("userEid", ue.getDisplayId());
@@ -1125,7 +1127,7 @@ public class SPML implements SpmlHandler  {
 			e.printStackTrace();
 		}
 
-		
+
 		SpmlResponse response = null;
 
 		try {
@@ -1300,14 +1302,14 @@ public class SPML implements SpmlHandler  {
 	/*
 	 * Log the request
 	 */
-	
+
 	private void logSPMLRequest(String type, String body, String CN) {
 		try {
 			if (CN == null) {
 				CN = "null";
 			}
 			String statement = "insert into spml_log (spml_type,spml_body, ipaddress, userEid) values (? ,? ,? ,?)";
-			
+
 			Object[] fields = new Object[]{
 					type,
 					body,
@@ -1317,12 +1319,12 @@ public class SPML implements SpmlHandler  {
 			//LOG.info(this + "SQLservice:" + m_sqlService);
 			getSqlService();
 			m_sqlService.dbWrite(statement, fields);
-	
+
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 
@@ -1338,8 +1340,8 @@ public class SPML implements SpmlHandler  {
 	}
 
 	private void addUserToCourse(String userId, String courseCode, String term, String setCategory) {
-
-
+		LOG.info("addUserToCourse(" + userId +", " + courseCode + "," + term + "," + setCategory + ")");
+		
 
 		try {
 
@@ -1350,9 +1352,15 @@ public class SPML implements SpmlHandler  {
 			if (courseCode == null || courseCode.length() == 0) {
 				return;
 			}
-			//does the 
-			String courseEid = courseCode + "," +term;
-			//is there a cannonical course?
+			/*TODO we need the get the actice CM for this course
+			 * This will involve refactoring code bellow
+			 */
+
+			
+			String courseEid = null;
+			
+			//Get the role based on the type of object this is
+			String role = "Student";
 			String setId = null;
 			if (setCategory == null ) {
 				if (courseCode.length() == 5) {
@@ -1366,51 +1374,69 @@ public class SPML implements SpmlHandler  {
 				setId = courseCode;
 			}
 
-			String role = "Student";
+			
 			if (setCategory.equalsIgnoreCase("residence")) {
 				role = "Participant";
 			}
-
-
-			//do we have a accedemic session?
-			if (!cmService.isAcademicSessionDefined(term)) {
-				Calendar cal = Calendar.getInstance();
-				cal.set(new Integer(term).intValue(), 1, 1);
-				Date start =  cal.getTime();
-				cal.set(new Integer(term).intValue(), Calendar.DECEMBER, 30);
-				Date end = cal.getTime();
-				courseAdmin.createAcademicSession(term, term, term, start, end);
-			}
-			//does the course set exist?
-
-			if (!cmService.isCourseSetDefined(setId)) 
-				courseAdmin.createCourseSet(setId, setId, setId, setCategory, null);
-
-			if (!cmService.isCanonicalCourseDefined(courseCode)) {
-				courseAdmin.createCanonicalCourse(courseCode, courseCode, courseCode);
-				courseAdmin.addCanonicalCourseToCourseSet(setId, courseCode);
-			}
-
-
-			if (!cmService.isCourseOfferingDefined(courseEid)) {
-				LOG.info("creating course offering for " + courseCode + " in year " + term);
-				EmailService.send("help-team@vula.uct.ac.za", "help-team@vula.uct.ac.za", "[CM]: new course created on vula: " + courseEid, "[CM]: new course created on vula: " + courseEid, null, null, null);
-				//if this is being created by SPML its current now
-				Date startDate = new Date();
+			LOG.info("about to get sections in " + courseCode);
+			List<CourseOffering> sections  = cmService.findActiveCourseOfferingsInCanonicalCourse(courseCode);
+			LOG.info("got  " + sections.size() +",  sections");
+			if (sections.size() > 0) {
+				//TODO if there are mutliple courses we will add them to the one in the later accademic year
+				CourseOffering co = getPreferedSection(sections);
+				courseEid = co.getEid();
+			} else {
+				//TODO use the not found info from bellow
+				//does the 
+				courseEid = courseCode + "," +term;
+				//is there a cannonical course?
 				
-				//use the term date
-				Calendar cal2 = Calendar.getInstance();
-				cal2.set(Calendar.DAY_OF_MONTH, 30);
-				cal2.set(Calendar.MONTH, Calendar.DECEMBER);
-				if (term !=null) {
-					cal2.set(Calendar.YEAR, Integer.valueOf(term));
+				
+
+
+				//do we have a accedemic session?
+				if (!cmService.isAcademicSessionDefined(term)) {
+					Calendar cal = Calendar.getInstance();
+					cal.set(new Integer(term).intValue(), 1, 1);
+					Date start =  cal.getTime();
+					cal.set(new Integer(term).intValue(), Calendar.DECEMBER, 30);
+					Date end = cal.getTime();
+					courseAdmin.createAcademicSession(term, term, term, start, end);
 				}
-				Date endDate = cal2.getTime();
-				LOG.debug("got cal:" + cal2.get(Calendar.YEAR) + "/" + cal2.get(Calendar.MONTH) + "/" + cal2.get(Calendar.DAY_OF_MONTH));
-				courseAdmin.createCourseOffering(courseEid, courseEid, "someDescription", "active", term, courseCode, startDate, endDate);
-				courseAdmin.addCourseOfferingToCourseSet(setId, courseEid);
+				//does the course set exist?
+
+				if (!cmService.isCourseSetDefined(setId)) 
+					courseAdmin.createCourseSet(setId, setId, setId, setCategory, null);
+
+				if (!cmService.isCanonicalCourseDefined(courseCode)) {
+					courseAdmin.createCanonicalCourse(courseCode, courseCode, courseCode);
+					courseAdmin.addCanonicalCourseToCourseSet(setId, courseCode);
+				}
+
+
+				if (!cmService.isCourseOfferingDefined(courseEid)) {
+					LOG.info("creating course offering for " + courseCode + " in year " + term);
+					EmailService.send("help-team@vula.uct.ac.za", "help-team@vula.uct.ac.za", "[CM]: new course created on vula: " + courseEid, "[CM]: new course created on vula: " + courseEid, null, null, null);
+					//if this is being created by SPML its current now
+					Date startDate = new Date();
+
+					//use the term date
+					Calendar cal2 = Calendar.getInstance();
+					cal2.set(Calendar.DAY_OF_MONTH, 30);
+					cal2.set(Calendar.MONTH, Calendar.DECEMBER);
+					if (term !=null) {
+						cal2.set(Calendar.YEAR, Integer.valueOf(term));
+					}
+					Date endDate = cal2.getTime();
+					LOG.debug("got cal:" + cal2.get(Calendar.YEAR) + "/" + cal2.get(Calendar.MONTH) + "/" + cal2.get(Calendar.DAY_OF_MONTH));
+					courseAdmin.createCourseOffering(courseEid, courseEid, "someDescription", "active", term, courseCode, startDate, endDate);
+					courseAdmin.addCourseOfferingToCourseSet(setId, courseEid);
+				}
 			}
 
+
+
+			//we know that all objects to this level must exist
 
 			if (! cmService.isEnrollmentSetDefined(courseEid))
 				courseAdmin.createEnrollmentSet(courseEid, "title", "description", "category", "defaultEnrollmentCredits", courseEid, null);
@@ -1446,6 +1472,32 @@ public class SPML implements SpmlHandler  {
 
 	}
 
+	private CourseOffering getPreferedSection(List<CourseOffering> sections) {
+
+		if (sections.size() == 1) {
+			return sections.get(0);
+		}
+
+		CourseOffering preferedOffering = null;
+		//we want the one in the later year
+		for (int i =0; i < sections.size(); i++) {
+			CourseOffering co = sections.get(i);
+			if (preferedOffering == null) {
+				preferedOffering = co;
+			} else {
+				AcademicSession preferedSection = preferedOffering.getAcademicSession();
+				AcademicSession session = co.getAcademicSession();
+				if (session.getStartDate().after(preferedSection.getStartDate())) {
+					preferedOffering = co;
+				}
+			}
+		}
+
+		LOG.info("found prefered offering of " + preferedOffering.getEid());
+		return preferedOffering;
+	}
+
+
 	//remove user from old courses
 	private void synchCourses(List<String> uctCourse, String userEid){
 		LOG.debug("Checking enrolments for " + userEid);
@@ -1473,8 +1525,6 @@ public class SPML implements SpmlHandler  {
 				courseAdmin.removeCourseOfferingMembership(userEid, courseEid);
 				courseAdmin.removeSectionMembership(userEid, courseEid);
 				courseAdmin.removeEnrollment(userEid, courseEid);
-
-
 			}
 		}
 
@@ -1500,7 +1550,7 @@ public class SPML implements SpmlHandler  {
 		return number;
 
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private String getOrgCodeById(String modOrgUnit) {
 		String statement = "Select org from UCT_ORG where ORG_UNIT = " + modOrgUnit;
