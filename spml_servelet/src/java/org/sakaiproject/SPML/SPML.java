@@ -37,6 +37,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -879,8 +880,18 @@ public class SPML implements SpmlHandler  {
 					 */
 					if ((String)req.getAttributeValue(FIELD_SCHOOL) != null && TYPE_OFFER.equals(type)) {
 						String courseCode = (String)req.getAttributeValue(FIELD_SCHOOL) + "_offer_"+ (String)req.getAttributeValue(FIELD_TYPE);
-						LOG.info("adding this student to " + courseCode);
-						addUserToCourse(CN, courseCode);
+						//we need to figure out which year?
+						Calendar cal = new GregorianCalendar();
+						if (cal.get(Calendar.MONTH) >= Calendar.AUGUST) {
+							//we will do this for next year
+							cal.add(Calendar.YEAR, 1);
+						}
+						
+						SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
+						String offerYear = yearf.format(cal.getTime());			
+						
+						LOG.info("adding this student to " + courseCode + " in " + offerYear);
+						addUserToCourse(CN, courseCode, offerYear, "course");
 						checkList.add(courseCode);
 
 					} else if (uctCourses!=null && uctCourses.length()>0) {
