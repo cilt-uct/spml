@@ -944,10 +944,9 @@ public class SPML implements SpmlHandler  {
 
 					}
 
-					//now synch 
-					if (STATUS_PREGRAD.equalsIgnoreCase(status)) {
-						synchCourses(checkList, CN);
-					}
+
+					synchCourses(checkList, CN);
+
 
 
 
