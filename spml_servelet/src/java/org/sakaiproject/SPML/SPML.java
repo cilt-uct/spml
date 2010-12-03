@@ -708,9 +708,7 @@ public class SPML implements SpmlHandler  {
 		if (type != null ) {
 			LOG.debug("got type:  " + type + "  and status: " + status);
 			//VULA-1006 special case for inactive staff and 3p we set the email to eid@uct.ac.za
-			if (TYPE_STUDENT.equals(type) && STATUS_INACTIVE.equals(status) && newUser) {
-				type = TYPE_OFFER;  
-			} else if (TYPE_STUDENT.equals(type) && STATUS_INACTIVE.equals(status)) {
+			if (TYPE_STUDENT.equals(type) && STATUS_INACTIVE.equals(status)) {
 				type = STATUS_INACTIVE;
 			} else if (TYPE_STAFF.equals(type) && STATUS_INACTIVE.equals(status)) {
 				type = "inactiveStaff";
