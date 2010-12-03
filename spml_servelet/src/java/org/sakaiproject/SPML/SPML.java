@@ -1432,8 +1432,8 @@ public class SPML implements SpmlHandler  {
 
 					//use the term date
 					Calendar cal2 = Calendar.getInstance();
-					cal2.set(Calendar.DAY_OF_MONTH, 30);
-					cal2.set(Calendar.MONTH, Calendar.DECEMBER);
+					cal2.set(Calendar.DAY_OF_MONTH, 31);
+					cal2.set(Calendar.MONTH, Calendar.OCTOBER);
 					if (term !=null) {
 						cal2.set(Calendar.YEAR, Integer.valueOf(term));
 					}
