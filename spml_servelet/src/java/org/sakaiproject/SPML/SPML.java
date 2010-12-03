@@ -1388,15 +1388,15 @@ public class SPML implements SpmlHandler  {
 			if (setCategory.equalsIgnoreCase("residence")) {
 				role = "Participant";
 			}
-			LOG.info("about to get sections in " + courseCode);
+			LOG.debug("about to get sections in " + courseCode);
 			List<CourseOffering> sections  = cmService.findActiveCourseOfferingsInCanonicalCourse(courseCode);
-			LOG.info("got  " + sections.size() +",  sections");
+			LOG.debug("got  " + sections.size() +",  sections");
 			if (sections.size() > 0) {
-				//TODO if there are mutliple courses we will add them to the one in the later accademic year
+				//if there are mutliple courses we will add them to the one in the later accademic year
 				CourseOffering co = getPreferedSection(sections);
 				courseEid = co.getEid();
 			} else {
-				//TODO use the not found info from bellow
+				//use the not found info from bellow
 				//does the 
 				courseEid = courseCode + "," +term;
 				//is there a cannonical course?
