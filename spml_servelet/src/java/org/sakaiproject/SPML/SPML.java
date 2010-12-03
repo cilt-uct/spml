@@ -1350,7 +1350,7 @@ public class SPML implements SpmlHandler  {
 	}
 
 	private void addUserToCourse(String userId, String courseCode, String term, String setCategory) {
-		LOG.info("addUserToCourse(" + userId +", " + courseCode + "," + term + "," + setCategory + ")");
+		LOG.debug("addUserToCourse(" + userId +", " + courseCode + "," + term + "," + setCategory + ")");
 		
 
 		try {
