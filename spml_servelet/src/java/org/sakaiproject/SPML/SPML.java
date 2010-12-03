@@ -1437,6 +1437,13 @@ public class SPML implements SpmlHandler  {
 					if (term !=null) {
 						cal2.set(Calendar.YEAR, Integer.valueOf(term));
 					}
+					//if this is a residence the end date is later.
+					if (setCategory.equalsIgnoreCase("residence")) {
+						cal2.set(Calendar.DAY_OF_MONTH, 19);
+						cal2.set(Calendar.MONTH, Calendar.NOVEMBER);
+						
+					}
+					
 					Date endDate = cal2.getTime();
 					LOG.debug("got cal:" + cal2.get(Calendar.YEAR) + "/" + cal2.get(Calendar.MONTH) + "/" + cal2.get(Calendar.DAY_OF_MONTH));
 					courseAdmin.createCourseOffering(courseEid, courseEid, "someDescription", "active", term, courseCode, startDate, endDate);
