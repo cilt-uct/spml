@@ -555,6 +555,14 @@ public class SPML implements SpmlHandler  {
 		} 
 		catch (UserNotDefinedException e)
 		{
+			//TODO if the status is inactive don't add it
+			if (STATUS_INACTIVE.equals(status)) {
+				LOG.warn("user " + CN + " doesn't exist on Vula but has status " + status + " so not adding them");
+				response.setRequestId(SpmlResponse.RESULT_SUCCESS);
+				return response;
+			}
+			
+			
 			//this user doesnt exist create it
 			try {
 				LOG.debug("About to try adding the user "+ CN);
