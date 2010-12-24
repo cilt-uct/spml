@@ -1533,6 +1533,13 @@ public class SPML implements SpmlHandler  {
 		Set<EnrollmentSet> enroled = cmService.findCurrentlyEnrolledEnrollmentSets(userEid);
 		Iterator<EnrollmentSet> coursesIt = enroled.iterator();
 		LOG.debug("got list of enrolement set with " + enroled.size() +  " checklist contains " + uctCourse.size());
+		if (LOG.isDebugEnabled()) {
+			for (i = 0; i < uctCourse.size(); i++) {
+				LOG.debug("courseList contains" + uctCourse.get(i));
+			}
+		}
+		
+		//TODO this could be more elegantly done by upercasing the contents of uctCourse
 		while(coursesIt.hasNext()) {
 			EnrollmentSet eSet = (EnrollmentSet)coursesIt.next();
 			String courseEid =  eSet.getEid();
@@ -1543,12 +1550,25 @@ public class SPML implements SpmlHandler  {
 			} else if (uctCourse.contains(courseEid + "," + thisYear)) {
 				found = true;
 			}
-			/*
-			for (int i =0; i < uctCourse.size(); i++ ) {
-				String thisEn = (String)uctCourse.get(i) + "," + thisYear;
-				if (thisEn.equalsIgnoreCase(courseEid))
-					
-			}**/
+			
+			if (!found) {
+				for (int i =0; i < uctCourse.size(); i++ ) {
+					String thisEn = (String)uctCourse.get(i) + "," + thisYear;
+					if (thisEn.equalsIgnoreCase(courseEid)) {
+						found = true;
+					}
+
+				}
+				if (!found) {
+					for (int i =0; i < uctCourse.size(); i++ ) {
+						String thisEn = (String)uctCourse.get(i);
+						if (thisEn.equalsIgnoreCase(courseEid)) {
+							found = true;
+						}
+
+					}					
+				}
+			}
 			if (!found) {
 				LOG.info("removing user from " + courseEid);
 				courseAdmin.removeCourseOfferingMembership(userEid, courseEid);
