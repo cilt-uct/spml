@@ -1532,17 +1532,23 @@ public class SPML implements SpmlHandler  {
 
 		Set<EnrollmentSet> enroled = cmService.findCurrentlyEnrolledEnrollmentSets(userEid);
 		Iterator<EnrollmentSet> coursesIt = enroled.iterator();
-		LOG.debug("got list of enrolement set with " + enroled.size());
+		LOG.debug("got list of enrolement set with " + enroled.size() +  " checklist contains " + uctCourse.size());
 		while(coursesIt.hasNext()) {
 			EnrollmentSet eSet = (EnrollmentSet)coursesIt.next();
 			String courseEid =  eSet.getEid();
 			LOG.debug("got section: " + courseEid);
 			boolean found = false;
+			if (uctCourse.contains(courseEid)) {
+				found = true;
+			} else if (uctCourse.contains(courseEid + "," + thisYear)) {
+				found = true;
+			}
+			/*
 			for (int i =0; i < uctCourse.size(); i++ ) {
 				String thisEn = (String)uctCourse.get(i) + "," + thisYear;
 				if (thisEn.equalsIgnoreCase(courseEid))
-					found = true;
-			}
+					
+			}**/
 			if (!found) {
 				LOG.info("removing user from " + courseEid);
 				courseAdmin.removeCourseOfferingMembership(userEid, courseEid);
