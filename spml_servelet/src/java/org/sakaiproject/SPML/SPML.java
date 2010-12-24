@@ -898,7 +898,7 @@ public class SPML implements SpmlHandler  {
 						
 						LOG.info("adding this student to " + courseCode + " in " + offerYear);
 						addUserToCourse(CN, courseCode, offerYear, "course");
-						checkList.add(courseCode);
+						checkList.add(courseCode + "," + offerYear);
 
 					} else if (uctCourses!=null && uctCourses.length()>0) {
 
