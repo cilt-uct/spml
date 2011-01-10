@@ -1401,6 +1401,7 @@ public class SPML implements SpmlHandler  {
 				//if there are mutliple courses we will add them to the one in the later accademic year
 				CourseOffering co = getPreferedSection(sections);
 				courseEid = co.getEid();
+				LOG.info("Found active course: " + courseEid);
 			} else {
 				//use the not found info from bellow
 				//does the 
