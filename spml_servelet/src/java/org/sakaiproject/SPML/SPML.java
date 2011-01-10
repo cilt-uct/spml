@@ -1390,10 +1390,54 @@ public class SPML implements SpmlHandler  {
 			}
 			
 			
-			String courseEid = getPreferedSectionEid(courseCode, term,
-					setCategory, setId);
+			String courseEid = getPreferedSectionEid(courseCode, term);
+
+			
+			//do we have a academic session?
+			if (!cmService.isAcademicSessionDefined(term)) {
+				Calendar cal = Calendar.getInstance();
+				cal.set(new Integer(term).intValue(), 1, 1);
+				Date start =  cal.getTime();
+				cal.set(new Integer(term).intValue(), Calendar.DECEMBER, 30);
+				Date end = cal.getTime();
+				courseAdmin.createAcademicSession(term, term, term, start, end);
+			}
+			//does the course set exist?
+			if (!cmService.isCourseSetDefined(setId)) 
+				courseAdmin.createCourseSet(setId, setId, setId, setCategory, null);
+
+			//is there a cannonical course?
+			if (!cmService.isCanonicalCourseDefined(courseCode)) {
+				courseAdmin.createCanonicalCourse(courseCode, courseCode, courseCode);
+				courseAdmin.addCanonicalCourseToCourseSet(setId, courseCode);
+			}
 
 
+			if (!cmService.isCourseOfferingDefined(courseEid)) {
+				LOG.info("creating course offering for " + courseCode + " in year " + term);
+				EmailService.send("help-team@vula.uct.ac.za", "help-team@vula.uct.ac.za", "[CM]: new course created on vula: " + courseEid, "[CM]: new course created on vula: " + courseEid, null, null, null);
+				//if this is being created by SPML its current now
+				Date startDate = new Date();
+
+				//use the term date
+				Calendar cal2 = Calendar.getInstance();
+				cal2.set(Calendar.DAY_OF_MONTH, 31);
+				cal2.set(Calendar.MONTH, Calendar.OCTOBER);
+				if (term !=null) {
+					cal2.set(Calendar.YEAR, Integer.valueOf(term));
+				}
+				//if this is a residence the end date is later.
+				if (setCategory.equalsIgnoreCase("residence")) {
+					cal2.set(Calendar.DAY_OF_MONTH, 19);
+					cal2.set(Calendar.MONTH, Calendar.NOVEMBER);
+					
+				}
+				
+				Date endDate = cal2.getTime();
+				LOG.debug("got cal:" + cal2.get(Calendar.YEAR) + "/" + cal2.get(Calendar.MONTH) + "/" + cal2.get(Calendar.DAY_OF_MONTH));
+				courseAdmin.createCourseOffering(courseEid, courseEid, "someDescription", "active", term, courseCode, startDate, endDate);
+				courseAdmin.addCourseOfferingToCourseSet(setId, courseEid);
+			}
 
 			//we know that all objects to this level must exist
 
@@ -1432,8 +1476,7 @@ public class SPML implements SpmlHandler  {
 	}
 
 
-	private String getPreferedSectionEid(String courseCode, String term,
-			String setCategory, String setId) {
+	private String getPreferedSectionEid(String courseCode, String term) {
 		/*TODO we need the get the actice CM for this course
 		 * This will involve refactoring code bellow
 		 */
@@ -1450,56 +1493,6 @@ public class SPML implements SpmlHandler  {
 			//use the not found info from bellow
 			//does the 
 			courseEid = courseCode + "," +term;
-			//is there a cannonical course?
-			
-		
-
-
-			//do we have a accedemic session?
-			if (!cmService.isAcademicSessionDefined(term)) {
-				Calendar cal = Calendar.getInstance();
-				cal.set(new Integer(term).intValue(), 1, 1);
-				Date start =  cal.getTime();
-				cal.set(new Integer(term).intValue(), Calendar.DECEMBER, 30);
-				Date end = cal.getTime();
-				courseAdmin.createAcademicSession(term, term, term, start, end);
-			}
-			//does the course set exist?
-
-			if (!cmService.isCourseSetDefined(setId)) 
-				courseAdmin.createCourseSet(setId, setId, setId, setCategory, null);
-
-			if (!cmService.isCanonicalCourseDefined(courseCode)) {
-				courseAdmin.createCanonicalCourse(courseCode, courseCode, courseCode);
-				courseAdmin.addCanonicalCourseToCourseSet(setId, courseCode);
-			}
-
-
-			if (!cmService.isCourseOfferingDefined(courseEid)) {
-				LOG.info("creating course offering for " + courseCode + " in year " + term);
-				EmailService.send("help-team@vula.uct.ac.za", "help-team@vula.uct.ac.za", "[CM]: new course created on vula: " + courseEid, "[CM]: new course created on vula: " + courseEid, null, null, null);
-				//if this is being created by SPML its current now
-				Date startDate = new Date();
-
-				//use the term date
-				Calendar cal2 = Calendar.getInstance();
-				cal2.set(Calendar.DAY_OF_MONTH, 31);
-				cal2.set(Calendar.MONTH, Calendar.OCTOBER);
-				if (term !=null) {
-					cal2.set(Calendar.YEAR, Integer.valueOf(term));
-				}
-				//if this is a residence the end date is later.
-				if (setCategory.equalsIgnoreCase("residence")) {
-					cal2.set(Calendar.DAY_OF_MONTH, 19);
-					cal2.set(Calendar.MONTH, Calendar.NOVEMBER);
-					
-				}
-				
-				Date endDate = cal2.getTime();
-				LOG.debug("got cal:" + cal2.get(Calendar.YEAR) + "/" + cal2.get(Calendar.MONTH) + "/" + cal2.get(Calendar.DAY_OF_MONTH));
-				courseAdmin.createCourseOffering(courseEid, courseEid, "someDescription", "active", term, courseCode, startDate, endDate);
-				courseAdmin.addCourseOfferingToCourseSet(setId, courseEid);
-			}
 		}
 		return courseEid;
 	}
@@ -1542,31 +1535,15 @@ public class SPML implements SpmlHandler  {
 		Set<EnrollmentSet> enroled = cmService.findCurrentlyEnrolledEnrollmentSets(userEid);
 		Iterator<EnrollmentSet> coursesIt = enroled.iterator();
 		LOG.debug("got list of enrolement set with " + enroled.size() +  " checklist contains " + uctCourse.size());
-
+		List<String> finalCourses = new ArrayList<String>();
 		for (i = 0; i < uctCourse.size(); i++) {
 			String thisCourse = uctCourse.get(i);
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("courseList contains" + thisCourse);
 			}
 			//we need a fully Qualified id for the section
-			String setId = null;
-			String setCategory = null;
-			if (setCategory == null ) {
-				if (thisCourse.length() == 5) {
-					setId = thisCourse.substring(0,2);
-					setCategory = "degree";
-				} else {
-					setId = thisCourse.substring(0,3);
-					setCategory = "Department";
-				}
-			} else {
-				setId = thisCourse;
-			}
-			
-			
-			String newSection = getPreferedSectionEid(thisCourse, thisYear, setCategory, setId);
-			uctCourse.remove(i);
-			uctCourse.add(newSection);
+			String newSection = getPreferedSectionEid(thisCourse, thisYear);
+			finalCourses.add(newSection);
 		}
 
 		//TODO this could be more elegantly done by upercasing the contents of uctCourse
@@ -1575,23 +1552,23 @@ public class SPML implements SpmlHandler  {
 			String courseEid =  eSet.getEid();
 			LOG.debug("got section: " + courseEid);
 			boolean found = false;
-			if (uctCourse.contains(courseEid)) {
+			if (finalCourses.contains(courseEid)) {
 				found = true;
-			} else if (uctCourse.contains(courseEid + "," + thisYear)) {
+			} else if (finalCourses.contains(courseEid + "," + thisYear)) {
 				found = true;
 			}
 			
 			if (!found) {
-				for (int i =0; i < uctCourse.size(); i++ ) {
-					String thisEn = (String)uctCourse.get(i) + "," + thisYear;
+				for (int i =0; i < finalCourses.size(); i++ ) {
+					String thisEn = (String)finalCourses.get(i) + "," + thisYear;
 					if (thisEn.equalsIgnoreCase(courseEid)) {
 						found = true;
 					}
 
 				}
 				if (!found) {
-					for (int i =0; i < uctCourse.size(); i++ ) {
-						String thisEn = (String)uctCourse.get(i);
+					for (int i =0; i < finalCourses.size(); i++ ) {
+						String thisEn = (String)finalCourses.get(i);
 						if (thisEn.equalsIgnoreCase(courseEid)) {
 							found = true;
 						}
