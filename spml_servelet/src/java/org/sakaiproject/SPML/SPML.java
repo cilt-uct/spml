@@ -1539,11 +1539,11 @@ public class SPML implements SpmlHandler  {
 		for (i = 0; i < uctCourse.size(); i++) {
 			String thisCourse = uctCourse.get(i);
 			if (LOG.isDebugEnabled()) {
-				LOG.debug("courseList contains" + thisCourse);
+				LOG.debug("courseList contains: " + thisCourse);
 			}
 			//we need a fully Qualified id for the section
 			String newSection = getPreferedSectionEid(thisCourse, thisYear);
-			finalCourses.add(newSection);
+			finalCourses.add(newSection.toUpperCase());
 		}
 
 		//TODO this could be more elegantly done by upercasing the contents of uctCourse
