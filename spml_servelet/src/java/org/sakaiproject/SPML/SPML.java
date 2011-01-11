@@ -1349,10 +1349,9 @@ public class SPML implements SpmlHandler  {
 	 * 
 	 */
 	private void addUserToCourse(String userId, String courseCode) {
-		SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
-		String thisYear = yearf.format(new Date());
+		
 
-		addUserToCourse(userId,courseCode, thisYear, null);
+		addUserToCourse(userId,courseCode, null, null);
 	}
 
 	private void addUserToCourse(String userId, String courseCode, String term, String setCategory) {
@@ -1389,9 +1388,16 @@ public class SPML implements SpmlHandler  {
 				role = "Participant";
 			}
 			
+			String courseEid = null;
+			if (term == null) {
+				SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
+				String thisYear = yearf.format(new Date());
+				courseEid = getPreferedSectionEid(courseCode, thisYear);
+			} else {
+				//we already have a specific term
+				courseEid = courseCode + "," +term;
 			
-			String courseEid = getPreferedSectionEid(courseCode, term);
-
+			}
 			
 			//do we have a academic session?
 			if (!cmService.isAcademicSessionDefined(term)) {
