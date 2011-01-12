@@ -1459,6 +1459,8 @@ public class SPML implements SpmlHandler  {
 			courseAdmin.addOrUpdateSectionMembership(userId, role, courseEid, "enrolled");
 			courseAdmin.addOrUpdateEnrollment(userId, courseEid, "enrolled", "NA", "0");
 			//now add the user to a section of the same name
+			//TODO this looks like duplicate logic
+			
 			try {
 				cmService.getSection(courseEid);
 			} 
