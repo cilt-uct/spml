@@ -1455,8 +1455,8 @@ public class SPML implements SpmlHandler  {
 
 
 
-
-			courseAdmin.addOrUpdateSectionMembership(userId, role, courseEid, "enroled");
+			LOG.info("adding this student to " + courseEid);
+			courseAdmin.addOrUpdateSectionMembership(userId, role, courseEid, "enrolled");
 			courseAdmin.addOrUpdateEnrollment(userId, courseEid, "enrolled", "NA", "0");
 			//now add the user to a section of the same name
 			try {
@@ -1471,7 +1471,7 @@ public class SPML implements SpmlHandler  {
 				getCanonicalCourse(courseCode);
 				courseAdmin.createSection(courseEid, courseEid, "someDescription","course",null,courseEid,courseEid);
 			}
-			courseAdmin.addOrUpdateSectionMembership(userId, role, courseEid, "enroled");
+			courseAdmin.addOrUpdateSectionMembership(userId, role, courseEid, "enrolled");
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -1494,7 +1494,7 @@ public class SPML implements SpmlHandler  {
 			//if there are mutliple courses we will add them to the one in the later accademic year
 			CourseOffering co = getPreferedSection(sections);
 			courseEid = co.getEid();
-			LOG.info("Found active course: " + courseEid);
+			LOG.debug("Found active course: " + courseEid);
 		} else {
 			//use the not found info from bellow
 			//does the 
