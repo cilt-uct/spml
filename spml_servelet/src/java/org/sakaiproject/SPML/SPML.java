@@ -1394,7 +1394,7 @@ public class SPML implements SpmlHandler  {
 				String thisYear = yearf.format(new Date());
 				courseEid = getPreferedSectionEid(courseCode, thisYear);
 				term = courseEid.substring(courseEid.indexOf(",") + 1);
-				LOG.info("term is " + term);
+				LOG.debug("term is " + term);
 			} else {
 				//we already have a specific term
 				courseEid = courseCode + "," +term;
