@@ -918,7 +918,7 @@ public class SPML implements SpmlHandler  {
 							{
 								course = course.substring(0,8);
 							}
-							LOG.info("adding this student to " + course);
+							LOG.debug("adding this student to " + course);
 							checkList.add(course);
 							addUserToCourse(CN,course);
 
