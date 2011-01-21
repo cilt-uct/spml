@@ -90,6 +90,7 @@ import org.sakaiproject.util.StringUtil;
 
 public class SPML implements SpmlHandler  {
 
+	private static final String PROPERTY_DEACTIVATED = "SPML_DEACTIVATED";
 	//Atribute mappings to map SPML attributes to Sakai attributs
 
 
@@ -444,6 +445,7 @@ public class SPML implements SpmlHandler  {
 		 */
 		String CN = "";
 		String GN = "";
+		String oldType = null;
 		CN =(String)req.getAttributeValue(FIELD_CN);
 		LOG.info("SPML Webservice: Received AddRequest for user "+ CN);
 		SpmlResponse response = req.createResponse();
@@ -555,6 +557,7 @@ public class SPML implements SpmlHandler  {
 			thisUser = UserDirectoryService.editUser(user.getId());
 			LOG.debug(this + " this user useredit right is " + UserDirectoryService.allowAddUser());
 			LOG.debug(this + " Got UserEdit");
+			oldType = thisUser.getType();
 		} 
 		catch (UserNotDefinedException e)
 		{
@@ -699,6 +702,23 @@ public class SPML implements SpmlHandler  {
 			systemProfile.setMail(inactiveMail);
 			userProfile.setMail(inactiveMail);
 			thisUser.setEmail(inactiveMail);
+			
+			//do we have an inactive flag?
+			ResourceProperties rp = thisUser.getProperties();
+			String deactivated = rp.getProperty(PROPERTY_DEACTIVATED);
+			if (deactivated == null) {
+				rp.addProperty(PROPERTY_DEACTIVATED, new Date().toString());
+			}
+			
+		}
+		
+		
+		if ("inactiveStaff".equals(oldType) || STATUS_INACTIVE.equals(oldType) || "inactiveThirdparty".equals(oldType)) {
+			if (STATUS_ACTIVE.equals(status)) {
+				//remove the possible flag
+				ResourceProperties rp = thisUser.getProperties();
+				rp.removeProperty(PROPERTY_DEACTIVATED);
+			}
 		}
 
 
