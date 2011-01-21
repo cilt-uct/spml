@@ -1638,7 +1638,7 @@ public class SPML implements SpmlHandler  {
 	}
 
 	private void insertOrg(String modOrgUnit, String modOrgName) {
-		String statement = "insert into UCT_ORG (description,org) values (?, ?)";
+		String statement = "insert into UCT_ORG (description,org_unit) values (?, ?)";
 		Object[] fields = new Object[]{modOrgName, modOrgUnit};
 		m_sqlService.dbInsert(null, statement, fields, null);
 	}
