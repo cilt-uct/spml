@@ -112,7 +112,7 @@ public class SPML implements SpmlHandler  {
 	private static final String FIELD_DOB="DOB";
 
 	private static final String FIELD_RES_CODE="uctResidenceCode";
-	private static final String FIELD_ORG_DECR = "Description";
+	private static final String FIELD_ORG_DECR = "uctorgaffiliation";
 	private static final String FIELD_TITLE = "uctPersonalTitle";
 	private static final String FIELD_ACADEMIC_CARREER = "uctAcademicCareer";
 
@@ -531,17 +531,20 @@ public class SPML implements SpmlHandler  {
 		}
 
 		String orgUnit = (String)req.getAttributeValue(FIELD_OU);
+		String orgName = (String)req.getAttributeValue(FIELD_ORG_DECR);
+		if (orgName == null )
+			orgName = "";
+		
+		
 		String orgCode = null;
 		if (orgUnit == null ) {
 			orgUnit="";
 		} else {
-			orgCode = getOrgCodeById(orgUnit);
+			orgCode = getOrgCodeById(orgUnit, orgName);
 		}
 
 
-		String orgName = (String)req.getAttributeValue(FIELD_ORG_DECR);
-		if (orgName == null )
-			orgName = "";
+
 
 		boolean newUser = false;
 		boolean sendNotification = false;
@@ -1617,8 +1620,8 @@ public class SPML implements SpmlHandler  {
 
 	}
 
-	@SuppressWarnings("unchecked")
-	private String getOrgCodeById(String modOrgUnit) {
+	
+	private String getOrgCodeById(String modOrgUnit, String modOrgName) {
 		String statement = "Select org from UCT_ORG where ORG_UNIT = " + modOrgUnit;
 
 		List<String> result = m_sqlService.dbRead(statement);
@@ -1626,11 +1629,20 @@ public class SPML implements SpmlHandler  {
 			LOG.info("got org unit of " + (String)result.get(0));
 			return (String)result.get(0);
 		} else {
-			LOG.warn("Unknown org code of " + modOrgUnit + " recieved" );
+			LOG.warn("Unknown org code of " + modOrgUnit + " received" );
+			insertOrg(modOrgUnit, modOrgName);
+			
 		}
 
 		return null;
 	}
+
+	private void insertOrg(String modOrgUnit, String modOrgName) {
+		String statement = "insert into UCT_ORG (description,org) values (?, ?)";
+		Object[] fields = new Object[]{modOrgName, modOrgUnit};
+		m_sqlService.dbInsert(null, statement, fields, null);
+	}
+
 
 	private boolean residenceIsCurrent(String resCode) {
 
