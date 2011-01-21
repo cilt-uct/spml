@@ -1648,9 +1648,9 @@ public class SPML implements SpmlHandler  {
 
 	
 	private String getOrgCodeById(String modOrgUnit, String modOrgName) {
-		String statement = "Select org from UCT_ORG where ORG_UNIT = " + modOrgUnit;
-
-		List<String> result = m_sqlService.dbRead(statement);
+		String statement = "Select org from UCT_ORG where ORG_UNIT = ?";
+		Object[] fields = new Object[]{modOrgUnit};
+		List<String> result = m_sqlService.dbRead(statement, fields, null);
 		if (result.size()>0) {
 			LOG.info("got org unit of " + (String)result.get(0));
 			return (String)result.get(0);
