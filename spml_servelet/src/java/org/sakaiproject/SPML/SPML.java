@@ -693,7 +693,13 @@ public class SPML implements SpmlHandler  {
 		}
 
 
-
+		//special case if the user is inctive set their email to eid@uct.ac.za
+		if (STATUS_INACTIVE.equals(status)) {
+			String inactiveMail = thisUser.getEid() + "@uct.ac.za";
+			systemProfile.setMail(inactiveMail);
+			userProfile.setMail(inactiveMail);
+			thisUser.setEmail(inactiveMail);
+		}
 
 
 
