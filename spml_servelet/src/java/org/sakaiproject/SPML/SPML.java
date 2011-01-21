@@ -714,7 +714,7 @@ public class SPML implements SpmlHandler  {
 		
 		
 		if ("inactiveStaff".equals(oldType) || STATUS_INACTIVE.equals(oldType) || "inactiveThirdparty".equals(oldType)) {
-			if (STATUS_ACTIVE.equals(status)) {
+			if (STATUS_ACTIVE.equals(status) || STATUS_ADMITTED.equals(status)) {
 				//remove the possible flag
 				ResourceProperties rp = thisUser.getProperties();
 				rp.removeProperty(PROPERTY_DEACTIVATED);
