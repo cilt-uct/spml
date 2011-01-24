@@ -969,9 +969,9 @@ public class SPML implements SpmlHandler  {
 							if (year.equals(thisYear) && residenceIsCurrent((String)req.getAttributeValue(FIELD_RES_CODE))) {
 								uctCourses = uctCourses + "," + resCode;
 								checkList.add(resCode);
-
+								this.addUserToCourse(CN, resCode, year, "residence");
 							}
-							this.addUserToCourse(CN, resCode, year, "residence");
+							
 						}
 					}
 
