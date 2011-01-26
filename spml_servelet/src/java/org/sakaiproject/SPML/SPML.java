@@ -39,6 +39,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +69,7 @@ import org.sakaiproject.coursemanagement.api.CourseManagementAdministration;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.CourseOffering;
 import org.sakaiproject.coursemanagement.api.EnrollmentSet;
+import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.email.cover.EmailService;
@@ -1571,7 +1573,10 @@ public class SPML implements SpmlHandler  {
 		courseAdmin = getCourseAdmin();
 		cmService =getCourseManagementService();
 
-		Set<EnrollmentSet> enroled = cmService.findCurrentlyEnrolledEnrollmentSets(userEid);
+		//VULA-1256 we need all enrolled sets that are current or future
+		Set<EnrollmentSet> enroled = getCurrentFutureEnrollments(userEid);
+			
+			//cmService.findCurrentlyEnrolledEnrollmentSets(userEid);
 		Iterator<EnrollmentSet> coursesIt = enroled.iterator();
 		LOG.debug("got list of enrolement set with " + enroled.size() +  " checklist contains " + uctCourse.size());
 		List<String> finalCourses = new ArrayList<String>();
@@ -1623,6 +1628,33 @@ public class SPML implements SpmlHandler  {
 			}
 		}
 
+	}
+
+
+	private Set<EnrollmentSet> getCurrentFutureEnrollments(String userEid) {
+		Set<EnrollmentSet> ret = new HashSet<EnrollmentSet>();
+		
+		Set<Section> sections = cmService.findEnrolledSections(userEid);
+		Iterator<Section> it = sections.iterator();
+		while (it.hasNext()) {
+			Section section = it.next();
+			CourseOffering courseOffering = cmService.getCourseOffering(section.getCourseOfferingEid());
+			//we may have old ones without dates
+			if (courseOffering.getStartDate() == null || courseOffering.getEndDate() == null) {
+				continue;
+			}
+			
+			//is it current
+			if (new Date().after(courseOffering.getStartDate()) && new Date().before(courseOffering.getEndDate())) {
+				LOG.debug("offering " + courseOffering.getEid() + " is current");
+				ret.add(cmService.getEnrollmentSet(section.getEid()));
+			} else if (new Date().before(courseOffering.getStartDate()) ) {
+				LOG.debug("offering " + courseOffering.getEid() + " is in the future");
+				ret.add(cmService.getEnrollmentSet(section.getEid()));
+			}
+		}
+		
+		return ret;
 	}
 
 
