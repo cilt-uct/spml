@@ -506,6 +506,11 @@ public class SPML implements SpmlHandler  {
 		{
 			status = STATUS_INACTIVE;
 		}
+		
+		//VULA-1268 status can be a bit funny
+		if ("1Active".equals(status)) {
+			status = STATUS_ACTIVE;
+		}
 
 		//if this is a thirparty check the online learning required field
 		/*
