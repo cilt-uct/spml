@@ -1678,7 +1678,7 @@ public class SPML implements SpmlHandler  {
 
 	}
 
-	
+	@SuppressWarnings("unchecked")
 	private String getOrgCodeById(String modOrgUnit, String modOrgName) {
 		String statement = "Select org from UCT_ORG where ORG_UNIT = ?";
 		Object[] fields = new Object[]{modOrgUnit};
@@ -1694,11 +1694,18 @@ public class SPML implements SpmlHandler  {
 
 		return null;
 	}
-
+	
+	@SuppressWarnings("unchecked")
 	private void insertOrg(String modOrgUnit, String modOrgName) {
-		String statement = "insert into UCT_ORG (description,org_unit) values (?, ?)";
-		Object[] fields = new Object[]{modOrgName, Integer.valueOf(modOrgUnit)};
-		m_sqlService.dbWrite(statement, fields);
+		//does it exist or is it just null
+		String statement = "Select org_unit from UCT_ORG where ORG_UNIT = ?";
+		Object[] fields = new Object[]{modOrgUnit};
+		List<String> result = m_sqlService.dbRead(statement, fields, null);
+		if (result.size() == 0) {
+			statement = "insert into UCT_ORG (description,org_unit) values (?, ?)";
+			fields = new Object[]{modOrgName, Integer.valueOf(modOrgUnit)};
+			m_sqlService.dbWrite(statement, fields);
+		}
 	}
 
 
