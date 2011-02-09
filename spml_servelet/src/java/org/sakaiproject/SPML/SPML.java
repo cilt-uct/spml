@@ -47,6 +47,9 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.openspml.client.SOAPClient;
 import org.openspml.client.SOAPMonitor;
 import org.openspml.message.AddRequest;
@@ -714,7 +717,9 @@ public class SPML implements SpmlHandler  {
 			ResourceProperties rp = thisUser.getProperties();
 			String deactivated = rp.getProperty(PROPERTY_DEACTIVATED);
 			if (deactivated == null) {
-				rp.addProperty(PROPERTY_DEACTIVATED, new Date().toString());
+				DateTime dt = new DateTime();
+				DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+				rp.addProperty(PROPERTY_DEACTIVATED, fmt.print(dt));
 			}
 			
 		}
