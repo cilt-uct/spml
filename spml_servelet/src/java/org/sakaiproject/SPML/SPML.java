@@ -1493,9 +1493,18 @@ public class SPML implements SpmlHandler  {
 			if (! cmService.isEnrollmentSetDefined(courseEid))
 				courseAdmin.createEnrollmentSet(courseEid, "title", "description", "category", "defaultEnrollmentCredits", courseEid, null);
 
-			if(! cmService.isSectionDefined(courseEid))
+			if(! cmService.isSectionDefined(courseEid)) {
 				courseAdmin.createSection(courseEid, courseEid, "description", "course", null, courseEid, null);
-
+			} else {
+				Section section = cmService.getSection(courseEid);
+				//Check the section has a properly defined Enrolment set
+				if (section.getEnrollmentSet() == null) {
+					EnrollmentSet enrolmentSet = cmService.getEnrollmentSet(courseEid);
+					section.setEnrollmentSet(enrolmentSet);
+					section.setCategory("course");
+					courseAdmin.updateSection(section);
+				}
+			}
 
 
 			LOG.info("adding this student to " + courseEid);
