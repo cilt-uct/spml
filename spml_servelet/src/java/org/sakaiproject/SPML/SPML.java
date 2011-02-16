@@ -1586,7 +1586,7 @@ public class SPML implements SpmlHandler  {
 		//VULA-1256 we need all enrolled sets that are current or future
 		Set<EnrollmentSet> enroled = getCurrentFutureEnrollments(userEid);
 			
-			//cmService.findCurrentlyEnrolledEnrollmentSets(userEid);
+		//cmService.findCurrentlyEnrolledEnrollmentSets(userEid);
 		Iterator<EnrollmentSet> coursesIt = enroled.iterator();
 		LOG.debug("got list of enrolement set with " + enroled.size() +  " checklist contains " + uctCourse.size());
 		List<String> finalCourses = new ArrayList<String>();
@@ -1642,6 +1642,7 @@ public class SPML implements SpmlHandler  {
 
 
 	private Set<EnrollmentSet> getCurrentFutureEnrollments(String userEid) {
+		LOG.debug("getCurrentFutureEnrollments(" + userEid +")");
 		Set<EnrollmentSet> ret = new HashSet<EnrollmentSet>();
 		
 		Set<Section> sections = cmService.findEnrolledSections(userEid);
@@ -1651,6 +1652,7 @@ public class SPML implements SpmlHandler  {
 			CourseOffering courseOffering = cmService.getCourseOffering(section.getCourseOfferingEid());
 			//we may have old ones without dates
 			if (courseOffering.getStartDate() == null || courseOffering.getEndDate() == null) {
+				LOG.debug("Course offering " + courseOffering.getEid() + " is missing start or end date");
 				continue;
 			}
 			
