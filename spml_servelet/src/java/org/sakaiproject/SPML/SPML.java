@@ -1663,7 +1663,11 @@ public class SPML implements SpmlHandler  {
 			} else if (new Date().before(courseOffering.getStartDate()) ) {
 				LOG.debug("offering " + courseOffering.getEid() + " is in the future");
 				ret.add(cmService.getEnrollmentSet(section.getEid()));
+			} else {
+				LOG.debug("not checking " + courseOffering.getEid() + " start: " + courseOffering.getStartDate() + ", end: " + courseOffering.getEndDate());
 			}
+			
+			
 		}
 		
 		return ret;
