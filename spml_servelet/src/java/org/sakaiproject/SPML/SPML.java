@@ -1489,12 +1489,15 @@ public class SPML implements SpmlHandler  {
 			}
 
 			//we know that all objects to this level must exist
-
-			if (! cmService.isEnrollmentSetDefined(courseEid))
-				courseAdmin.createEnrollmentSet(courseEid, "title", "description", "category", "defaultEnrollmentCredits", courseEid, null);
-
+			EnrollmentSet enrollmentSet = null;
+			if (! cmService.isEnrollmentSetDefined(courseEid)) {
+				enrollmentSet =  courseAdmin.createEnrollmentSet(courseEid, "title", "description", "category", "defaultEnrollmentCredits", courseEid, null);
+			} else {
+				enrollmentSet = cmService.getEnrollmentSet(courseEid);
+			}
+			
 			if(! cmService.isSectionDefined(courseEid)) {
-				courseAdmin.createSection(courseEid, courseEid, "description", "course", null, courseEid, null);
+				courseAdmin.createSection(courseEid, courseEid, "description", "course", null, courseEid, enrollmentSet.getEid());
 			} else {
 				Section section = cmService.getSection(courseEid);
 				//Check the section has a properly defined Enrolment set
