@@ -95,6 +95,9 @@ import org.sakaiproject.util.StringUtil;
 
 public class SPML implements SpmlHandler  {
 
+	private static final String SPML_LAST_UPDATE = "spml_last_update";
+
+
 	private static final String PROPERTY_DEACTIVATED = "SPML_DEACTIVATED";
 	//Atribute mappings to map SPML attributes to Sakai attributs
 
@@ -736,7 +739,7 @@ public class SPML implements SpmlHandler  {
 
 
 		//VULA-1297 add new update time
-        rp.addProperty("spml_last_update", fmt.print(dt));
+        rp.addProperty(SPML_LAST_UPDATE, fmt.print(dt));
 		
 
 		LOG.debug("users email profile email is " + userProfile.getMail());
