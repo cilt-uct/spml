@@ -706,7 +706,11 @@ public class SPML implements SpmlHandler  {
 		}
 
 
-		//special case if the user is inctive set their email to eid@uct.ac.za
+		ResourceProperties rp = thisUser.getProperties();
+		DateTime dt = new DateTime();
+		DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+		
+		//special case if the user is inactive set their email to eid@uct.ac.za
 		if (STATUS_INACTIVE.equals(status)) {
 			String inactiveMail = thisUser.getEid() + "@uct.ac.za";
 			systemProfile.setMail(inactiveMail);
@@ -714,26 +718,26 @@ public class SPML implements SpmlHandler  {
 			thisUser.setEmail(inactiveMail);
 			
 			//do we have an inactive flag?
-			ResourceProperties rp = thisUser.getProperties();
 			String deactivated = rp.getProperty(PROPERTY_DEACTIVATED);
 			if (deactivated == null) {
-				DateTime dt = new DateTime();
-				DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
 				rp.addProperty(PROPERTY_DEACTIVATED, fmt.print(dt));
 			}
 			
 		}
 		
 		
+		
 		if ("inactiveStaff".equals(oldType) || STATUS_INACTIVE.equals(oldType) || "inactiveThirdparty".equals(oldType)) {
 			if (STATUS_ACTIVE.equals(status) || STATUS_ADMITTED.equals(status)) {
 				//remove the possible flag
-				ResourceProperties rp = thisUser.getProperties();
 				rp.removeProperty(PROPERTY_DEACTIVATED);
 			}
 		}
 
 
+		//VULA-1297 add new update time
+        rp.addProperty("spml_last_update", fmt.print(dt));
+		
 
 		LOG.debug("users email profile email is " + userProfile.getMail());
 
