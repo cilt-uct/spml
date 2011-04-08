@@ -511,6 +511,8 @@ public class SPML implements SpmlHandler  {
 		if (status == null && TYPE_STUDENT.equals(type))
 		{
 			status = STATUS_INACTIVE;
+		} else {
+			status = STATUS_ACTIVE;
 		}
 		
 		//VULA-1268 status can be a bit funny
@@ -727,15 +729,15 @@ public class SPML implements SpmlHandler  {
 			}
 			
 		}
-		
-		
-		
-		if ("inactiveStaff".equals(oldType) || STATUS_INACTIVE.equals(oldType) || "inactiveThirdparty".equals(oldType)) {
-			if (STATUS_ACTIVE.equals(status) || STATUS_ADMITTED.equals(status)) {
-				//remove the possible flag
-				rp.removeProperty(PROPERTY_DEACTIVATED);
-			}
+
+
+
+
+		if (STATUS_ACTIVE.equals(status) || STATUS_ADMITTED.equals(status)) {
+			//remove the possible flag
+			rp.removeProperty(PROPERTY_DEACTIVATED);
 		}
+
 
 
 		//VULA-1297 add new update time
