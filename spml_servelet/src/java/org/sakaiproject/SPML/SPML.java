@@ -499,27 +499,30 @@ public class SPML implements SpmlHandler  {
 
 		type = type.toLowerCase();
 		String status = STATUS_ACTIVE;
-		if (TYPE_STUDENT.equals(type))
+		if (TYPE_STUDENT.equals(type)) {
 			status = (String)req.getAttributeValue("uctStudentStatus");
-		else if (TYPE_STAFF.equals(type))
+		} else if  (TYPE_STAFF.equals(type)) {
 			status = (String)req.getAttributeValue("employeeStatus");
-		else if (TYPE_THIRDPARTY.equals(type))
+		} else if (TYPE_THIRDPARTY.equals(type)) {
 			status = (String)req.getAttributeValue("ucttpstatus");
+		}
 
 		LOG.info("user status is: " + status);
 		//for staff this could be null
 		if (status == null && TYPE_STUDENT.equals(type))
 		{
 			status = STATUS_INACTIVE;
-		} else {
+		} else if (status == null) {
 			status = STATUS_ACTIVE;
 		}
 		
 		//VULA-1268 status can be a bit funny
 		if ("1Active".equals(status)) {
+			LOG.debug("got status of 1active so assuming active");
 			status = STATUS_ACTIVE;
 		}
 
+		
 		//if this is a thirparty check the online learning required field
 		/*
 		String onlineRequired = (String)req.getAttributeValue(FIELD_ONLINELEARNINGREQUIRED);
