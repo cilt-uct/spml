@@ -741,7 +741,16 @@ public class SPML implements SpmlHandler  {
 		if (STATUS_ACTIVE.equals(status) || STATUS_ADMITTED.equals(status)) {
 			//remove the possible flag
 			rp.removeProperty(PROPERTY_DEACTIVATED);
-		}
+			
+			//do we have the clear data flag?
+			String data = rp.getProperty("workspace_content_removed");
+			if (data != null) {
+				//We want to keep the data but clear the flag
+				rp.addPropertyToList("data_cleared_last", "data");
+				rp.removeProperty("workspace_content_removed");
+				
+			}
+		} 
 
 
 
