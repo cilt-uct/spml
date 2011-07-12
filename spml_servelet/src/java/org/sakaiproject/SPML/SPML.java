@@ -479,7 +479,9 @@ public class SPML implements SpmlHandler  {
 			GN = (String)req.getAttributeValue(FIELD_GN);
 
 		String LN = (String)req.getAttributeValue(FIELD_SURNAME);
-		LN = LN.trim();
+		if (LN != null) {
+			LN = LN.trim();
+		}
 		String thisEmail = (String)req.getAttributeValue(FIELD_MAIL);
 		//always lower case
 

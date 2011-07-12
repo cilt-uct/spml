@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool id="sakai.spml" title="SPML Servlet"
+		description="SPML Servlet">
+		<category name="sakai.servlet" />
+	</tool>
+
+</registration>

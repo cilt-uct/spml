@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE faces-config PUBLIC
+  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN"
+  "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
+
+<faces-config>
+
+	<application>
+		<message-bundle>
+			org.sakaiproject.tool.scheduler.bundle.Messages
+		</message-bundle>
+		<locale-config>
+			<default-locale>en</default-locale>
+			<supported-locale>de</supported-locale>
+			<supported-locale>fr</supported-locale>
+			<supported-locale>es</supported-locale>
+		</locale-config>
+	</application>
+	
+	<managed-bean>
+		<description>SPMLServlet</description>
+		<managed-bean-name>spmlServlet</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.spml.SPML</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>			
+       <managed-property>
+          <description>Service Dependency: logging service</description>
+          <property-name>logger</property-name>
+          <value>
+             *#{Components["org.sakaiproject.service.framework.log.Logger"]}*
+          </value>
+       </managed-property>
+</faces-config>
