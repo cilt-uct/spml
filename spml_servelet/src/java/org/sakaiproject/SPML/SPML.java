@@ -581,7 +581,7 @@ public class SPML implements SpmlHandler  {
 		} 
 		catch (UserNotDefinedException e)
 		{
-			//TODO if the status is inactive don't add it
+			//if the status is inactive don't add it
 			if (STATUS_INACTIVE.equals(status)) {
 				LOG.warn("user " + CN + " doesn't exist on Vula but has status " + status + " so not adding them");
 				response.setRequestId(SpmlResponse.RESULT_SUCCESS);
@@ -746,7 +746,7 @@ public class SPML implements SpmlHandler  {
 			String data = rp.getProperty("workspace_content_removed");
 			if (data != null) {
 				//We want to keep the data but clear the flag
-				rp.addPropertyToList("data_cleared_last", "data");
+				rp.addProperty("data_cleared_last", data);
 				rp.removeProperty("workspace_content_removed");
 				
 			}
