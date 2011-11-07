@@ -978,10 +978,6 @@ public class SPML implements SpmlHandler  {
 						for (int ai = 0; ai < uctCourse.length; ai ++ ) {
 							//System.out.println("got a coursecode " + uctCourse[ai]);
 							String course = uctCourse[ai].trim();
-							if (course.length()==11)
-							{
-								course = course.substring(0,8);
-							}
 							LOG.debug("adding this student to " + course);
 							checkList.add(course);
 							addUserToCourse(CN,course);
@@ -1463,6 +1459,13 @@ public class SPML implements SpmlHandler  {
 				//we already have a specific term
 				courseEid = courseCode + "," +term;
 			
+			}
+			
+			//before 2011 we dropped extended course codes
+			int numericTerm = Integer.valueOf(term).intValue();
+			if (courseEid.length()==11 && numericTerm < 2012)
+			{
+				courseEid = courseEid.substring(0,8);
 			}
 			
 			//do we have a academic session?
