@@ -689,7 +689,7 @@ public class SPML implements SpmlHandler  {
 		if (systemProfile.getMail()!= null && !systemProfile.getMail().equals("") && thisEmail != null ) {
 			String systemMail = systemProfile.getMail();
 			String modMail= thisEmail;
-			if (userProfile.getMail() != null && !systemMail.equals(userProfile.getMail()) && !userProfile.getMail().equals("")) {
+			if (userProfile.getMail() != null && !systemMail.equalsIgnoreCase(userProfile.getMail()) && !userProfile.getMail().equals("")) {
 				systemProfile.setMail(modMail);
 			} else {
 				systemProfile.setMail(modMail);
@@ -702,7 +702,7 @@ public class SPML implements SpmlHandler  {
 			systemProfile.setMail(thisEmail);
 			sendNotification = true;
 			//email may not have been set
-			if (thisUser.getEmail() == null || "".equals(thisUser.getEmail())) {
+			if (thisUser.getEmail() == null || "".equalsIgnoreCase(thisUser.getEmail())) {
 				userProfile.setMail(thisEmail);
 				thisUser.setEmail(thisEmail);
 			} else {
@@ -714,7 +714,17 @@ public class SPML implements SpmlHandler  {
 			userProfile.setMail(thisEmail);
 			thisUser.setEmail(thisEmail);
 		}
-
+		
+		String systemMail = systemProfile.getMail();
+		String userMail = userProfile.getMail();
+		//Check for the uct.ac.za to myUCT migration bug
+		if (systemMail != null && !systemMail.equalsIgnoreCase(userMail)) {
+			if (forceUpdateMail(systemMail, userMail, type, CN)) {
+				userProfile.setMail(thisEmail);
+				thisUser.setEmail(thisEmail);
+			}
+		}
+		
 
 		ResourceProperties rp = thisUser.getProperties();
 		DateTime dt = new DateTime();
@@ -1041,6 +1051,26 @@ public class SPML implements SpmlHandler  {
 		return response;
 	} 
 
+
+	/**
+	 * Should we force the update of this users email?
+	 * done when there is an myuct equivelent legacy mail account 
+	 * @param systemMail
+	 * @param userMail
+	 * @param type
+	 * @param the user's eid
+	 * @return
+	 */
+	private boolean forceUpdateMail(String systemMail, String userMail,
+			String type, String eid) {
+		if (!type.equals(TYPE_STUDENT))
+			return false;
+		
+		if (userMail.equalsIgnoreCase(eid + "@uct.ac.za"))
+			return true;
+			
+		return false;
+	}
 
 
 	private String normalizeMobile(String mobile) {
