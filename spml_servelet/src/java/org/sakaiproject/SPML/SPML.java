@@ -947,6 +947,8 @@ public class SPML implements SpmlHandler  {
 		 * we should only do this if this is a student 
 		 */
 		if (TYPE_STUDENT.equalsIgnoreCase(origionalType)) {
+			recordStudentUpdate(thisUser);
+			//TODO we need to update the synchs bellow
 			//only do this if the user is active -otherwise the student is now no longer registered
 			if (! STATUS_INACTIVE.equalsIgnoreCase(status)) { 
 				try {
@@ -1402,13 +1404,29 @@ public class SPML implements SpmlHandler  {
 
 	} 
 
+	/**
+	 * 
+	 * @param u
+	 */
+	private void recordStudentUpdate(User u) {
+		getSqlService();
+		String sql = "select userEid from SPML_UDPATED_USERS where userEid = '" + u.getEid() + "'";
+		List<String> result = m_sqlService.dbRead(sql);
+		if (result == null || result.size() == 0) {
+			sql = "insert into SPML_UDPATED_USERS (userEid, dateQueued) values (? , ?)";
+			Object[] fields = new Object[] {
+					u.getEid(),
+					new Date()
+			};
+			m_sqlService.dbWrite(sql, fields);
+			
+		}
+	}
 
 
-
-	/*
+	/**
 	 * Log the request
 	 */
-
 	private void logSPMLRequest(String type, String body, String CN) {
 		try {
 			if (CN == null) {
