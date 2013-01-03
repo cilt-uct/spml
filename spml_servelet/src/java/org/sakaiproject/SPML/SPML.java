@@ -91,7 +91,6 @@ import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.StringUtil;
 
 public class SPML implements SpmlHandler  {
 
@@ -112,6 +111,7 @@ public class SPML implements SpmlHandler  {
 	private static final String FIELD_PN = "preferredName";
 	private static final String FIELD_MAIL = "Email";
 	private static final String FIELD_TYPE = "eduPersonPrimaryAffiliation";
+	//NOTE this is no longer used as we have direct PS integration
 	private static final String FIELD_MEMBERSHIP = "uctCourseCode";
 	private static final String FIELD_SCHOOL ="uctFaculty";
 	private static final String FIELD_MOBILE = "mobile";
@@ -952,11 +952,9 @@ public class SPML implements SpmlHandler  {
 			//only do this if the user is active -otherwise the student is now no longer registered
 			if (! STATUS_INACTIVE.equalsIgnoreCase(status)) { 
 				try {
-					String uctCourses =null;
-					uctCourses = (String)req.getAttributeValue(FIELD_MEMBERSHIP);
-
+					
 					List<String> checkList = new ArrayList<String>();
-
+					String uctCourses = "";
 					/*
 					 * offer students go into a special group
 					 */
@@ -976,27 +974,22 @@ public class SPML implements SpmlHandler  {
 						addUserToCourse(CN, courseCode, offerYear, "course");
 						checkList.add(courseCode + "," + offerYear);
 
-					} else if (uctCourses!=null && uctCourses.length()>0) {
-
+					} else {
 						if ((String)req.getAttributeValue(FIELD_PROGAM)!=null) {
 							uctCourses = uctCourses + "," +(String)req.getAttributeValue(FIELD_PROGAM);
+							addUserToCourse(CN, (String)req.getAttributeValue(FIELD_PROGAM));
+							checkList.add((String)req.getAttributeValue(FIELD_PROGAM));
+							
 						}
 						if ((String)req.getAttributeValue(FIELD_SCHOOL)!=null) {
 							uctCourses = uctCourses + "," +(String)req.getAttributeValue(FIELD_SCHOOL) + "_STUD";
+							addUserToCourse(CN, (String)req.getAttributeValue(FIELD_SCHOOL) + "_STUD");
+							checkList.add((String)req.getAttributeValue(FIELD_SCHOOL) + "_STUD");
 						}
-
-						String[] uctCourse =  StringUtil.split(uctCourses, ",");
-						LOG.info(" got " + uctCourse.length + " courses");
-						for (int ai = 0; ai < uctCourse.length; ai ++ ) {
-							//System.out.println("got a coursecode " + uctCourse[ai]);
-							String course = uctCourse[ai].trim();
-							LOG.debug("adding this student to " + course);
-							checkList.add(course);
-							addUserToCourse(CN,course);
-
-						}
-					} //end if courseList not null
-
+					}
+					
+					
+					
 					SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
 					String thisYear = yearf.format(new Date());
 					//OK rescode may contain old data
@@ -1010,7 +1003,7 @@ public class SPML implements SpmlHandler  {
 							LOG.info("residence found for: " + resCode +"  year: " + year);
 							//If its current add to the list for the sync job
 							if (year.equals(thisYear) && residenceIsCurrent((String)req.getAttributeValue(FIELD_RES_CODE))) {
-								uctCourses = uctCourses + "," + resCode;
+								//uctCourses = uctCourses + "," + resCode;
 								checkList.add(resCode);
 								this.addUserToCourse(CN, resCode, year, "residence");
 							}
@@ -1671,7 +1664,9 @@ public class SPML implements SpmlHandler  {
 
 		//VULA-1256 we need all enrolled sets that are current or future
 		Set<EnrollmentSet> enroled = getCurrentFutureEnrollments(userEid);
-			
+		
+		//TOODO we need to filter out all course groups
+		enroled = filterCourseList(enroled);
 		//cmService.findCurrentlyEnrolledEnrollmentSets(userEid);
 		Iterator<EnrollmentSet> coursesIt = enroled.iterator();
 		LOG.debug("got list of enrolement set with " + enroled.size() +  " checklist contains " + uctCourse.size());
@@ -1726,6 +1721,51 @@ public class SPML implements SpmlHandler  {
 
 	}
 
+
+	private Set<EnrollmentSet> filterCourseList(Set<EnrollmentSet> enroled) {
+		Set<EnrollmentSet> ret = new HashSet<EnrollmentSet>();
+		
+		Iterator<EnrollmentSet> it = enroled.iterator();
+		while (it.hasNext()) {
+			EnrollmentSet set = it.next();
+			String sectionEid = set.getEid();
+			if (doSection(sectionEid)) {
+				ret.add(set);
+			}
+		}
+		
+		
+		
+		return ret;
+	}
+
+	/**
+	 * We are only interested in non-course sections no other types. 
+	 * @param section
+	 * @return
+	 */
+	private boolean doSection(String section) {
+		String eid = section;
+
+		if (eid.indexOf("_STUD") > 0) {
+			LOG.warn(eid + " looks like a faculty group");
+			return true;
+		}
+		
+		if (eid.length() == "PSY307SSUP,2010".length()) {
+			LOG.warn("we don't work with " + eid);
+			return false;
+		} else	if (eid.length() == "PSY307S,2010".length()) {
+			LOG.warn("we don't work with " + eid);
+			return true;
+		}
+
+
+		
+		LOG.info("we work with " + eid);
+		
+		return true;
+	}
 
 	private Set<EnrollmentSet> getCurrentFutureEnrollments(String userEid) {
 		LOG.debug("getCurrentFutureEnrollments(" + userEid +")");
