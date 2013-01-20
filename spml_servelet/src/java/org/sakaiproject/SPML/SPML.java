@@ -1711,7 +1711,7 @@ public class SPML implements SpmlHandler  {
 					}					
 				}
 			}
-			if (!found && doSection(courseEid)) {
+			if (!found && !doSection(courseEid)) {
 				LOG.info("removing user from " + courseEid);
 				courseAdmin.removeCourseOfferingMembership(userEid, courseEid);
 				courseAdmin.removeSectionMembership(userEid, courseEid);
