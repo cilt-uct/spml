@@ -1748,21 +1748,21 @@ public class SPML implements SpmlHandler  {
 		String eid = section;
 
 		if (eid.indexOf("_STUD") > 0) {
-			LOG.warn(eid + " looks like a faculty group");
+			LOG.debug(eid + " looks like a faculty group");
 			return true;
 		}
 		
 		if (eid.length() == "PSY307SSUP,2010".length()) {
-			LOG.warn("we don't work with " + eid);
+			LOG.debug("we don't work with " + eid);
 			return false;
 		} else	if (eid.length() == "PSY307S,2010".length()) {
-			LOG.warn("we don't work with " + eid);
+			LOG.debug("we don't work with " + eid);
 			return true;
 		}
 
 
 		
-		LOG.info("we work with " + eid);
+		LOG.debug("we work with " + eid);
 		
 		return true;
 	}
