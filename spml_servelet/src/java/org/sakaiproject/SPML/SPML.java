@@ -1403,7 +1403,7 @@ public class SPML implements SpmlHandler  {
 	 */
 	private void recordStudentUpdate(User u) {
 		getSqlService();
-		String sql = "select userEid from SPML_UDPATED_USERS where userEid = '" + u.getEid() + "'";
+		String sql = "select userEid from SPML_UPDATED_USERS where userEid = '" + u.getEid() + "'";
 		List<String> result = m_sqlService.dbRead(sql);
 		if (result == null || result.size() == 0) {
 			sql = "insert into SPML_UDPATED_USERS (userEid, dateQueued) values (? , ?)";
