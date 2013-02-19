@@ -1403,10 +1403,12 @@ public class SPML implements SpmlHandler  {
 	 */
 	private void recordStudentUpdate(User u) {
 		getSqlService();
-		String sql = "select userEid from SPML_UPDATED_USERS where userEid = '" + u.getEid() + "'";
+		//name of the table to store updates
+		final String UPDATE_TABLE_NAME= "SPML_UPDATED_USERS";
+		String sql = "select userEid from " + UPDATE_TABLE_NAME + " where userEid = '" + u.getEid() + "'";
 		List<String> result = m_sqlService.dbRead(sql);
 		if (result == null || result.size() == 0) {
-			sql = "insert into SPML_UDPATED_USERS (userEid, dateQueued) values (? , ?)";
+			sql = "insert into " + UPDATE_TABLE_NAME + " (userEid, dateQueued) values (? , ?)";
 			Object[] fields = new Object[] {
 					u.getEid(),
 					new Date()
