@@ -5,10 +5,10 @@ Send an SPML SOAP packet to the SPML webservice
 */
 
 
-#$url="https://sakai.cet.uct.ac.za/sakai-axis/SPML2.jws?wsdl";
-#$url="https://sakai.cet.uct.ac.za/sakai-axis/SakaiScript.jws?wsdl";
+
 #$url="https://srvslscle005.uct.ac.za:8443/sakai-spml/spmlrouter";
-$url="http://localhost:8080/sakai-spml/spmlrouter";
+$url="https://arabica.cet.uct.ac.za/sakai-spml/spmlrouter";
+#$url="http://localhost:8080/sakai-spml/spmlrouter";
 
 $SOAP_packet="<soap-env:Envelope xmlns:soap-env=\"http://schemas.xmlsoap.org/soap/envelope/\"><soap-env:Body>
 <spml:addRequest xmlns:spml='urn:oasis:names:tc:SPML:1:0' xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core'>
