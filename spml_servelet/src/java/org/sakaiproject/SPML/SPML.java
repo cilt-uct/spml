@@ -162,7 +162,7 @@ public class SPML implements SpmlHandler  {
 
 	int i;
 	/**
-	 * Set the "SOAP action name" which may be requried by
+	 * Set the "SOAP action name" which may be required by
 	 * the SOAP router in the application server.
 	 */
 	public void setAction(String action) {
@@ -203,7 +203,6 @@ public class SPML implements SpmlHandler  {
 
 	private static final Log LOG = LogFactory.getLog(SPML.class);
 
-	public String requestIp = "0.0.0.0"; 
 	//////////////////////////////////////////////////////////////////////
 	//
 	//  Setters
@@ -307,7 +306,6 @@ public class SPML implements SpmlHandler  {
 		LOG.debug("SPMLRouter received req " + req + " (id) ");
 		SpmlResponse resp = req.createResponse();
 
-		// this.logSPMLRequest("Unknown", req.toXml());
 		try {
 			// we need to login
 			LOG.debug("About to login");
@@ -320,6 +318,7 @@ public class SPML implements SpmlHandler  {
 			}
 
 			if (req instanceof AddRequest) {
+				LOG.info("SPMLRouter AddRequest");
 				AddRequest uctRequest = (AddRequest)req;
 				try {
 					resp = spmlAddRequest(uctRequest);
@@ -328,15 +327,15 @@ public class SPML implements SpmlHandler  {
 					e.printStackTrace();
 				}
 			} else if (req instanceof ModifyRequest) {
-				LOG.info("SPMLRouter identified Modifyreq");
+				LOG.info("SPMLRouter ModifyRequest");
 				ModifyRequest uctRequest = (ModifyRequest)req;
 				resp = spmlModifyRequest(uctRequest);
 			} else if (req instanceof DeleteRequest) {
-				LOG.info("SPMLRouter identified delete request");
+				LOG.info("SPMLRouter DeleteRequest");
 				DeleteRequest uctRequest = (DeleteRequest)req;
 				resp = spmlDeleteRequest(uctRequest);
 			}  else if (req instanceof BatchRequest) {
-				LOG.info("SPMLRouter identified batch request");
+				LOG.info("SPMLRouter BatchRequest");
 				BatchRequest uctRequest = (BatchRequest)req;
 				resp = spmlBatchRequest(uctRequest);
 			} else {
@@ -370,7 +369,7 @@ public class SPML implements SpmlHandler  {
 	}
 
 	/*
-	 *  the actual SPM requests
+	 *  the actual SPML requests
 	 *
 	 */    
 
@@ -395,6 +394,7 @@ public class SPML implements SpmlHandler  {
 		CN =(String)req.getAttributeValue(FIELD_CN);
 		LOG.info("SPML Webservice: Received AddRequest for user "+ CN);
 		SpmlResponse response = req.createResponse();
+
 		//we have had 1 null CN so this should be thrown
 		if (CN == null) {
 			LOG.error("ERROR: invalid username: " + CN);
@@ -406,10 +406,9 @@ public class SPML implements SpmlHandler  {
 			return response;			
 
 		}
+		
 		CN = CN.toLowerCase();
-		//LOG.info(req.toXml());
 		logSPMLRequest("Addrequest",req.toXml(),CN);
-
 
 		if (req.getAttributeValue(FIELD_PN)!=null)
 			GN = (String)req.getAttributeValue(FIELD_PN);
@@ -422,7 +421,6 @@ public class SPML implements SpmlHandler  {
 		}
 		String thisEmail = (String)req.getAttributeValue(FIELD_MAIL);
 		//always lower case
-
 
 		String thisTitle = (String)req.getAttributeValue(FIELD_TITLE);
 
@@ -462,7 +460,6 @@ public class SPML implements SpmlHandler  {
 			status = STATUS_ACTIVE;
 		}
 
-
 		//if this is a thirparty check the online learning required field
 		/*
 		String onlineRequired = (String)req.getAttributeValue(FIELD_ONLINELEARNINGREQUIRED);
@@ -474,14 +471,12 @@ public class SPML implements SpmlHandler  {
 		}
 		 */
 
-
 		String mobile = (String)req.getAttributeValue(FIELD_MOBILE);
 		if (mobile == null ) {
 			mobile ="";
 		} else {
 			mobile = fixPhoneNumber(mobile);
 		}
-
 
 		String homeP = (String)req.getAttributeValue(FIELD_HOMEPHONE);
 		if (homeP == null ) {
@@ -495,16 +490,12 @@ public class SPML implements SpmlHandler  {
 		if (orgName == null )
 			orgName = "";
 
-
 		String orgCode = null;
 		if (orgUnit == null ) {
 			orgUnit="";
 		} else {
 			orgCode = getOrgCodeById(orgUnit, orgName);
 		}
-
-
-
 
 		boolean newUser = false;
 		boolean sendNotification = false;
@@ -526,8 +517,7 @@ public class SPML implements SpmlHandler  {
 				return response;
 			}
 
-
-			//this user doesnt exist create it
+			//this user doesn't exist, so create it
 			try {
 				LOG.debug("About to try adding the user "+ CN);
 				newUser = true;
@@ -578,17 +568,12 @@ public class SPML implements SpmlHandler  {
 			return response;
 		}
 
-
-
-
 		//try get the profile
 		LOG.debug("About to get the profiles");
 		userProfile = getUserProfile(CN,"UserMutableType");
 		LOG.debug("Got the user profile");
 		systemProfile = getUserProfile(CN,"SystemMutableType");
 		LOG.debug("Got the system profile");    
-
-
 
 		if (systemProfile.getSurname()!=null) { 
 			String systemSurname = systemProfile.getSurname();
@@ -683,9 +668,6 @@ public class SPML implements SpmlHandler  {
 
 		}
 
-
-
-
 		if (STATUS_ACTIVE.equals(status) || STATUS_ADMITTED.equals(status)) {
 			//remove the possible flag
 			rp.removeProperty(PROPERTY_DEACTIVATED);
@@ -700,15 +682,10 @@ public class SPML implements SpmlHandler  {
 			}
 		} 
 
-
-
 		//VULA-1297 add new update time
 		rp.addProperty(SPML_LAST_UPDATE, fmt.print(dt));
 
-
 		LOG.debug("users email profile email is " + userProfile.getMail());
-
-
 
 		if (systemProfile.getTitle()!= null && !systemProfile.getTitle().equals("") && thisTitle != null) {
 			String systemTitle = systemProfile.getTitle();
@@ -723,7 +700,6 @@ public class SPML implements SpmlHandler  {
 			systemProfile.setTitle(thisTitle);
 			userProfile.setTitle(thisTitle);
 		}
-
 
 		if (type != null ) {
 			LOG.debug("got type:  " + type + "  and status: " + status);
@@ -756,16 +732,13 @@ public class SPML implements SpmlHandler  {
 		String systemOrgCode = systemProfile.getOrganizationalUnit();
 		String systemOrgUnit = systemProfile.getDepartmentNumber();
 		String systemNormalizedMobile = systemProfile.getNormalizedMobile();
-		//set up the strings for user update these will be overwriten for changed profiles
-
+		//set up the strings for user update these will be overwritten for changed profiles
 
 		String modMobile = mobile;
 		String modOrgUnit = orgUnit;
 		String modOrgCode = orgCode;
 
-
 		//if the user surname != system surname only update the system 
-
 
 		String userMobileNormalized = normalizeMobile(userProfile.getMobile());
 		String newNuberNormalized = normalizeMobile(modMobile);
@@ -793,10 +766,8 @@ public class SPML implements SpmlHandler  {
 		}
 
 
-		/*this is actua;ly the department number
+		/*this is actually the department number
 		 * we need to get the 3 letter code to set the org unit
-		 * 
-		 * 
 		 */
 		if (systemOrgUnit != null) {
 			if (!systemOrgUnit.equals(userProfile.getDepartmentNumber())) {
@@ -1351,12 +1322,11 @@ public class SPML implements SpmlHandler  {
 			if (CN == null) {
 				CN = "null";
 			}
-			String statement = "insert into spml_log (spml_type,spml_body, ipaddress, userEid) values (? ,? ,? ,?)";
+			String statement = "insert into spml_log (spml_type, spml_body, userEid) values (? ,? ,?)";
 
 			Object[] fields = new Object[]{
 					type,
 					body,
-					requestIp,
 					CN
 			};
 			
