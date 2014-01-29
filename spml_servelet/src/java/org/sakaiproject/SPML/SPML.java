@@ -113,15 +113,15 @@ public class SPML implements SpmlHandler  {
 	private static final String FIELD_PN = "preferredName";
 	private static final String FIELD_MAIL = "Email";
 	private static final String FIELD_TYPE = "eduPersonPrimaryAffiliation";
-	private static final String FIELD_SCHOOL ="uctFaculty";
+	private static final String FIELD_FACULTY ="uctFaculty";
 	private static final String FIELD_MOBILE = "mobile";
-	private static final String FIELD_PROGAM = "uctProgramCode";
+	private static final String FIELD_PROGRAM = "uctProgramCode";
 	private static final String FIELD_OU = "OU";
 	private static final String FIELD_DOB = "DOB";
 	private static final String FIELD_RES_CODE ="uctResidenceCode";
 	private static final String FIELD_ORG_DECR = "uctorgaffiliation";
 	private static final String FIELD_TITLE = "uctPersonalTitle";
-	private static final String FIELD_ACADEMIC_CARREER = "uctAcademicCareer";
+	private static final String FIELD_ACADEMIC_CAREER = "uctAcademicCareer";		// not in use
 
 	// User account types
 	private static final String TYPE_OFFER = "offer";
@@ -129,6 +129,8 @@ public class SPML implements SpmlHandler  {
 	private static final String TYPE_STAFF = "staff";
 	private static final String TYPE_THIRDPARTY = "thirdparty";
 
+	// Course management categories
+	
 	// SPML user status
 	private static final String STATUS_ACTIVE = "Active";
 	private static final String STATUS_INACTIVE = "Inactive";
@@ -810,7 +812,7 @@ public class SPML implements SpmlHandler  {
 		if (sendNotification)
 			notifyNewUser(thisUser.getId(), type);
 
-		// For students, update association information: residences, faculty
+		// For students, update association information: residences, programme code, faculty
 		
 		/*
 		 * lets try the course membership
@@ -827,11 +829,12 @@ public class SPML implements SpmlHandler  {
 
 					List<String> checkList = new ArrayList<String>();
 					String uctCourses = "";
-					/*
-					 * offer students go into a special group
-					 */
-					if ((String)req.getAttributeValue(FIELD_SCHOOL) != null && TYPE_OFFER.equals(type)) {
-						String courseCode = (String)req.getAttributeValue(FIELD_SCHOOL) + "_offer_"+ (String)req.getAttributeValue(FIELD_TYPE);
+
+					// offer students go into a special group: FAC_OFFER_STUDENT,YYYY e.g. EBE_OFFER_STUDENT,2014
+					
+					if ((String)req.getAttributeValue(FIELD_FACULTY) != null && TYPE_OFFER.equals(type)) {
+						String courseCode = (String)req.getAttributeValue(FIELD_FACULTY) + "_offer_"+ (String)req.getAttributeValue(FIELD_TYPE);
+						
 						//we need to figure out which year?
 						Calendar cal = new GregorianCalendar();
 						if (cal.get(Calendar.MONTH) >= Calendar.AUGUST) {
@@ -847,16 +850,22 @@ public class SPML implements SpmlHandler  {
 						checkList.add(courseCode + "," + offerYear);
 
 					} else {
-						if ((String)req.getAttributeValue(FIELD_PROGAM)!=null) {
-							uctCourses = uctCourses + "," +(String)req.getAttributeValue(FIELD_PROGAM);
-							addUserToCourse(CN, (String)req.getAttributeValue(FIELD_PROGAM));
-							checkList.add((String)req.getAttributeValue(FIELD_PROGAM));
+						
+						// Programme code
+						
+						if ((String)req.getAttributeValue(FIELD_PROGRAM)!=null) {
+							uctCourses = uctCourses + "," +(String)req.getAttributeValue(FIELD_PROGRAM);
+							addUserToCourse(CN, (String)req.getAttributeValue(FIELD_PROGRAM));
+							checkList.add((String)req.getAttributeValue(FIELD_PROGRAM));
 
 						}
-						if ((String)req.getAttributeValue(FIELD_SCHOOL)!=null) {
-							uctCourses = uctCourses + "," +(String)req.getAttributeValue(FIELD_SCHOOL) + "_STUD";
-							addUserToCourse(CN, (String)req.getAttributeValue(FIELD_SCHOOL) + "_STUD");
-							checkList.add((String)req.getAttributeValue(FIELD_SCHOOL) + "_STUD");
+						
+						// Faculty
+						
+						if ((String)req.getAttributeValue(FIELD_FACULTY)!=null) {
+							uctCourses = uctCourses + "," +(String)req.getAttributeValue(FIELD_FACULTY) + "_STUD";
+							addUserToCourse(CN, (String)req.getAttributeValue(FIELD_FACULTY) + "_STUD");
+							checkList.add((String)req.getAttributeValue(FIELD_FACULTY) + "_STUD");
 						}
 					}
 
@@ -865,10 +874,11 @@ public class SPML implements SpmlHandler  {
 
 					SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
 					String thisYear = yearf.format(new Date());
-					//OK rescode may contain old data
+
+					// OK rescode may contain old data
 					if (req.getAttributeValue(FIELD_RES_CODE) != null ) {
 						String resCode = (String)req.getAttributeValue(FIELD_RES_CODE);
-						//if its a wierd no date residence ignore it
+						// if its a weird no-date residence ignore it
 						if (resCode.indexOf("*") > 0 ) {
 							resCode = resCode.substring(0,resCode.indexOf("*"));
 							String year = (String)req.getAttributeValue(FIELD_RES_CODE);
@@ -884,19 +894,21 @@ public class SPML implements SpmlHandler  {
 						}
 					}
 
-					// Academic career
+					// Academic career - not in use currently
 					
-					if (req.getAttributeValue(FIELD_ACADEMIC_CARREER) != null) {
-						String career = (String)req.getAttributeValue(FIELD_ACADEMIC_CARREER);
+					/*
+					if (req.getAttributeValue(FIELD_ACADEMIC_CAREER) != null) {
+						String career = (String)req.getAttributeValue(FIELD_ACADEMIC_CAREER);
 						LOG.debug("found academic career: " + career);
 						addUserToCourse(CN, career, thisYear, "carrer");
 						checkList.add(career);
 
 						//career_faculty
-						String facCareer= career + "_" + (String)req.getAttributeValue(FIELD_SCHOOL);
+						String facCareer= career + "_" + (String)req.getAttributeValue(FIELD_FACULTY);
 						addUserToCourse(CN, facCareer, thisYear, "carrer");
 						checkList.add(facCareer);
 					}
+					*/
 
 					synchCourses(checkList, CN);
 
@@ -1239,7 +1251,7 @@ public class SPML implements SpmlHandler  {
 
 
 	/**
-	 * Add the user to a course
+	 * Add the user to a course, with default values for term and setCategory
 	 */
 	private void addUserToCourse(String userId, String courseCode) {
 		addUserToCourse(userId, courseCode, null, null);
@@ -1250,7 +1262,7 @@ public class SPML implements SpmlHandler  {
 	 * @param userId
 	 * @param courseCode
 	 * @param term
-	 * @param setCategory
+	 * @param setCategory - CM category. In use: Department, course, degree, faculty, Residence, NULL 
 	 */
 	private void addUserToCourse(String userId, String courseCode, String term, String setCategory) {
 		LOG.debug("addUserToCourse(" + userId +", " + courseCode + "," + term + "," + setCategory + ")");
