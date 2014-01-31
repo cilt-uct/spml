@@ -2,31 +2,29 @@
  * $URL: $
  * $Id: $
  ***********************************************************************************
- *
- * Copyright (c) 2003, 2004, 2005 Sakai Foundation
- * 
- * Licensed under the Educational Community License Version 1.0 (the "License");
- * By obtaining, using and/or copying this Original Work, you agree that you have read,
- * understand, and will comply with the terms and conditions of the Educational Community License.
- * You may obtain a copy of the License at:
- * 
- *      http://cvs.sakaiproject.org/licenses/license_1_0.html
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
- * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
+ 
+Copyright (c) 2014 University of Cape Town
+
+Licensed under the Educational Community License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+            http://opensource.org/licenses/ecl2
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
  **********************************************************************************/
 
-/**
+/***
  * <p>
  * An implementation of an SPML client that creates user accounts and populates profiles
  * </p>
  * 
  * @author David Horwitz, University of Cape Town
- * 
  * @version $Revision: 3197 $
  */
 package org.sakaiproject.SPML;
@@ -130,7 +128,11 @@ public class SPML implements SpmlHandler  {
 	private static final String TYPE_THIRDPARTY = "thirdparty";
 
 	// Course management categories
-	
+	private static final String CAT_RESIDENCE = "residence";
+	private static final String CAT_DEGREE = "degree";
+	private static final String CAT_DEPT = "Department";
+	private static final String CAT_COURSE = "course";
+		
 	// SPML user status
 	private static final String STATUS_ACTIVE = "Active";
 	private static final String STATUS_INACTIVE = "Inactive";
@@ -814,102 +816,68 @@ public class SPML implements SpmlHandler  {
 
 		// For students, update association information: residences, programme code, faculty
 		
-		/*
-		 * lets try the course membership
-		 * its a comma delimited list in the uctCourseCode attribute
-		 * however it might be null - if so ignore and move on
-		 * we should only do this if this is a student 
-		 */
 		if (TYPE_STUDENT.equalsIgnoreCase(originalType)) {
+
+			// Flag student for a course enrollment update from Peoplesoft
 			recordStudentUpdate(thisUser);
-			//TODO we need to update the synchs bellow
+
 			//only do this if the user is active -otherwise the student is now no longer registered
 			if (! STATUS_INACTIVE.equalsIgnoreCase(status)) { 
 				try {
 
 					List<String> checkList = new ArrayList<String>();
-					String uctCourses = "";
 
 					// offer students go into a special group: FAC_OFFER_STUDENT,YYYY e.g. EBE_OFFER_STUDENT,2014
 					
 					if ((String)req.getAttributeValue(FIELD_FACULTY) != null && TYPE_OFFER.equals(type)) {
-						String courseCode = (String)req.getAttributeValue(FIELD_FACULTY) + "_offer_"+ (String)req.getAttributeValue(FIELD_TYPE);
 						
-						//we need to figure out which year?
-						Calendar cal = new GregorianCalendar();
-						if (cal.get(Calendar.MONTH) >= Calendar.AUGUST) {
-							//we will do this for next year
-							cal.add(Calendar.YEAR, 1);
-						}
-
-						SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
-						String offerYear = yearf.format(cal.getTime());			
-
-						LOG.info("adding this student to " + courseCode + " in " + offerYear);
-						addUserToCourse(CN, courseCode, offerYear, "course");
-						checkList.add(courseCode + "," + offerYear);
-
+						// No longer setting OFFER groups 
+						
 					} else {
 						
 						// Programme code
 						
-						if ((String)req.getAttributeValue(FIELD_PROGRAM)!=null) {
-							uctCourses = uctCourses + "," +(String)req.getAttributeValue(FIELD_PROGRAM);
-							addUserToCourse(CN, (String)req.getAttributeValue(FIELD_PROGRAM));
-							checkList.add((String)req.getAttributeValue(FIELD_PROGRAM));
-
+						String program = (String) req.getAttributeValue(FIELD_PROGRAM); 
+						if (program != null) {
+							addUserToCourse(CN, program);
+							checkList.add(program);
 						}
 						
 						// Faculty
-						
-						if ((String)req.getAttributeValue(FIELD_FACULTY)!=null) {
-							uctCourses = uctCourses + "," +(String)req.getAttributeValue(FIELD_FACULTY) + "_STUD";
-							addUserToCourse(CN, (String)req.getAttributeValue(FIELD_FACULTY) + "_STUD");
-							checkList.add((String)req.getAttributeValue(FIELD_FACULTY) + "_STUD");
+
+						String faculty = (String) req.getAttributeValue(FIELD_FACULTY); 
+						if (faculty !=null) {
+							addUserToCourse(CN, faculty + "_STUD");
+							checkList.add(faculty + "_STUD");
 						}
 					}
-
 
 					// Residence information
 
 					SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
 					String thisYear = yearf.format(new Date());
 
-					// OK rescode may contain old data
-					if (req.getAttributeValue(FIELD_RES_CODE) != null ) {
-						String resCode = (String)req.getAttributeValue(FIELD_RES_CODE);
+					// rescode is of the form RES*YYYY-MM-DD*YYYY-MM-DD, may contain old data
+					String resCode = (String) req.getAttributeValue(FIELD_RES_CODE);
+
+					if (resCode != null ) {
 						// if its a weird no-date residence ignore it
 						if (resCode.indexOf("*") > 0 ) {
 							resCode = resCode.substring(0,resCode.indexOf("*"));
+
 							String year = (String)req.getAttributeValue(FIELD_RES_CODE);
 							year = year.substring(year.indexOf("*") + 1,  year.indexOf("-"));
 							LOG.info("residence found for: " + resCode +"  year: " + year);
-							//If its current add to the list for the sync job
+							
+							// If its current add to the list for the sync job
 							if (year.equals(thisYear) && residenceIsCurrent((String)req.getAttributeValue(FIELD_RES_CODE))) {
-								//uctCourses = uctCourses + "," + resCode;
 								checkList.add(resCode);
-								this.addUserToCourse(CN, resCode, year, "residence");
+								this.addUserToCourse(CN, resCode, year, CAT_RESIDENCE);
 							}
-
 						}
 					}
-
-					// Academic career - not in use currently
-					
-					/*
-					if (req.getAttributeValue(FIELD_ACADEMIC_CAREER) != null) {
-						String career = (String)req.getAttributeValue(FIELD_ACADEMIC_CAREER);
-						LOG.debug("found academic career: " + career);
-						addUserToCourse(CN, career, thisYear, "carrer");
-						checkList.add(career);
-
-						//career_faculty
-						String facCareer= career + "_" + (String)req.getAttributeValue(FIELD_FACULTY);
-						addUserToCourse(CN, facCareer, thisYear, "carrer");
-						checkList.add(facCareer);
-					}
-					*/
-
+				
+					// Remove from courses not contained in checkList
 					synchCourses(checkList, CN);
 
 				}
@@ -917,7 +885,7 @@ public class SPML implements SpmlHandler  {
 					//error adding users to course
 					e.printStackTrace();
 				}
-			} else if (STATUS_INACTIVE.equalsIgnoreCase(status)){
+			} else if (STATUS_INACTIVE.equalsIgnoreCase(status)) {
 				synchCourses(new ArrayList<String>(), CN);
 			}
 		}
@@ -1284,16 +1252,16 @@ public class SPML implements SpmlHandler  {
 			if (setCategory == null ) {
 				if (courseCode.length() == 5) {
 					setId = courseCode.substring(0,2);
-					setCategory = "degree";
+					setCategory = CAT_DEGREE;
 				} else {
 					setId = courseCode.substring(0,3);
-					setCategory = "Department";
+					setCategory = CAT_DEPT;
 				}
 			} else {
 				setId = courseCode;
 			}
 
-			if (setCategory.equalsIgnoreCase("residence")) {
+			if (setCategory.equalsIgnoreCase(CAT_RESIDENCE)) {
 				role = "Participant";
 			}
 
@@ -1356,7 +1324,7 @@ public class SPML implements SpmlHandler  {
 				}
 
 				// If this is a residence, the end date is later.
-				if (setCategory.equalsIgnoreCase("residence")) {
+				if (setCategory.equalsIgnoreCase(CAT_RESIDENCE)) {
 					cal2.set(Calendar.DAY_OF_MONTH, 19);
 					cal2.set(Calendar.MONTH, Calendar.NOVEMBER);
 				}
@@ -1377,14 +1345,14 @@ public class SPML implements SpmlHandler  {
 			}
 
 			if (!cmService.isSectionDefined(courseEid)) {
-				courseAdmin.createSection(courseEid, courseEid, "description", "course", null, courseEid, enrollmentSet.getEid());
+				courseAdmin.createSection(courseEid, courseEid, "description", CAT_COURSE, null, courseEid, enrollmentSet.getEid());
 			} else {
 				Section section = cmService.getSection(courseEid);
 				// Check the section has a properly defined Enrollment set
 				if (section.getEnrollmentSet() == null) {
 					EnrollmentSet enrolmentSet = cmService.getEnrollmentSet(courseEid);
 					section.setEnrollmentSet(enrolmentSet);
-					section.setCategory("course");
+					section.setCategory(CAT_COURSE);
 					courseAdmin.updateSection(section);
 				}
 			}
@@ -1405,7 +1373,7 @@ public class SPML implements SpmlHandler  {
 				courseAdmin.createEnrollmentSet(courseEid, courseEid, "description", "category", "defaultEnrollmentCredits", courseEid, null);
 				LOG.info("creating Section for " + courseCode + " in year " + term);
 				getCanonicalCourse(courseCode);
-				courseAdmin.createSection(courseEid, courseEid, "someDescription","course",null,courseEid,courseEid);
+				courseAdmin.createSection(courseEid, courseEid, "someDescription", CAT_COURSE, null, courseEid, courseEid);
 			}
 			courseAdmin.addOrUpdateSectionMembership(userId, role, courseEid, "enrolled");
 		}
@@ -1416,7 +1384,7 @@ public class SPML implements SpmlHandler  {
 
 
 	private String getPreferredSectionEid(String courseCode, String term) {
-		/* TODO we need the get the actice CM for this course
+		/* TODO we need the get the active CM for this course
 		 * This will involve refactoring code below
 		 */
 		String courseEid = null;
@@ -1424,12 +1392,12 @@ public class SPML implements SpmlHandler  {
 		List<CourseOffering> sections  = cmService.findActiveCourseOfferingsInCanonicalCourse(courseCode);
 		LOG.debug("got  " + sections.size() +",  sections");
 		if (sections.size() > 0) {
-			//if there are multiple courses we will add them to the one in the later accademic year
+			//if there are multiple courses we will add them to the one in the later academic year
 			CourseOffering co = getPreferredSection(sections);
 			courseEid = co.getEid();
 			LOG.debug("Found active course: " + courseEid);
 		} else {
-			//use the not found info from bellow
+			//use the not found info from below
 			//does the 
 			courseEid = courseCode + "," +term;
 		}
