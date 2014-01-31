@@ -1,0 +1,68 @@
+<spml:addRequest xmlns:spml='urn:oasis:names:tc:SPML:1:0' xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core'>
+  <spml:attributes>
+    <attr name='objectclass'>
+      <value>User</value>
+    </attr>
+    <attr name='CN'>
+      <value>ABCXYZ989</value>
+    </attr>
+    <attr name='Surname'>
+      <value>Turing</value>
+    </attr>
+    <attr name='Given Name'>
+      <value>Alan</value>
+    </attr>
+    <attr name='Initials'>
+      <value>T</value>
+    </attr>
+    <attr name='GUID'>
+      <value>0L3PU0WU3AGApQAWNTpmgw==</value>
+    </attr>
+    <attr name='Email'>
+      <value>ABCXYZ989@uct.ac.za</value>
+    </attr>
+    <attr name='mobile'>
+      <value>083/123-4567</value>
+    </attr>
+    <attr name='homePhone'>
+      <value>021/987-6543</value>
+    </attr>
+    <attr name='eduPersonPrimaryAffiliation'>
+      <value>Student</value>
+    </attr>
+    <attr name='uctCampusID'>
+      <value>ABCXYZ989</value>
+    </attr>
+    <attr name='uctFaculty'>
+      <value>SCI</value>
+    </attr>
+    <attr name='uctPersonalTitle'>
+      <value>Mr</value>
+    </attr>
+    <attr name='uctProgramCode'>
+      <value>SB015</value>
+    </attr>
+    <attr name='uctStudentNumber'>
+      <value>1234567</value>
+    </attr>
+    <attr name='uctStudentStatus'>
+      <value>Active</value>
+    </attr>
+    <attr name='DOB'>
+      <value>19890118</value>
+    </attr>
+    <attr name='uctCourseCode'>
+      <value>PSY1001W,BIO1000F,BIO1004S,CEM1000W,STA1007S,MAM1004H</value>
+    </attr>
+    <attr name='uctProgramCode'>
+      <value>SB013</value>
+    </attr>
+    <attr name='Email'>
+      <value>ABCXYZ989@uct.ac.za</value>
+    </attr>
+    <attr name='Event_Type'>
+      <value>Input</value>
+    </attr>
+  </spml:attributes>
+</spml:addRequest>
+
