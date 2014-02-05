@@ -127,7 +127,7 @@ public class SPML implements SpmlHandler  {
 	private static final String TYPE_STAFF = "staff";
 	private static final String TYPE_THIRDPARTY = "thirdparty";
 
-	// Course management categories
+	// Course management set categories
 	private static final String CAT_RESIDENCE = "residence";
 	private static final String CAT_DEGREE = "degree";
 	private static final String CAT_DEPT = "Department";
@@ -1475,7 +1475,7 @@ public class SPML implements SpmlHandler  {
 		// Remove the student from any 'courses' (faculty, program, residence codes) which they're enrolled in that aren't contained in finalCourses
 		// CM courses are always qualified with a year and always in upper case.
 			
-		for (Set<EnrollmentSet> eSet : enrolled) {
+		for (EnrollmentSet eSet : enrolled) {
 			
 			String courseEid =  eSet.getEid();
 			
