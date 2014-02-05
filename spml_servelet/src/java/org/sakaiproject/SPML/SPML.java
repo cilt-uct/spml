@@ -936,7 +936,7 @@ public class SPML implements SpmlHandler  {
 
 	/**
 	 * Send a notification email to a newly added user
-	 * @param userId
+	 * @param userId The user's internal Sakai ID
 	 * @param type
 	 */
 	private void notifyNewUser(String userId, String type) {
@@ -1080,8 +1080,8 @@ public class SPML implements SpmlHandler  {
 	}
 
 	// we'll need to handle login ourselves
-	private boolean login(String id,String pw) {
-		User user = UserDirectoryService.authenticate(id,pw);
+	private boolean login(String eid, String pw) {
+		User user = UserDirectoryService.authenticate(eid, pw);
 		if ( user != null ) {
 			getSessionManager();
 			sakaiSession = sessionManager.startSession();
@@ -1092,13 +1092,13 @@ public class SPML implements SpmlHandler  {
 			else
 			{
 				sakaiSession.setUserId(user.getId());
-				sakaiSession.setUserEid(id);
+				sakaiSession.setUserEid(eid);
 				sessionManager.setCurrentSession(sakaiSession);
-				LOG.debug("Logged in as user: " + id + " with internal id of: " + user.getId());
+				LOG.debug("Logged in as user: " + eid + " with internal id of: " + user.getId());
 				return true;
 			}
 		} else {
-			LOG.error(this + "login failed for " + id + "using " + pw);
+			LOG.error(this + "login failed for " + eid + "using " + pw);
 		}
 		return false;
 	}
@@ -1112,15 +1112,15 @@ public class SPML implements SpmlHandler  {
 	/**
 	 * Get a user profile record (user or system)
 	 */
-	private SakaiPerson getUserProfile(String userId, String type) {
+	private SakaiPerson getUserProfile(String userEid, String type) {
 
-		// Uids must be lower case
-		userId = userId.toLowerCase();
+		// UserEids must be lower case
+		userEid = userEid.toLowerCase();
 		this.getSakaiPersonManager();
 
 		Type _type = null;
 		if (type.equals("UserMutableType")) {
-			setSakaiSessionUser(userId); // switch to that user's session
+			setSakaiSessionUser(userEid); // switch to that user's session
 			_type = sakaiPersonManager.getUserMutableType();
 		} else {
 			_type = sakaiPersonManager.getSystemMutableType();
@@ -1130,13 +1130,13 @@ public class SPML implements SpmlHandler  {
 		
 		try
 		{	
-			User user = UserDirectoryService.getUserByEid(userId);
+			User user = UserDirectoryService.getUserByEid(userEid);
 			sakaiPerson = sakaiPersonManager.getSakaiPerson(user.getId(), _type);
 			
 			// create profile if it doesn't exist
 			if(sakaiPerson == null){
 				sakaiPerson = sakaiPersonManager.create(user.getId(),_type);
-				LOG.info("creating profile for user " + userId + " of type " + _type.getDisplayName());
+				LOG.info("creating profile for user " + userEid + " of type " + _type.getDisplayName());
 				
 				//we need to set the privacy
 				sakaiPerson.setHidePrivateInfo(Boolean.valueOf(true));
@@ -1144,7 +1144,7 @@ public class SPML implements SpmlHandler  {
 			}
 		}	
 		catch(Exception e){
-			LOG.error("Unknown error occurred in getUserProfile(" + userId + "): " + e.getMessage());
+			LOG.error("Unknown error occurred in getUserProfile(" + userEid + "): " + e.getMessage());
 			e.printStackTrace();
 		}
 
@@ -1159,11 +1159,11 @@ public class SPML implements SpmlHandler  {
 	/**
 	 * Set the session to the new user
 	 */
-	private synchronized void setSakaiSessionUser(String id) {
+	private synchronized void setSakaiSessionUser(String eid) {
 		try {
-			User user = UserDirectoryService.getUserByEid(id);
+			User user = UserDirectoryService.getUserByEid(eid);
 			sakaiSession.setUserId(user.getId());
-			sakaiSession.setUserEid(id);
+			sakaiSession.setUserEid(eid);
 		}
 		catch (Exception e)
 		{
@@ -1223,19 +1223,19 @@ public class SPML implements SpmlHandler  {
 	/**
 	 * Add the user to a course, with default values for term and setCategory
 	 */
-	private void addUserToCourse(String userId, String courseCode) {
-		addUserToCourse(userId, courseCode, null, null);
+	private void addUserToCourse(String userEid, String courseCode) {
+		addUserToCourse(userEid, courseCode, null, null);
 	}
 
 	/**
 	 * Add the user to a course
-	 * @param userId
+	 * @param userEid
 	 * @param courseCode
 	 * @param term
 	 * @param setCategory - CM category. In use: Department, course, degree, faculty, Residence, NULL 
 	 */
-	private void addUserToCourse(String userId, String courseCode, String term, String setCategory) {
-		LOG.debug("addUserToCourse(" + userId +", " + courseCode + "," + term + "," + setCategory + ")");
+	private void addUserToCourse(String userEid, String courseCode, String term, String setCategory) {
+		LOG.debug("addUserToCourse(" + userEid +", " + courseCode + "," + term + "," + setCategory + ")");
 
 		try {
 			courseCode = courseCode.toUpperCase().trim();
@@ -1359,9 +1359,9 @@ public class SPML implements SpmlHandler  {
 				}
 			}
 
-			LOG.info("adding student " + userId + " to " + courseEid);
-			courseAdmin.addOrUpdateSectionMembership(userId, role, courseEid, "enrolled");
-			courseAdmin.addOrUpdateEnrollment(userId, courseEid, "enrolled", "NA", "0");
+			LOG.info("adding student " + userEid + " to " + courseEid);
+			courseAdmin.addOrUpdateSectionMembership(userEid, role, courseEid, "enrolled");
+			courseAdmin.addOrUpdateEnrollment(userEid, courseEid, "enrolled", "NA", "0");
 
 			// now add the user to a section of the same name
 			// TODO this looks like duplicate logic
@@ -1371,13 +1371,13 @@ public class SPML implements SpmlHandler  {
 			} 
 			catch (IdNotFoundException id) {
 				//create the CO
-				//create enrolmentset
+				//create enrollmentset
 				courseAdmin.createEnrollmentSet(courseEid, courseEid, "description", "category", "defaultEnrollmentCredits", courseEid, null);
 				LOG.info("creating Section for " + courseCode + " in year " + term);
 				getCanonicalCourse(courseCode);
 				courseAdmin.createSection(courseEid, courseEid, "someDescription", CAT_COURSE, null, courseEid, courseEid);
 			}
-			courseAdmin.addOrUpdateSectionMembership(userId, role, courseEid, "enrolled");
+			courseAdmin.addOrUpdateSectionMembership(userEid, role, courseEid, "enrolled");
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -1440,7 +1440,7 @@ public class SPML implements SpmlHandler  {
 	 * @param uctCourse List of courses for the user provided by the SPML update, excluding the year
 	 * @param userEid
 	 */
-	private void synchCourses(List<String> uctCourse, String userEid){
+	private void synchCourses(List<String> uctCourse, String userEid) {
 
 		LOG.debug("Checking enrollments for " + userEid);
 
@@ -1481,12 +1481,12 @@ public class SPML implements SpmlHandler  {
 			String courseEid =  eSet.getEid();
 			
 			if (!finalCourses.contains(courseEid) && doSection(courseEid)) {
-				LOG.info("removing user from " + courseEid);
+				LOG.info("removing student " + userEid + " from " + courseEid);
 				courseAdmin.removeCourseOfferingMembership(userEid, courseEid);
 				courseAdmin.removeSectionMembership(userEid, courseEid);
 				courseAdmin.removeEnrollment(userEid, courseEid);
 			} else {
-				LOG.debug("retaining membership in " + courseEid);
+				LOG.debug("retaining student " + userEid + " membership in " + courseEid);
 			}
 		
 		} // for
