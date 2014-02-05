@@ -857,7 +857,8 @@ public class SPML implements SpmlHandler  {
 					SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
 					String thisYear = yearf.format(new Date());
 
-					// rescode is of the form RES*YYYY-MM-DD*YYYY-MM-DD, may contain old data
+					// rescode is of the form RES*YYYY-MM-DD*YYYY-MM-DD, e.g. OBZ*2012-01-31*2012-12-15 
+					// may contain old data (e.g. residence information from prior year)
 					String resCode = (String) req.getAttributeValue(FIELD_RES_CODE);
 
 					if (resCode != null ) {
@@ -1391,6 +1392,7 @@ public class SPML implements SpmlHandler  {
 		LOG.debug("about to get sections in " + courseCode);
 		List<CourseOffering> sections  = cmService.findActiveCourseOfferingsInCanonicalCourse(courseCode);
 		LOG.debug("got  " + sections.size() +",  sections");
+
 		if (sections.size() > 0) {
 			//if there are multiple courses we will add them to the one in the later academic year
 			CourseOffering co = getPreferredSection(sections);
@@ -1401,6 +1403,7 @@ public class SPML implements SpmlHandler  {
 			//does the 
 			courseEid = courseCode + "," +term;
 		}
+		
 		return courseEid;
 	}
 
@@ -1433,82 +1436,67 @@ public class SPML implements SpmlHandler  {
 
 	/**
 	 * Remove user from old courses
-	 * @param uctCourse
+	 * @param uctCourse List of courses for the user provided by the SPML update, excluding the year
 	 * @param userEid
 	 */
 	private void synchCourses(List<String> uctCourse, String userEid){
+
 		LOG.debug("Checking enrollments for " + userEid);
+
 		SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
 		String thisYear = yearf.format(new Date());
 
 		courseAdmin = getCourseAdmin();
 		cmService = getCourseManagementService();
 
-		// VULA-1256 we need all enrolled sets that are current or future
-		Set<EnrollmentSet> enrolled = getCurrentFutureEnrollments(userEid);
-
-		// TODO we need to filter out all course groups
-		enrolled = filterCourseList(enrolled);
+		// Qualify the list of courses passed in from the SPML update with a year and convert to upper-case
 		
-		//cmService.findCurrentlyEnrolledEnrollmentSets(userEid);
-		Iterator<EnrollmentSet> coursesIt = enrolled.iterator();
-		LOG.debug("got list of enrollment set with " + enrolled.size() +  " checklist contains " + uctCourse.size());
 		List<String> finalCourses = new ArrayList<String>();
 		for (i = 0; i < uctCourse.size(); i++) {
+			
 			String thisCourse = uctCourse.get(i);
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("courseList contains: " + thisCourse);
 			}
-			//we need a fully Qualified id for the section
+			
+			// we need a fully qualified id for the section
 			String newSection = getPreferredSectionEid(thisCourse, thisYear);
 			finalCourses.add(newSection.toUpperCase());
 		}
 
-		//TODO this could be more elegantly done by upper-casing the contents of uctCourse
-		while(coursesIt.hasNext()) {
-			EnrollmentSet eSet = (EnrollmentSet)coursesIt.next();
+		// VULA-1256 we need all enrolled sets that are current or future
+		Set<EnrollmentSet> enrolled = getCurrentFutureEnrollments(userEid);
+
+		// Filter out all course groups (exclude everything except program codes and faculty groups)
+		enrolled = filterCourseList(enrolled);
+
+		LOG.debug("got list of enrollment set with " + enrolled.size() +  ", checklist contains " + uctCourse.size());
+
+		// Remove the student from any 'courses' (faculty, program, residence codes) which they're enrolled in that aren't contained in finalCourses
+		// CM courses are always qualified with a year and always in upper case.
+			
+		for (Set<EnrollmentSet> eSet : enrolled) {
+			
 			String courseEid =  eSet.getEid();
-			LOG.debug("got section: " + courseEid);
-			boolean found = false;
-			if (finalCourses.contains(courseEid)) {
-				found = true;
-			} else if (finalCourses.contains(courseEid + "," + thisYear)) {
-				found = true;
-			}
-
-			if (!found) {
-				for (int i =0; i < finalCourses.size(); i++ ) {
-					String thisEn = (String)finalCourses.get(i) + "," + thisYear;
-					if (thisEn.equalsIgnoreCase(courseEid)) {
-						found = true;
-					}
-
-				}
-				if (!found) {
-					for (int i =0; i < finalCourses.size(); i++ ) {
-						String thisEn = (String)finalCourses.get(i);
-						if (thisEn.equalsIgnoreCase(courseEid)) {
-							found = true;
-						}
-
-					}					
-				}
-			}
-			if (!found && !doSection(courseEid)) {
+			
+			if (!finalCourses.contains(courseEid) && doSection(courseEid)) {
 				LOG.info("removing user from " + courseEid);
 				courseAdmin.removeCourseOfferingMembership(userEid, courseEid);
 				courseAdmin.removeSectionMembership(userEid, courseEid);
 				courseAdmin.removeEnrollment(userEid, courseEid);
+			} else {
+				LOG.debug("retaining membership in " + courseEid);
 			}
-		}
+		
+		} // for
 
 	}
 
 
-	private Set<EnrollmentSet> filterCourseList(Set<EnrollmentSet> enroled) {
+	private Set<EnrollmentSet> filterCourseList(Set<EnrollmentSet> enrolled) {
 		Set<EnrollmentSet> ret = new HashSet<EnrollmentSet>();
 
-		Iterator<EnrollmentSet> it = enroled.iterator();
+		Iterator<EnrollmentSet> it = enrolled.iterator();
 		while (it.hasNext()) {
 			EnrollmentSet set = it.next();
 			String sectionEid = set.getEid();
@@ -1526,24 +1514,32 @@ public class SPML implements SpmlHandler  {
 	 * @return
 	 */
 	private boolean doSection(String section) {
-		String eid = section;
-
-		if (eid.indexOf("_STUD") > 0) {
-			LOG.debug(eid + " looks like a faculty group");
+		
+		// TODO replace checks with regexps
+		
+		// Faculty group: FFF_STUD,YYYY e.g. SCI_STUD,2014
+		
+		if (section.indexOf("_STUD") > 0) {
+			LOG.debug(section + " looks like a faculty code");
 			return true;
 		}
 
-		if (eid.length() == "PSY307SSUP,2010".length()) {
-			LOG.debug("we don't work with " + eid);
-			return false;
-		} else	if (eid.length() == "PSY307S,2010".length()) {
-			LOG.debug("we don't work with " + eid);
+		// Program code: PPNNN,YYYY e.g. SB014,2014
+		
+		if (section.length() == "SB014,2014".length()) {
+			LOG.debug(section + " looks like a program code");
 			return true;
-		}
-
-		LOG.debug("we work with " + eid);
-
-		return true;
+		} 
+		
+		// Residence code: RRR,YYYY e.g. OBZ,2014
+		
+		if (section.length() == "OBZ,2014".length()) {
+			LOG.debug(section + " looks like a residence code");
+			return true;
+		} 
+						
+		LOG.debug("we don't work with " + section);
+		return false;
 	}
 
 	private Set<EnrollmentSet> getCurrentFutureEnrollments(String userEid) {
