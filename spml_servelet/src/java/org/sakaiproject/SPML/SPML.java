@@ -821,8 +821,8 @@ public class SPML implements SpmlHandler  {
 			// Flag student for a course enrollment update from Peoplesoft
 			recordStudentUpdate(thisUser);
 
-			//only do this if the user is active -otherwise the student is now no longer registered
-			if (! STATUS_INACTIVE.equalsIgnoreCase(status)) { 
+			// Only do this if the user is active, otherwise the student is not yet or no longer registered
+			if (STATUS_ACTIVE.equalsIgnoreCase(status)) { 
 				try {
 
 					List<String> checkList = new ArrayList<String>();
@@ -887,6 +887,7 @@ public class SPML implements SpmlHandler  {
 					e.printStackTrace();
 				}
 			} else if (STATUS_INACTIVE.equalsIgnoreCase(status)) {
+				// Clear current year faculty, program code, residence if inactive 
 				synchCourses(new ArrayList<String>(), CN);
 			}
 		}
