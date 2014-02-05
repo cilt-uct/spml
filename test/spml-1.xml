@@ -39,9 +39,6 @@
     <attr name='uctPersonalTitle'>
       <value>Mr</value>
     </attr>
-    <attr name='uctProgramCode'>
-      <value>SB015</value>
-    </attr>
     <attr name='uctStudentNumber'>
       <value>1234567</value>
     </attr>
@@ -55,7 +52,7 @@
       <value>PSY1001W,BIO1000F,BIO1004S,CEM1000W,STA1007S,MAM1004H</value>
     </attr>
     <attr name='uctProgramCode'>
-      <value>SB013</value>
+      <value>%TEST_PROGRAM_CODE%</value>
     </attr>
     <attr name='Email'>
       <value>ABCXYZ989@uct.ac.za</value>
