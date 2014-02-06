@@ -24,6 +24,8 @@ my %courses;
 
 # Program code
 
+#### TEST 1
+
 print "\nTest 1: Verifying set program code for current year\n";
 
 $spml = read_file('spml-1.xml');
@@ -35,7 +37,9 @@ if (!defined($courses{"XY987,$year"})) {
 	die "\n*** Test 1 failed: program code not set correctly\n";
 }
 
-print "\nTest 2: Verifying update program code for current year\n";
+#### TEST 2
+
+print "\nTest 2: Verifying update program code for current year - VULA-1980\n";
 
 $spml = read_file('spml-1.xml');
 $spml =~ s/%TEST_PROGRAM_CODE%/XY123/;
@@ -50,6 +54,23 @@ if (!defined($courses{"XY123,$year"})) {
 # Old program code has been cleared
 if (defined($courses{"XY987,$year"})) {	
 	die "\n*** Test 2 failed: old program code not cleared correctly\n";
+}
+
+#### TEST 3 - Drop program/faculty code if not registered for at least 1 course
+
+print "\nTest 3: Verifying program and Faculty code unset if not registered for any courses - VULA-2067\n";
+
+$spml = read_file('spml-2.xml');
+$spml =~ s/%TEST_PROGRAM_CODE%/XY123/;
+$status = post_spml($host, $spml);
+%courses = getCmCourses($eid);
+
+if (defined($courses{"XY123,$year"})) {	
+	die "\n*** Test 3 failed: Program code set when not registered for any courses\n";
+}
+
+if (defined($courses{"SCI_STUD,$year"})) {	
+	die "\n*** Test 3 failed: Faculty code set when not registered for any courses\n";
 }
 
 
