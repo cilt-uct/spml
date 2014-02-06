@@ -113,6 +113,7 @@ public class SPML implements SpmlHandler  {
 	private static final String FIELD_TYPE = "eduPersonPrimaryAffiliation";
 	private static final String FIELD_FACULTY ="uctFaculty";
 	private static final String FIELD_MOBILE = "mobile";
+	private static final String FIELD_COURSES = "uctCourseCode";
 	private static final String FIELD_PROGRAM = "uctProgramCode";
 	private static final String FIELD_OU = "OU";
 	private static final String FIELD_DOB = "DOB";
@@ -834,19 +835,21 @@ public class SPML implements SpmlHandler  {
 						// No longer setting OFFER groups 
 						
 					} else {
-						
-						// Programme code
-						
+
+						String courses = (String) req.getAttributeValue(FIELD_COURSES); 
+
+						// Programme code: only add if registered for at least one course
+
 						String program = (String) req.getAttributeValue(FIELD_PROGRAM); 
-						if (program != null) {
+						if (program != null && courses != null) {
 							addUserToCourse(CN, program);
 							checkList.add(program);
 						}
 						
-						// Faculty
+						// Faculty: only add if registered for at least one course
 
 						String faculty = (String) req.getAttributeValue(FIELD_FACULTY); 
-						if (faculty !=null) {
+						if (faculty !=null && courses != null) {
 							addUserToCourse(CN, faculty + "_STUD");
 							checkList.add(faculty + "_STUD");
 						}
