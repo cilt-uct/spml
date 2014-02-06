@@ -886,8 +886,8 @@ public class SPML implements SpmlHandler  {
 					//error adding users to course
 					e.printStackTrace();
 				}
-			} else if (STATUS_INACTIVE.equalsIgnoreCase(status)) {
-				// Clear current year faculty, program code, residence if inactive 
+			} else if (STATUS_INACTIVE.equalsIgnoreCase(status) || STATUS_ADMITTED.equalsIgnoreCase(status)) {
+				// Clear current year faculty, program code, residence if inactive or admitted but not yet registered 
 				synchCourses(new ArrayList<String>(), CN);
 			}
 		}
