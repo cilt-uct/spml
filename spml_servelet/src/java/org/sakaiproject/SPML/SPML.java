@@ -836,12 +836,13 @@ public class SPML implements SpmlHandler  {
 						
 					} else {
 
-						String courses = (String) req.getAttributeValue(FIELD_COURSES); 
+						String courses = (String) req.getAttributeValue(FIELD_COURSES);
+						boolean hasCourses = (courses != null && !courses.isEmpty());
 
 						// Programme code: only add if registered for at least one course
 
 						String program = (String) req.getAttributeValue(FIELD_PROGRAM); 
-						if (program != null && courses != null) {
+						if (program != null && hasCourses) {
 							addUserToCourse(CN, program);
 							checkList.add(program);
 						}
@@ -849,7 +850,7 @@ public class SPML implements SpmlHandler  {
 						// Faculty: only add if registered for at least one course
 
 						String faculty = (String) req.getAttributeValue(FIELD_FACULTY); 
-						if (faculty !=null && courses != null) {
+						if (faculty !=null && hasCourses) {
 							addUserToCourse(CN, faculty + "_STUD");
 							checkList.add(faculty + "_STUD");
 						}
