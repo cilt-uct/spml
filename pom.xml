@@ -3,7 +3,8 @@
 	<parent>
 		<artifactId>master</artifactId>
 		<groupId>org.sakaiproject</groupId>
-		<version>2.9-SNAPSHOT</version>
+		<version>10-SNAPSHOT</version>
+		<relativePath>../master/pom.xml</relativePath>
 	</parent>
 	<name>UCT SPML integrations</name>
 	<groupId>org.sakaiproject</groupId>
