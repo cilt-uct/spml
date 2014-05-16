@@ -35,9 +35,9 @@
 	</repositories>
 	
 		<scm>
-		<connection>scm:svn:http://source.cet.uct.ac.za/svn/sakai/spml/trunk/</connection>
-		<developerConnection>scm:svn:http://source.cet.uct.ac.za/svn/sakai/spml/trunk/</developerConnection>
-		<url>http://source.cet.uct.ac.za/svn/sakai/spml/trunk/</url> 
+		<connection>scm:svn:http://source.cet.uct.ac.za/svn/sakai/spml/branches/spmls-2.3.x</connection>
+		<developerConnection>scm:svn:http://source.cet.uct.ac.za/svn/sakai/spml/branches/spmls-2.3.x</developerConnection>
+		<url>http://source.cet.uct.ac.za/svn/sakai/spml/branches/spmls-2.3.x</url> 
 	</scm>
 	
 <distributionManagement>
