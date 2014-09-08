@@ -1604,6 +1604,13 @@ public class SPML implements SpmlHandler  {
 		number = number.replaceAll("/","");
 		number = number.replaceAll("-","");
 		number = number.replaceAll(" ","");
+
+		// VULA-2131 Fix this here rather than in sms/impl/src/java/org/sakaiproject/sms/logic/external/NumberRoutingHelperImpl.java
+		// because it's Peoplesoft- and UCT-specific. Change numbers like 02708x1234567 > 08x1234567
+		if (number.startsWith("0270") && number.length() == 13 ) {
+			number = number.substring(3);
+		}
+
 		return number;
 	}
 
