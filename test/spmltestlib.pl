@@ -32,3 +32,27 @@ sub getCmCourses
   return %courses;
 }
 
+
+sub getNormalizedMobile
+{
+  my $usereid = shift;
+
+  ( my $dbname, my $dbhost, my $username, my $password ) = getDbConfig();
+
+  my $dbh = DBI->connect( "DBI:mysql:database=$dbname;host=$dbhost;port=3306", $username, $password )
+          || die "Could not connect to database: $DBI::errstr";
+
+  my $sql = "SELECT DISTINCT NORMALIZEDMOBILE from SAKAI_PERSON_T WHERE COMMON_NAME = ?";
+  my $sth = $dbh->prepare($sql);
+
+  $sth->execute($usereid);
+
+  my $mobile;
+
+  while (my $row = $sth->fetchrow_hashref) {
+     $mobile = $row->{NORMALIZEDMOBILE};
+     # print "mobile: $mobile\n";
+  }
+
+ return $mobile;
+}

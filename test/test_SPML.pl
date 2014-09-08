@@ -73,8 +73,35 @@ if (defined($courses{"SCI_STUD,$year"})) {
 	die "\n*** Test 3 failed: Faculty code set when not registered for any courses\n";
 }
 
+#### TEST 4 - Mobile number normalization
 
-print "All tests passed.\n";
+print "\nTest 4: Mobile number normalization - VULA-2131\n";
+
+$spml = read_file('spml-4.xml');
+$spml =~ s#%MOBILE%#083/123-4567#;
+$status = post_spml($host, $spml);
+
+my $mobile = getNormalizedMobile($eid);
+die "\n*** Test 4 failed: Mobile number 083/123-4567 not normalized correctly\n" if ($mobile ne "27831234567");
+
+$spml = read_file('spml-4.xml');
+$spml =~ s#%MOBILE%#083-123-4567#;
+$status = post_spml($host, $spml);
+
+my $mobile = getNormalizedMobile($eid);
+die "\n*** Test 4 failed: Mobile number 083-123-4567 not normalized correctly\n" if ($mobile ne "27831234567");
+
+$spml = read_file('spml-4.xml');
+$spml =~ s#%MOBILE%#0270831234567#;
+$status = post_spml($host, $spml);
+
+my $mobile = getNormalizedMobile($eid);
+die "\n*** Test 4 failed: Mobile number 0270831234567 not normalized correctly\n" if ($mobile ne "27831234567");
+
+
+#### FINISHED
+
+print "\nAll tests passed.\n";
 
 sub post_spml
 {
