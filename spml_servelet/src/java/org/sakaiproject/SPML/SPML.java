@@ -45,6 +45,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.validator.EmailValidator;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -424,9 +425,6 @@ public class SPML implements SpmlHandler  {
 			LN = LN.trim();
 		}
 		
-		String thisEmail = (String)req.getAttributeValue(FIELD_MAIL);
-		String thisTitle = (String)req.getAttributeValue(FIELD_TITLE);
-
 		String type = null;
 		String status = null;
 
@@ -614,45 +612,54 @@ public class SPML implements SpmlHandler  {
 			thisUser.setFirstName(GN);
 		}
 
-		LOG.debug("this email is: " + thisEmail);
+		String thisEmail = (String)req.getAttributeValue(FIELD_MAIL);
 
-		if (systemProfile.getMail()!= null && !systemProfile.getMail().equals("") && thisEmail != null ) {
+		if (isValidEmail(thisEmail)) {
+
+			LOG.debug("this email is: " + thisEmail);
+
+			if (systemProfile.getMail()!= null && !systemProfile.getMail().equals("") && thisEmail != null ) {
+				String systemMail = systemProfile.getMail();
+				String modMail= thisEmail;
+				if (userProfile.getMail() != null && !systemMail.equalsIgnoreCase(userProfile.getMail()) && !userProfile.getMail().equals("")) {
+					systemProfile.setMail(modMail);
+				} else {
+					systemProfile.setMail(modMail);
+					userProfile.setMail(modMail);
+					thisUser.setEmail(modMail);
+				}
+
+			} else if (thisEmail !=null && systemProfile.getMail() == null) {
+				//if the account was created manually - profile state may be inconsistent
+				systemProfile.setMail(thisEmail);
+				sendNotification = true;
+				//email may not have been set
+				if (thisUser.getEmail() == null || "".equalsIgnoreCase(thisUser.getEmail())) {
+					userProfile.setMail(thisEmail);
+					thisUser.setEmail(thisEmail);
+				} else {
+					userProfile.setMail(thisUser.getEmail());
+				}
+			} else if (thisEmail != null && !thisEmail.equals("")) {
+				//the SPML might now send null emails
+				systemProfile.setMail(thisEmail);
+				userProfile.setMail(thisEmail);
+				thisUser.setEmail(thisEmail);
+			}
+
 			String systemMail = systemProfile.getMail();
-			String modMail= thisEmail;
-			if (userProfile.getMail() != null && !systemMail.equalsIgnoreCase(userProfile.getMail()) && !userProfile.getMail().equals("")) {
-				systemProfile.setMail(modMail);
-			} else {
-				systemProfile.setMail(modMail);
-				userProfile.setMail(modMail);
-				thisUser.setEmail(modMail);
+			String userMail = userProfile.getMail();
+
+			//Check for the uct.ac.za to myUCT migration bug
+			if (systemMail != null && !systemMail.equalsIgnoreCase(userMail)) {
+				if (forceUpdateMail(systemMail, userMail, type, CN)) {
+					userProfile.setMail(thisEmail);
+					thisUser.setEmail(thisEmail);
+				}
 			}
 
-		} else if (thisEmail !=null && systemProfile.getMail() == null) {
-			//if the account was created manually - profile state may be inconsistent
-			systemProfile.setMail(thisEmail);
-			sendNotification = true;
-			//email may not have been set
-			if (thisUser.getEmail() == null || "".equalsIgnoreCase(thisUser.getEmail())) {
-				userProfile.setMail(thisEmail);
-				thisUser.setEmail(thisEmail);
-			} else {
-				userProfile.setMail(thisUser.getEmail());
-			}
-		} else if (thisEmail != null && !thisEmail.equals("")) {
-			//the SPML might now send null emails
-			systemProfile.setMail(thisEmail);
-			userProfile.setMail(thisEmail);
-			thisUser.setEmail(thisEmail);
-		}
-
-		String systemMail = systemProfile.getMail();
-		String userMail = userProfile.getMail();
-		//Check for the uct.ac.za to myUCT migration bug
-		if (systemMail != null && !systemMail.equalsIgnoreCase(userMail)) {
-			if (forceUpdateMail(systemMail, userMail, type, CN)) {
-				userProfile.setMail(thisEmail);
-				thisUser.setEmail(thisEmail);
-			}
+		} else {
+			LOG.debug("Ignoring invalid or missing email: " + thisEmail);
 		}
 
 		ResourceProperties rp = thisUser.getProperties();
@@ -673,6 +680,8 @@ public class SPML implements SpmlHandler  {
 			}
 		}
 
+		LOG.debug("users email profile email is " + userProfile.getMail());
+
 		if (STATUS_ACTIVE.equals(status) || STATUS_ADMITTED.equals(status)) {
 			// remove the possible flag
 			rp.removeProperty(PROP_DEACTIVATED);
@@ -689,8 +698,7 @@ public class SPML implements SpmlHandler  {
 		// VULA-1297 add new update time
 		rp.addProperty(PROP_SPML_LAST_UPDATE, fmt.print(dt));
 
-		LOG.debug("users email profile email is " + userProfile.getMail());
-
+		String thisTitle = (String)req.getAttributeValue(FIELD_TITLE);
 		if (systemProfile.getTitle()!= null && !systemProfile.getTitle().equals("") && thisTitle != null) {
 			String systemTitle = systemProfile.getTitle();
 			String modTitle = thisTitle;
@@ -1159,6 +1167,13 @@ public class SPML implements SpmlHandler  {
 				//we need to set the privacy
 				sakaiPerson.setHidePrivateInfo(Boolean.valueOf(true));
 				sakaiPerson.setHidePublicInfo(Boolean.valueOf(false));
+
+				// set the email to null rather than an empty string if we don't have an email
+				// create() method will by default set this to user.getEmail() which returns empty string for null
+
+				if ("".equals(user.getEmail())) {
+					sakaiPerson.setMail(null);
+				}
 			}
 		}	
 		catch(Exception e){
@@ -1701,5 +1716,34 @@ public class SPML implements SpmlHandler  {
 
 		return true;
 	}
+
+
+        /**
+         * Is this a valid email?
+         * @param email
+         * @return
+         */
+        private boolean isValidEmail(String email) {
+
+                if (email == null || email.equals(""))
+                        return false;
+
+                email = email.trim();
+                //must contain @
+                if (email.indexOf("@") == -1)
+                        return false;
+
+                //an email can't contain spaces
+                if (email.indexOf(" ") > 0)
+                        return false;
+
+                //use commons-validator
+                EmailValidator validator = EmailValidator.getInstance();
+                if (validator.isValid(email))
+                        return true;
+
+                return false;
+        }
+
 
 } //end class
