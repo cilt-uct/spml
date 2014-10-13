@@ -427,10 +427,32 @@ public class SPML implements SpmlHandler  {
 		String thisEmail = (String)req.getAttributeValue(FIELD_MAIL);
 		String thisTitle = (String)req.getAttributeValue(FIELD_TITLE);
 
-		String type = (String)req.getAttributeValue(FIELD_TYPE);
-		String originalType = type;
+		String type = null;
+		String status = null;
 
-		// If eduPerson is null, reject
+		// We may not always get eduPersonPrimaryAffiliation, so infer it from the status
+		if (req.getAttributeValue("uctStudentStatus") != null) {
+			status = (String)req.getAttributeValue("uctStudentStatus");
+			type = TYPE_STUDENT;
+		}
+
+		if (type == null && req.getAttributeValue("employeeStatus") != null) {
+			status = (String)req.getAttributeValue("employeeStatus");
+			type = TYPE_STAFF;
+		}
+
+		if (type == null && req.getAttributeValue("ucttpstatus") != null) {
+			status = (String)req.getAttributeValue("ucttpstatus");
+			type = TYPE_THIRDPARTY;
+			
+		}
+
+		// Otherwise set type from eduPersonPrimaryAffiliation
+		if (type == null) {
+			type = (String)req.getAttributeValue(FIELD_TYPE);
+		}
+
+		// If we still can't determine the type, reject the request
 		if (type == null || type.equals("")) {
 			LOG.error("ERROR: no eduPersonPrimaryAffiliation: " + CN);
 			response.setResult(SpmlResponse.RESULT_FAILURE);
@@ -439,17 +461,7 @@ public class SPML implements SpmlHandler  {
 			return response;
 		}
 
-		type = type.toLowerCase();
-		String status = STATUS_ACTIVE;
-		if (TYPE_STUDENT.equals(type)) {
-			status = (String)req.getAttributeValue("uctStudentStatus");
-		} else if  (TYPE_STAFF.equals(type)) {
-			status = (String)req.getAttributeValue("employeeStatus");
-		} else if (TYPE_THIRDPARTY.equals(type)) {
-			status = (String)req.getAttributeValue("ucttpstatus");
-		}
-
-		LOG.info("user status is: " + status);
+		String originalType = type;
 		
 		// For staff, status could be null
 		if (status == null && TYPE_STUDENT.equals(type))
@@ -464,6 +476,8 @@ public class SPML implements SpmlHandler  {
 			LOG.debug("got status of 1active so assuming active");
 			status = STATUS_ACTIVE;
 		}
+
+		LOG.info("user " + CN + " type is: " + type + " and status is: " + status);
 
 		// VULA-834 We create third-party accounts regardless of the "online learning required" field
 		/*
