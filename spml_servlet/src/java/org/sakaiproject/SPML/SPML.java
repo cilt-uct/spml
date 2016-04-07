@@ -721,10 +721,16 @@ public class SPML implements SpmlHandler  {
 				type = STATUS_INACTIVE;
 			} else if (TYPE_STAFF.equals(type) && STATUS_INACTIVE.equals(status)) {
 				type = "inactiveStaff";
-				thisUser.setEmail(thisUser.getEid() + "@uct.ac.za");
+				String inactiveEmail = thisUser.getEid() + "@uct.ac.za";
+				thisUser.setEmail(inactiveEmail);
+                                systemProfile.setMail(inactiveEmail);
+                                userProfile.setMail(inactiveEmail);
 			} else if (TYPE_THIRDPARTY.equals(type) && STATUS_INACTIVE.equals(status)) {
+				String inactiveEmail = thisUser.getEid() + "@uct.ac.za";
 				type = "inactiveThirdparty";
-				thisUser.setEmail(thisUser.getEid() + "@uct.ac.za");
+				thisUser.setEmail(inactiveEmail);
+                                systemProfile.setMail(inactiveEmail);
+                                userProfile.setMail(inactiveEmail);
 			} else	if (STATUS_ADMITTED.equals(status)) {
 				type = TYPE_OFFER;
 			}
