@@ -103,32 +103,3 @@ die "\n*** Test 4 failed: Mobile number 0270831234567 not normalized correctly\n
 
 print "\nAll tests passed.\n";
 
-sub post_spml
-{
- my $host = shift;
- my $spmlbody = shift;
-
-  my $spml = "<soap-env:Envelope xmlns:soap-env=\"http://schemas.xmlsoap.org/soap/envelope/\"><soap-env:Body>" . $spmlbody .
-             "</soap-env:Body></soap-env:Envelope>";
-
-  my $url = $host . "/sakai-spml/spmlrouter";
-
-  my $ua= LWP::UserAgent->new;
-  $ua->timeout(10);
-  $ua->env_proxy;
-
-  my $req = HTTP::Request->new(
-      POST => $url);
-  $req->content_type('text/xml');
-  $req->header('SOAPAction' => '""');
-  $req->content($spml);
-
-  my $res = $ua->request($req);
-
-  if ($res->is_error()) {
- 	print "request to $url failed\n";
-  }
-
-  return ($res->is_success);
-}
-
