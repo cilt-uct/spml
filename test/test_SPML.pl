@@ -16,7 +16,7 @@ $ENV{'PERL_LWP_SSL_VERIFY_HOSTNAME'} = 0;
 my $eid = "ABCXYZ989";
 
 # Current year
-my $year = "2014";
+my $year = "2016";
 
 my $spml;
 my $status;
@@ -73,35 +73,33 @@ if (defined($courses{"SCI_STUD,$year"})) {
 	die "\n*** Test 3 failed: Faculty code set when not registered for any courses\n";
 }
 
+#### TEST 4 - Mobile number normalization
 
-print "All tests passed.\n";
+print "\nTest 4: Mobile number normalization - VULA-2131\n";
 
-sub post_spml
-{
- my $host = shift;
- my $spmlbody = shift;
+$spml = read_file('spml-4.xml');
+$spml =~ s#%MOBILE%#083/123-4567#;
+$status = post_spml($host, $spml);
 
-  my $spml = "<soap-env:Envelope xmlns:soap-env=\"http://schemas.xmlsoap.org/soap/envelope/\"><soap-env:Body>" . $spmlbody .
-             "</soap-env:Body></soap-env:Envelope>";
+my $mobile = getNormalizedMobile($eid);
+die "\n*** Test 4 failed: Mobile number 083/123-4567 not normalized correctly\n" if ($mobile ne "27831234567");
 
-  my $url = $host . "/sakai-spml/spmlrouter";
+$spml = read_file('spml-4.xml');
+$spml =~ s#%MOBILE%#083-123-4567#;
+$status = post_spml($host, $spml);
 
-  my $ua= LWP::UserAgent->new;
-  $ua->timeout(10);
-  $ua->env_proxy;
+my $mobile = getNormalizedMobile($eid);
+die "\n*** Test 4 failed: Mobile number 083-123-4567 not normalized correctly\n" if ($mobile ne "27831234567");
 
-  my $req = HTTP::Request->new(
-      POST => $url);
-  $req->content_type('text/xml');
-  $req->header('SOAPAction' => '""');
-  $req->content($spml);
+$spml = read_file('spml-4.xml');
+$spml =~ s#%MOBILE%#0270831234567#;
+$status = post_spml($host, $spml);
 
-  my $res = $ua->request($req);
+my $mobile = getNormalizedMobile($eid);
+die "\n*** Test 4 failed: Mobile number 0270831234567 not normalized correctly\n" if ($mobile ne "27831234567");
 
-  if ($res->is_error()) {
- 	print "request to $url failed\n";
-  }
 
-  return ($res->is_success);
-}
+#### FINISHED
+
+print "\nAll tests passed.\n";
 

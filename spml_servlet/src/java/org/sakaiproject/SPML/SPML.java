@@ -45,6 +45,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.validator.EmailValidator;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -424,13 +425,32 @@ public class SPML implements SpmlHandler  {
 			LN = LN.trim();
 		}
 		
-		String thisEmail = (String)req.getAttributeValue(FIELD_MAIL);
-		String thisTitle = (String)req.getAttributeValue(FIELD_TITLE);
+		String type = null;
+		String status = null;
 
-		String type = (String)req.getAttributeValue(FIELD_TYPE);
-		String originalType = type;
+		// We may not always get eduPersonPrimaryAffiliation, so infer it from the status
+		if (req.getAttributeValue("uctStudentStatus") != null) {
+			status = (String)req.getAttributeValue("uctStudentStatus");
+			type = TYPE_STUDENT;
+		}
 
-		// If eduPerson is null, reject
+		if (type == null && req.getAttributeValue("employeeStatus") != null) {
+			status = (String)req.getAttributeValue("employeeStatus");
+			type = TYPE_STAFF;
+		}
+
+		if (type == null && req.getAttributeValue("ucttpstatus") != null) {
+			status = (String)req.getAttributeValue("ucttpstatus");
+			type = TYPE_THIRDPARTY;
+			
+		}
+
+		// Otherwise set type from eduPersonPrimaryAffiliation
+		if (type == null) {
+			type = (String)req.getAttributeValue(FIELD_TYPE);
+		}
+
+		// If we still can't determine the type, reject the request
 		if (type == null || type.equals("")) {
 			LOG.error("ERROR: no eduPersonPrimaryAffiliation: " + CN);
 			response.setResult(SpmlResponse.RESULT_FAILURE);
@@ -439,17 +459,7 @@ public class SPML implements SpmlHandler  {
 			return response;
 		}
 
-		type = type.toLowerCase();
-		String status = STATUS_ACTIVE;
-		if (TYPE_STUDENT.equals(type)) {
-			status = (String)req.getAttributeValue("uctStudentStatus");
-		} else if  (TYPE_STAFF.equals(type)) {
-			status = (String)req.getAttributeValue("employeeStatus");
-		} else if (TYPE_THIRDPARTY.equals(type)) {
-			status = (String)req.getAttributeValue("ucttpstatus");
-		}
-
-		LOG.info("user status is: " + status);
+		String originalType = type;
 		
 		// For staff, status could be null
 		if (status == null && TYPE_STUDENT.equals(type))
@@ -464,6 +474,8 @@ public class SPML implements SpmlHandler  {
 			LOG.debug("got status of 1active so assuming active");
 			status = STATUS_ACTIVE;
 		}
+
+		LOG.info("user " + CN + " type is: " + type + " and status is: " + status);
 
 		// VULA-834 We create third-party accounts regardless of the "online learning required" field
 		/*
@@ -600,45 +612,54 @@ public class SPML implements SpmlHandler  {
 			thisUser.setFirstName(GN);
 		}
 
-		LOG.debug("this email is: " + thisEmail);
+		String thisEmail = (String)req.getAttributeValue(FIELD_MAIL);
 
-		if (systemProfile.getMail()!= null && !systemProfile.getMail().equals("") && thisEmail != null ) {
+		if (isValidEmail(thisEmail)) {
+
+			LOG.debug("this email is: " + thisEmail);
+
+			if (systemProfile.getMail()!= null && !systemProfile.getMail().equals("") && thisEmail != null ) {
+				String systemMail = systemProfile.getMail();
+				String modMail= thisEmail;
+				if (userProfile.getMail() != null && !systemMail.equalsIgnoreCase(userProfile.getMail()) && !userProfile.getMail().equals("")) {
+					systemProfile.setMail(modMail);
+				} else {
+					systemProfile.setMail(modMail);
+					userProfile.setMail(modMail);
+					thisUser.setEmail(modMail);
+				}
+
+			} else if (thisEmail !=null && systemProfile.getMail() == null) {
+				//if the account was created manually - profile state may be inconsistent
+				systemProfile.setMail(thisEmail);
+				sendNotification = true;
+				//email may not have been set
+				if (thisUser.getEmail() == null || "".equalsIgnoreCase(thisUser.getEmail())) {
+					userProfile.setMail(thisEmail);
+					thisUser.setEmail(thisEmail);
+				} else {
+					userProfile.setMail(thisUser.getEmail());
+				}
+			} else if (thisEmail != null && !thisEmail.equals("")) {
+				//the SPML might now send null emails
+				systemProfile.setMail(thisEmail);
+				userProfile.setMail(thisEmail);
+				thisUser.setEmail(thisEmail);
+			}
+
 			String systemMail = systemProfile.getMail();
-			String modMail= thisEmail;
-			if (userProfile.getMail() != null && !systemMail.equalsIgnoreCase(userProfile.getMail()) && !userProfile.getMail().equals("")) {
-				systemProfile.setMail(modMail);
-			} else {
-				systemProfile.setMail(modMail);
-				userProfile.setMail(modMail);
-				thisUser.setEmail(modMail);
+			String userMail = userProfile.getMail();
+
+			//Check for the uct.ac.za to myUCT migration bug
+			if (systemMail != null && !systemMail.equalsIgnoreCase(userMail)) {
+				if (forceUpdateMail(systemMail, userMail, type, CN)) {
+					userProfile.setMail(thisEmail);
+					thisUser.setEmail(thisEmail);
+				}
 			}
 
-		} else if (thisEmail !=null && systemProfile.getMail() == null) {
-			//if the account was created manually - profile state may be inconsistent
-			systemProfile.setMail(thisEmail);
-			sendNotification = true;
-			//email may not have been set
-			if (thisUser.getEmail() == null || "".equalsIgnoreCase(thisUser.getEmail())) {
-				userProfile.setMail(thisEmail);
-				thisUser.setEmail(thisEmail);
-			} else {
-				userProfile.setMail(thisUser.getEmail());
-			}
-		} else if (thisEmail != null && !thisEmail.equals("")) {
-			//the SPML might now send null emails
-			systemProfile.setMail(thisEmail);
-			userProfile.setMail(thisEmail);
-			thisUser.setEmail(thisEmail);
-		}
-
-		String systemMail = systemProfile.getMail();
-		String userMail = userProfile.getMail();
-		//Check for the uct.ac.za to myUCT migration bug
-		if (systemMail != null && !systemMail.equalsIgnoreCase(userMail)) {
-			if (forceUpdateMail(systemMail, userMail, type, CN)) {
-				userProfile.setMail(thisEmail);
-				thisUser.setEmail(thisEmail);
-			}
+		} else {
+			LOG.debug("Ignoring invalid or missing email: " + thisEmail);
 		}
 
 		ResourceProperties rp = thisUser.getProperties();
@@ -659,6 +680,8 @@ public class SPML implements SpmlHandler  {
 			}
 		}
 
+		LOG.debug("users email profile email is " + userProfile.getMail());
+
 		if (STATUS_ACTIVE.equals(status) || STATUS_ADMITTED.equals(status)) {
 			// remove the possible flag
 			rp.removeProperty(PROP_DEACTIVATED);
@@ -675,8 +698,7 @@ public class SPML implements SpmlHandler  {
 		// VULA-1297 add new update time
 		rp.addProperty(PROP_SPML_LAST_UPDATE, fmt.print(dt));
 
-		LOG.debug("users email profile email is " + userProfile.getMail());
-
+		String thisTitle = (String)req.getAttributeValue(FIELD_TITLE);
 		if (systemProfile.getTitle()!= null && !systemProfile.getTitle().equals("") && thisTitle != null) {
 			String systemTitle = systemProfile.getTitle();
 			String modTitle = thisTitle;
@@ -699,10 +721,16 @@ public class SPML implements SpmlHandler  {
 				type = STATUS_INACTIVE;
 			} else if (TYPE_STAFF.equals(type) && STATUS_INACTIVE.equals(status)) {
 				type = "inactiveStaff";
-				thisUser.setEmail(thisUser.getEid() + "@uct.ac.za");
+				String inactiveEmail = thisUser.getEid() + "@uct.ac.za";
+				thisUser.setEmail(inactiveEmail);
+                                systemProfile.setMail(inactiveEmail);
+                                userProfile.setMail(inactiveEmail);
 			} else if (TYPE_THIRDPARTY.equals(type) && STATUS_INACTIVE.equals(status)) {
+				String inactiveEmail = thisUser.getEid() + "@uct.ac.za";
 				type = "inactiveThirdparty";
-				thisUser.setEmail(thisUser.getEid() + "@uct.ac.za");
+				thisUser.setEmail(inactiveEmail);
+                                systemProfile.setMail(inactiveEmail);
+                                userProfile.setMail(inactiveEmail);
 			} else	if (STATUS_ADMITTED.equals(status)) {
 				type = TYPE_OFFER;
 			}
@@ -1145,6 +1173,13 @@ public class SPML implements SpmlHandler  {
 				//we need to set the privacy
 				sakaiPerson.setHidePrivateInfo(Boolean.valueOf(true));
 				sakaiPerson.setHidePublicInfo(Boolean.valueOf(false));
+
+				// set the email to null rather than an empty string if we don't have an email
+				// create() method will by default set this to user.getEmail() which returns empty string for null
+
+				if ("".equals(user.getEmail())) {
+					sakaiPerson.setMail(null);
+				}
 			}
 		}	
 		catch(Exception e){
@@ -1604,6 +1639,13 @@ public class SPML implements SpmlHandler  {
 		number = number.replaceAll("/","");
 		number = number.replaceAll("-","");
 		number = number.replaceAll(" ","");
+
+		// VULA-2131 Fix this here rather than in sms/impl/src/java/org/sakaiproject/sms/logic/external/NumberRoutingHelperImpl.java
+		// because it's Peoplesoft- and UCT-specific. Change numbers like 02708x1234567 > 08x1234567
+		if (number.startsWith("0270") && number.length() == 13 ) {
+			number = number.substring(3);
+		}
+
 		return number;
 	}
 
@@ -1680,5 +1722,34 @@ public class SPML implements SpmlHandler  {
 
 		return true;
 	}
+
+
+        /**
+         * Is this a valid email?
+         * @param email
+         * @return
+         */
+        private boolean isValidEmail(String email) {
+
+                if (email == null || email.equals(""))
+                        return false;
+
+                email = email.trim();
+                //must contain @
+                if (email.indexOf("@") == -1)
+                        return false;
+
+                //an email can't contain spaces
+                if (email.indexOf(" ") > 0)
+                        return false;
+
+                //use commons-validator
+                EmailValidator validator = EmailValidator.getInstance();
+                if (validator.isValid(email))
+                        return true;
+
+                return false;
+        }
+
 
 } //end class
