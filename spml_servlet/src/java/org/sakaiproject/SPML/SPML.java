@@ -79,6 +79,8 @@ import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.sms.logic.external.NumberRoutingHelper;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -142,7 +144,6 @@ public class SPML implements SpmlHandler  {
 
 	// Auth details 
 	private static final String SPML_USER = ServerConfigurationService.getString("spml.user", "admin");
-	private static final String SPML_PASSWORD = ServerConfigurationService.getString("spml.password", "admin");
 
 	/**
 	 * Use one of these to manage the basic SOAP communications.	
@@ -317,7 +318,7 @@ public class SPML implements SpmlHandler  {
 			// we need to login
 			LOG.debug("About to login");
 
-			boolean sID = login(SPML_USER, SPML_PASSWORD);
+			boolean sID = login(SPML_USER);
 			if (sID == false) {
 				resp.setError("Login failure");
 				resp.setResult("failure");
@@ -350,6 +351,8 @@ public class SPML implements SpmlHandler  {
 			resp.setError("Login failure");
 			resp.setResult("failure");
 			return resp;	
+		} finally {
+			logout();
 		}
 		return resp;
 	}
@@ -1112,29 +1115,35 @@ public class SPML implements SpmlHandler  {
 	}
 
 	// we'll need to handle login ourselves
-	private boolean login(String eid, String pw) {
-		User user = UserDirectoryService.authenticate(eid, pw);
-		if ( user != null ) {
-			getSessionManager();
-			sakaiSession = sessionManager.startSession();
-			if (sakaiSession == null)
-			{
-				return false;
-			}
-			else
-			{
-				sakaiSession.setUserId(user.getId());
-				sakaiSession.setUserEid(eid);
-				sessionManager.setCurrentSession(sakaiSession);
-				LOG.debug("Logged in as user: " + eid + " with internal id of: " + user.getId());
-				return true;
-			}
-		} else {
-			LOG.error(this + "login failed for " + eid + "using " + pw);
+	private boolean login(String eid) {
+
+		String serverName = ServerConfigurationService.getServerName();
+		LOG.debug("SPML logging in on " + serverName + " as " + eid);
+
+                UsageSession session = UsageSessionService.startSession(eid, serverName, "SPML");
+		if (session == null) {
+			LOG.error(this + "login failed for " + eid);
+			return false;
 		}
-		return false;
+
+                sakaiSession = getSessionManager().getCurrentSession();
+		if (sakaiSession == null) {
+			return false;
+		}
+
+		String userId = session.getUserId();
+
+                sakaiSession.setUserId(userId);
+                sakaiSession.setUserEid(eid);
+
+		LOG.debug("Logged in as user: " + eid + " with internal id of: " + userId);
+
+		return true;
 	}
 
+	private void logout() {
+		UsageSessionService.logout();
+	}
 
 	/*
 	 * Methods for accessing and editing user profiles
@@ -1206,7 +1215,7 @@ public class SPML implements SpmlHandler  {
 		}
 		catch (Exception e)
 		{
-			LOG.error(this +" " + e);
+			LOG.error("Error switching user to eid " + eid + ": ", e);
 		}
 	} 
 
