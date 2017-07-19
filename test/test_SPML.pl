@@ -16,7 +16,7 @@ $ENV{'PERL_LWP_SSL_VERIFY_HOSTNAME'} = 0;
 my $eid = "ABCXYZ989";
 
 # Current year
-my $year = "2016";
+my $year = "2017";
 
 my $spml;
 my $status;
