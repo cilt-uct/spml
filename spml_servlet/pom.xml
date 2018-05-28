@@ -53,11 +53,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.common</groupId>
-			<artifactId>sakai-common-edu-person-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.common</groupId>
-			<artifactId>sakai-common-manager-api</artifactId>
+			<artifactId>sakai-common-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.emailtemplateservice</groupId>
@@ -67,10 +63,6 @@
 			<groupId>javax.servlet</groupId>
 			<artifactId>jsp-api</artifactId>
 			<version>2.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.common</groupId>
-			<artifactId>sakai-common-type-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.sms</groupId>
