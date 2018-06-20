@@ -3,13 +3,12 @@
 	<parent>
 		<artifactId>master</artifactId>
 		<groupId>org.sakaiproject</groupId>
-		<version>11-SNAPSHOT</version>
+		<version>12-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
 	</parent>
 	<name>UCT SPML integrations</name>
 	<groupId>org.sakaiproject</groupId>
 	<artifactId>spml</artifactId>
-	<version>11-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>spml_servlet</module>
