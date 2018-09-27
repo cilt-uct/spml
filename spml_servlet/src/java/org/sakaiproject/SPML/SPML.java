@@ -91,6 +91,9 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class SPML implements SpmlHandler  {
 
 	// Database table names
@@ -207,8 +210,6 @@ public class SPML implements SpmlHandler  {
 		_client.setMonitor(m);
 	}
 
-	private static final Log LOG = LogFactory.getLog(SPML.class);
-
 	//////////////////////////////////////////////////////////////////////
 	//
 	//  Setters
@@ -216,12 +217,12 @@ public class SPML implements SpmlHandler  {
 	/////////////////////////////////////////////////////////////////
 	public void init()
 	{
-		LOG.info(this + " init()");	
+		log.info(this + " init()");	
 	}
 
 	public void destroy() 
 	{
-		LOG.info(this + " destroy()");
+		log.info(this + " destroy()");
 	}
 
 	// the sakaiSession object
@@ -309,12 +310,12 @@ public class SPML implements SpmlHandler  {
 
 	public SpmlResponse doRequest(SpmlRequest req) {
 
-		LOG.debug("SPMLRouter received req " + req + " (id) ");
+		log.debug("SPMLRouter received req " + req + " (id) ");
 		SpmlResponse resp = req.createResponse();
 
 		try {
 			// we need to login
-			LOG.debug("About to login");
+			log.debug("About to login");
 
 			boolean sID = login(SPML_USER);
 			if (sID == false) {
@@ -329,7 +330,7 @@ public class SPML implements SpmlHandler  {
 					resp = spmlAddRequest(uctRequest);
 				}
 				catch (Exception e) {
-					e.printStackTrace();
+					log.warn(e.getLocalizedMessage(), e);
 				}
 			} else if (req instanceof ModifyRequest) {
 				ModifyRequest uctRequest = (ModifyRequest)req;
@@ -341,11 +342,11 @@ public class SPML implements SpmlHandler  {
 				BatchRequest uctRequest = (BatchRequest)req;
 				resp = spmlBatchRequest(uctRequest);
 			} else {
-				LOG.error("SPML Method not implemented");
+				log.error("SPML Method not implemented");
 			}
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.warn(e.getLocalizedMessage(), e);
 			resp.setError("Login failure");
 			resp.setResult("failure");
 			return resp;	
@@ -397,13 +398,13 @@ public class SPML implements SpmlHandler  {
 		String oldType = null;
 
 		CN =(String)req.getAttributeValue(FIELD_CN);
-		LOG.info("SPML AddRequest: user " + CN);
+		log.info("SPML AddRequest: user " + CN);
 
 		SpmlResponse response = req.createResponse();
 
 		// Return an error if the CN is null (undefined)
 		if (CN == null) {
-			LOG.error("ERROR: invalid username: " + CN);
+			log.error("ERROR: invalid username: " + CN);
 			response.setResult(SpmlResponse.RESULT_FAILURE);
 			response.setError(SpmlResponse.ERROR_CUSTOM_ERROR);
 			response.setErrorMessage("invalid username");
@@ -453,7 +454,7 @@ public class SPML implements SpmlHandler  {
 
 		// If we still can't determine the type, reject the request
 		if (type == null || type.equals("")) {
-			LOG.error("ERROR: no eduPersonPrimaryAffiliation: " + CN);
+			log.error("ERROR: no eduPersonPrimaryAffiliation: " + CN);
 			response.setResult(SpmlResponse.RESULT_FAILURE);
 			response.setError(SpmlResponse.ERROR_CUSTOM_ERROR);
 			response.setErrorMessage("no eduPersonPrimaryAffiliation");
@@ -472,11 +473,11 @@ public class SPML implements SpmlHandler  {
 
 		// VULA-1268 status can be a bit funny
 		if ("1Active".equals(status)) {
-			LOG.debug("got status of 1active so assuming active");
+			log.debug("got status of 1active so assuming active");
 			status = STATUS_ACTIVE;
 		}
 
-		LOG.info("user " + CN + " type is: " + type + " and status is: " + status);
+		log.info("user " + CN + " type is: " + type + " and status is: " + status);
 
 		// VULA-834 We create third-party accounts regardless of the "online learning required" field
 		/*
@@ -512,28 +513,28 @@ public class SPML implements SpmlHandler  {
 		try {
 			User user = UserDirectoryService.getUserByEid(CN);
 			thisUser = UserDirectoryService.editUser(user.getId());
-			LOG.debug(this + " this user useredit right is " + UserDirectoryService.allowAddUser());
+			log.debug(this + " this user useredit right is " + UserDirectoryService.allowAddUser());
 			oldType = thisUser.getType();
 		} 
 		catch (UserNotDefinedException e)
 		{
 			// If the status is inactive, don't add the user
 			if (STATUS_INACTIVE.equals(status)) {
-				LOG.info("User " + CN + " doesn't exist on Vula but has status " + status + " so not adding them");
+				log.info("User " + CN + " doesn't exist on Vula but has status " + status + " so not adding them");
 				response.setRequestId(SpmlResponse.RESULT_SUCCESS);
 				return response;
 			}
 
 			// This user doesn't exist, so create it
 			try {
-				LOG.debug("About to try adding the user "+ CN);
+				log.debug("About to try adding the user "+ CN);
 				newUser = true;
 				thisUser = UserDirectoryService.addUser(null,CN);
-				LOG.info("created account for user: " + CN);
+				log.info("created account for user: " + CN);
 			}
 			catch (UserIdInvalidException in) {
 				//should throw out here
-				LOG.error("invalid username: " + CN);
+				log.error("invalid username: " + CN);
 				response.setResult(SpmlResponse.RESULT_FAILURE);
 				response.setError(SpmlResponse.ERROR_CUSTOM_ERROR);
 				response.setErrorMessage("invalid username");
@@ -541,7 +542,7 @@ public class SPML implements SpmlHandler  {
 			}
 			catch (UserAlreadyDefinedException ex) {
 				//should throw out here
-				LOG.error("User already exists: " + CN);
+				log.error("User already exists: " + CN);
 				response.setResult(SpmlResponse.RESULT_FAILURE);
 				response.setError(SpmlResponse.ERROR_CUSTOM_ERROR);
 				response.setErrorMessage("user already exists");
@@ -549,7 +550,7 @@ public class SPML implements SpmlHandler  {
 			}
 			catch (UserPermissionException ep) {
 				//should throw out here
-				LOG.error("no permision to add user " + e);
+				log.error("no permision to add user " + e);
 				response.setResult(SpmlResponse.RESULT_FAILURE);
 				response.setError(SpmlResponse.ERROR_CUSTOM_ERROR);
 				response.setErrorMessage("No permission to add user");
@@ -558,7 +559,7 @@ public class SPML implements SpmlHandler  {
 		}
 		catch (UserPermissionException e) {
 			//should throw out here
-			LOG.error("ERROR no permision " + e);
+			log.error("ERROR no permision " + e);
 			response.setResult(SpmlResponse.RESULT_FAILURE);
 			response.setError(SpmlResponse.ERROR_CUSTOM_ERROR);
 			response.setErrorMessage("No permission to edit user");
@@ -566,7 +567,7 @@ public class SPML implements SpmlHandler  {
 		}
 		catch (UserLockedException ul) {
 			//should throw out here
-			LOG.error("ERROR user locked for editing " + CN);
+			log.error("ERROR user locked for editing " + CN);
 			//response = new SPMLResponse();
 			response.setResult(SpmlResponse.RESULT_FAILURE);
 			response.setError(SpmlResponse.ERROR_CUSTOM_ERROR);
@@ -575,11 +576,11 @@ public class SPML implements SpmlHandler  {
 		}
 
 		//try get the profile
-		LOG.debug("About to get the profiles");
+		log.debug("About to get the profiles");
 		userProfile = getUserProfile(CN,"UserMutableType");
-		LOG.debug("Got the user profile");
+		log.debug("Got the user profile");
 		systemProfile = getUserProfile(CN,"SystemMutableType");
-		LOG.debug("Got the system profile");    
+		log.debug("Got the system profile");    
 
 		if (systemProfile.getSurname()!=null) { 
 			String systemSurname = systemProfile.getSurname();
@@ -617,7 +618,7 @@ public class SPML implements SpmlHandler  {
 
 		if (isValidEmail(thisEmail)) {
 
-			LOG.debug("this email is: " + thisEmail);
+			log.debug("this email is: " + thisEmail);
 
 			if (systemProfile.getMail()!= null && !systemProfile.getMail().equals("") && thisEmail != null ) {
 				String systemMail = systemProfile.getMail();
@@ -660,7 +661,7 @@ public class SPML implements SpmlHandler  {
 			}
 
 		} else {
-			LOG.debug("Ignoring invalid or missing email: " + thisEmail);
+			log.debug("Ignoring invalid or missing email: " + thisEmail);
 		}
 
 		ResourceProperties rp = thisUser.getProperties();
@@ -681,7 +682,7 @@ public class SPML implements SpmlHandler  {
 			}
 		}
 
-		LOG.debug("users email profile email is " + userProfile.getMail());
+		log.debug("users email profile email is " + userProfile.getMail());
 
 		if (STATUS_ACTIVE.equals(status) || STATUS_ADMITTED.equals(status)) {
 			// remove the possible flag
@@ -715,7 +716,7 @@ public class SPML implements SpmlHandler  {
 		}
 
 		if (type != null ) {
-			LOG.debug("got type:  " + type + "  and status: " + status);
+			log.debug("got type:  " + type + "  and status: " + status);
 
 			// VULA-1006 special case for inactive staff and third party: we set the email to eid@uct.ac.za
 			if (TYPE_STUDENT.equals(type) && STATUS_INACTIVE.equals(status)) {
@@ -736,7 +737,7 @@ public class SPML implements SpmlHandler  {
 				type = TYPE_OFFER;
 			}
 
-			LOG.debug("got type:  " + type + "  and status: " + status);
+			log.debug("got type:  " + type + "  and status: " + status);
 			thisUser.setType(type);
 			systemProfile.setPrimaryAffiliation(type);
 			userProfile.setPrimaryAffiliation(type);
@@ -901,7 +902,7 @@ public class SPML implements SpmlHandler  {
 
 							String year = (String)req.getAttributeValue(FIELD_RES_CODE);
 							year = year.substring(year.indexOf("*") + 1,  year.indexOf("-"));
-							LOG.info("residence found for: " + resCode +"  year: " + year);
+							log.info("residence found for: " + resCode +"  year: " + year);
 							
 							// If its current add to the list for the sync job
 							if (year.equals(thisYear) && residenceIsCurrent((String)req.getAttributeValue(FIELD_RES_CODE))) {
@@ -957,7 +958,7 @@ public class SPML implements SpmlHandler  {
 	private String normalizeMobile(String mobile) {
 		numberRoutingHelper = getNumberRoutingHelper();
 		if (numberRoutingHelper == null) {
-			LOG.error("no numberRoutingHelper available for normalizing mobile numbers");
+			log.error("no numberRoutingHelper available for normalizing mobile numbers");
 			return mobile;
 		}
 
@@ -980,11 +981,11 @@ public class SPML implements SpmlHandler  {
 			ue = UserDirectoryService.editUser(userId);
 		}
 		catch (Exception uex) {
-			LOG.warn("failed to get user: " + userId);
+			log.warn("failed to get user: " + userId);
 			return;
 		} 
 		
-		LOG.info("got user:"  + ue.getDisplayId() + " with email " + ue.getEmail());
+		log.info("got user:"  + ue.getDisplayId() + " with email " + ue.getEmail());
 
 		if (ue.getEmail() == null) {
 			UserDirectoryService.cancelEdit(ue);
@@ -1013,10 +1014,10 @@ public class SPML implements SpmlHandler  {
 
 			EmailTemplate template = emailTemplateService.getEmailTemplate(prefix + type, null);
 			if (template != null) {
-				LOG.info("send mail to:" + ue.getEmail() + " subject: " + template.getSubject());
+				log.info("send mail to:" + ue.getEmail() + " subject: " + template.getSubject());
 				List<String> recipient = new ArrayList<String>();
 				recipient.add(ue.getReference());
-				LOG.debug("setting list" + recipient.size());
+				log.debug("setting list" + recipient.size());
 				emailTemplateService.sendRenderedMessages(prefix + type, recipient, replacementValues, "help@vula.uct.ac.za", "Vula Help");
 			} else {
 				UserDirectoryService.cancelEdit(ue);
@@ -1042,7 +1043,7 @@ public class SPML implements SpmlHandler  {
 	 */
 	public SpmlResponse spmlDeleteRequest(SpmlRequest req) {
 
-		LOG.warn("SPML DeleteRequest (not handled)");
+		log.warn("SPML DeleteRequest (not handled)");
 		this.logSPMLRequest("DeleteRequest", req.toXml(), null);
 		
 		SpmlResponse response = null;
@@ -1055,7 +1056,7 @@ public class SPML implements SpmlHandler  {
 	@SuppressWarnings("unchecked")
 	public SpmlResponse spmlModifyRequest(ModifyRequest req) {
 
-		LOG.warn("SPML ModifyRequest (not handled)");
+		log.warn("SPML ModifyRequest (not handled)");
 		this.logSPMLRequest("ModifyRequest", req.toXml(), null);
 
 		SpmlResponse response = null;
@@ -1070,7 +1071,7 @@ public class SPML implements SpmlHandler  {
 	@SuppressWarnings("unchecked")
 	public SpmlResponse spmlBatchRequest(BatchRequest req) {
 
-		LOG.info("SPML BatchRequest");
+		log.info("SPML BatchRequest");
 		SpmlResponse resp = null;
 
 		try {
@@ -1116,11 +1117,11 @@ public class SPML implements SpmlHandler  {
 	private boolean login(String eid) {
 
 		String serverName = ServerConfigurationService.getServerName();
-		LOG.debug("SPML logging in on " + serverName + " as " + eid);
+		log.debug("SPML logging in on " + serverName + " as " + eid);
 
                 UsageSession session = UsageSessionService.startSession(eid, serverName, "SPML");
 		if (session == null) {
-			LOG.error(this + "login failed for " + eid);
+			log.error(this + "login failed for " + eid);
 			return false;
 		}
 
@@ -1134,7 +1135,7 @@ public class SPML implements SpmlHandler  {
                 sakaiSession.setUserId(userId);
                 sakaiSession.setUserEid(eid);
 
-		LOG.debug("Logged in as user: " + eid + " with internal id of: " + userId);
+		log.debug("Logged in as user: " + eid + " with internal id of: " + userId);
 
 		return true;
 	}
@@ -1175,7 +1176,7 @@ public class SPML implements SpmlHandler  {
 			// create profile if it doesn't exist
 			if(sakaiPerson == null){
 				sakaiPerson = sakaiPersonManager.create(user.getId(),_type);
-				LOG.info("creating profile for user " + userEid + " of type " + _type.getDisplayName());
+				log.info("creating profile for user " + userEid + " of type " + _type.getDisplayName());
 				
 				//we need to set the privacy
 				sakaiPerson.setHidePrivateInfo(Boolean.valueOf(true));
@@ -1190,7 +1191,7 @@ public class SPML implements SpmlHandler  {
 			}
 		}	
 		catch(Exception e){
-			LOG.error("Unknown error occurred in getUserProfile(" + userEid + "): " + e.getMessage());
+			log.error("Unknown error occurred in getUserProfile(" + userEid + "): " + e.getMessage());
 			e.printStackTrace();
 		}
 
@@ -1213,7 +1214,7 @@ public class SPML implements SpmlHandler  {
 		}
 		catch (Exception e)
 		{
-			LOG.error("Error switching user to eid " + eid + ": ", e);
+			log.error("Error switching user to eid " + eid + ": ", e);
 		}
 	} 
 
@@ -1281,7 +1282,7 @@ public class SPML implements SpmlHandler  {
 	 * @param setCategory - CM category. In use: Department, course, degree, faculty, Residence, NULL 
 	 */
 	private void addUserToCourse(String userEid, String courseCode, String term, String setCategory) {
-		LOG.debug("addUserToCourse(" + userEid +", " + courseCode + "," + term + "," + setCategory + ")");
+		log.debug("addUserToCourse(" + userEid +", " + courseCode + "," + term + "," + setCategory + ")");
 
 		try {
 			courseCode = courseCode.toUpperCase().trim();
@@ -1319,7 +1320,7 @@ public class SPML implements SpmlHandler  {
 				String thisYear = yearf.format(new Date());
 				courseEid = getPreferredSectionEid(courseCode, thisYear);
 				term = courseEid.substring(courseEid.indexOf(",") + 1);
-				LOG.debug("term is " + term);
+				log.debug("term is " + term);
 			} else {
 				//we already have a specific term
 				courseEid = courseCode + "," +term;
@@ -1355,7 +1356,7 @@ public class SPML implements SpmlHandler  {
 			if (!cmService.isCourseOfferingDefined(courseEid)) {
 				
 				// Create a new course offering for this course if it doesn't exist yet
-				LOG.info("creating course offering for " + courseCode + " in year " + term);
+				log.info("creating course offering for " + courseCode + " in year " + term);
 				EmailService.send("help-team@vula.uct.ac.za", "help-team@vula.uct.ac.za", 
 						"[CM]: new course created on vula: " + courseEid, 
 						"[CM]: new course created on vula: " + courseEid, null, null, null);
@@ -1378,7 +1379,7 @@ public class SPML implements SpmlHandler  {
 				}
 
 				Date endDate = cal2.getTime();
-				LOG.debug("got cal:" + cal2.get(Calendar.YEAR) + "/" + cal2.get(Calendar.MONTH) + "/" + cal2.get(Calendar.DAY_OF_MONTH));
+				log.debug("got cal:" + cal2.get(Calendar.YEAR) + "/" + cal2.get(Calendar.MONTH) + "/" + cal2.get(Calendar.DAY_OF_MONTH));
 				
 				courseAdmin.createCourseOffering(courseEid, courseEid, "someDescription", "active", term, courseCode, startDate, endDate);
 				courseAdmin.addCourseOfferingToCourseSet(setId, courseEid);
@@ -1405,7 +1406,7 @@ public class SPML implements SpmlHandler  {
 				}
 			}
 
-			LOG.info("adding student " + userEid + " to " + courseEid);
+			log.info("adding student " + userEid + " to " + courseEid);
 			courseAdmin.addOrUpdateSectionMembership(userEid, role, courseEid, "enrolled");
 			courseAdmin.addOrUpdateEnrollment(userEid, courseEid, "enrolled", "NA", "0");
 
@@ -1419,7 +1420,7 @@ public class SPML implements SpmlHandler  {
 				//create the CO
 				//create enrollmentset
 				courseAdmin.createEnrollmentSet(courseEid, courseEid, "description", "category", "defaultEnrollmentCredits", courseEid, null);
-				LOG.info("creating Section for " + courseCode + " in year " + term);
+				log.info("creating Section for " + courseCode + " in year " + term);
 				getCanonicalCourse(courseCode);
 				courseAdmin.createSection(courseEid, courseEid, "someDescription", CAT_COURSE, null, courseEid, courseEid);
 			}
@@ -1436,15 +1437,15 @@ public class SPML implements SpmlHandler  {
 		 * This will involve refactoring code below
 		 */
 		String courseEid = null;
-		LOG.debug("about to get sections in " + courseCode);
+		log.debug("about to get sections in " + courseCode);
 		List<CourseOffering> sections  = cmService.findActiveCourseOfferingsInCanonicalCourse(courseCode);
-		LOG.debug("got  " + sections.size() +",  sections");
+		log.debug("got  " + sections.size() +",  sections");
 
 		if (sections.size() > 0) {
 			//if there are multiple courses we will add them to the one in the later academic year
 			CourseOffering co = getPreferredSection(sections);
 			courseEid = co.getEid();
-			LOG.debug("Found active course: " + courseEid);
+			log.debug("Found active course: " + courseEid);
 		} else {
 			//use the not found info from below
 			//does the 
@@ -1476,7 +1477,7 @@ public class SPML implements SpmlHandler  {
 			}
 		}
 
-		LOG.info("found preferred offering of " + preferedOffering.getEid());
+		log.info("found preferred offering of " + preferedOffering.getEid());
 		return preferedOffering;
 	}
 
@@ -1488,7 +1489,7 @@ public class SPML implements SpmlHandler  {
 	 */
 	private void synchCourses(List<String> uctCourse, String userEid) {
 
-		LOG.debug("Checking enrollments for " + userEid);
+		log.debug("Checking enrollments for " + userEid);
 
 		SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
 		String thisYear = yearf.format(new Date());
@@ -1502,8 +1503,8 @@ public class SPML implements SpmlHandler  {
 		for (i = 0; i < uctCourse.size(); i++) {
 			
 			String thisCourse = uctCourse.get(i);
-			if (LOG.isDebugEnabled()) {
-				LOG.debug("courseList contains: " + thisCourse);
+			if (log.isDebugEnabled()) {
+				log.debug("courseList contains: " + thisCourse);
 			}
 			
 			// we need a fully qualified id for the section
@@ -1517,7 +1518,7 @@ public class SPML implements SpmlHandler  {
 		// Filter out all course groups (exclude everything except program codes and faculty groups)
 		enrolled = filterCourseList(enrolled);
 
-		LOG.debug("got list of enrollment set with " + enrolled.size() +  ", checklist contains " + uctCourse.size());
+		log.debug("got list of enrollment set with " + enrolled.size() +  ", checklist contains " + uctCourse.size());
 
 		// Remove the student from any 'courses' (faculty, program, residence codes) which they're enrolled in that aren't contained in finalCourses
 		// CM courses are always qualified with a year and always in upper case.
@@ -1527,12 +1528,12 @@ public class SPML implements SpmlHandler  {
 			String courseEid =  eSet.getEid();
 			
 			if (!finalCourses.contains(courseEid) && doSection(courseEid)) {
-				LOG.info("removing student " + userEid + " from " + courseEid);
+				log.info("removing student " + userEid + " from " + courseEid);
 				courseAdmin.removeCourseOfferingMembership(userEid, courseEid);
 				courseAdmin.removeSectionMembership(userEid, courseEid);
 				courseAdmin.removeEnrollment(userEid, courseEid);
 			} else {
-				LOG.debug("retaining student " + userEid + " membership in " + courseEid);
+				log.debug("retaining student " + userEid + " membership in " + courseEid);
 			}
 		
 		} // for
@@ -1567,30 +1568,30 @@ public class SPML implements SpmlHandler  {
 		// Faculty group: FFF_STUD,YYYY e.g. SCI_STUD,2014
 		
 		if (section.indexOf("_STUD") > 0) {
-			LOG.debug(section + " looks like a faculty code");
+			log.debug(section + " looks like a faculty code");
 			return true;
 		}
 
 		// Program code: PPNNN,YYYY e.g. SB014,2014
 		
 		if (section.length() == "SB014,2014".length()) {
-			LOG.debug(section + " looks like a program code");
+			log.debug(section + " looks like a program code");
 			return true;
 		} 
 		
 		// Residence code: RRR,YYYY e.g. OBZ,2014
 		
 		if (section.length() == "OBZ,2014".length()) {
-			LOG.debug(section + " looks like a residence code");
+			log.debug(section + " looks like a residence code");
 			return true;
 		} 
 						
-		LOG.debug("we don't work with " + section);
+		log.debug("we don't work with " + section);
 		return false;
 	}
 
 	private Set<EnrollmentSet> getCurrentFutureEnrollments(String userEid) {
-		LOG.debug("getCurrentFutureEnrollments(" + userEid +")");
+		log.debug("getCurrentFutureEnrollments(" + userEid +")");
 		Set<EnrollmentSet> ret = new HashSet<EnrollmentSet>();
 
 		Set<Section> sections = cmService.findEnrolledSections(userEid);
@@ -1601,19 +1602,19 @@ public class SPML implements SpmlHandler  {
 			CourseOffering courseOffering = cmService.getCourseOffering(section.getCourseOfferingEid());
 			// we may have old ones without dates
 			if (courseOffering.getStartDate() == null || courseOffering.getEndDate() == null) {
-				LOG.debug("Course offering " + courseOffering.getEid() + " is missing start or end date");
+				log.debug("Course offering " + courseOffering.getEid() + " is missing start or end date");
 				continue;
 			}
 
 			// is it current
 			if (new Date().after(courseOffering.getStartDate()) && new Date().before(courseOffering.getEndDate())) {
-				LOG.debug("offering " + courseOffering.getEid() + " is current");
+				log.debug("offering " + courseOffering.getEid() + " is current");
 				ret.add(cmService.getEnrollmentSet(section.getEid()));
 			} else if (new Date().before(courseOffering.getStartDate()) ) {
-				LOG.debug("offering " + courseOffering.getEid() + " is in the future");
+				log.debug("offering " + courseOffering.getEid() + " is in the future");
 				ret.add(cmService.getEnrollmentSet(section.getEid()));
 			} else {
-				LOG.debug("not checking " + courseOffering.getEid() + " start: " + courseOffering.getStartDate() + ", end: " + courseOffering.getEndDate());
+				log.debug("not checking " + courseOffering.getEid() + " start: " + courseOffering.getStartDate() + ", end: " + courseOffering.getEndDate());
 			}
 
 		}
@@ -1631,7 +1632,7 @@ public class SPML implements SpmlHandler  {
 			cmService.getCanonicalCourse(courseCode);
 		}
 		catch (IdNotFoundException id) {
-			LOG.info("creating canonicalcourse " + courseCode);
+			log.info("creating canonicalcourse " + courseCode);
 			courseAdmin.createCanonicalCourse(courseCode, "something", "something else");
 		}
 	}
@@ -1668,10 +1669,10 @@ public class SPML implements SpmlHandler  {
 		Object[] fields = new Object[]{Integer.valueOf(modOrgUnit)};
 		List<String> result = m_sqlService.dbRead(statement, fields, null);
 		if (result.size()>0) {
-			LOG.debug("got org unit of " + (String)result.get(0));
+			log.debug("got org unit of " + (String)result.get(0));
 			return (String)result.get(0);
 		} else {
-			LOG.warn("Unknown org code of " + modOrgUnit + " received");
+			log.warn("Unknown org code of " + modOrgUnit + " received");
 			insertOrg(modOrgUnit, modOrgName);
 		}
 
@@ -1706,7 +1707,7 @@ public class SPML implements SpmlHandler  {
 		if (resCode == null)
 			return false;
 
-		LOG.debug("checking if this resCode is current: " + resCode);
+		log.debug("checking if this resCode is current: " + resCode);
 
 		/* rescode is of the form RES*YYYY-MM-DD*YYYY-MM-DD
 		 * we need to parse these to dates
@@ -1717,7 +1718,7 @@ public class SPML implements SpmlHandler  {
 			Date end = df.parse(endDate);
 
 			if (end.before(new Date())) {
-				LOG.debug("residence end date is in the past");
+				log.debug("residence end date is in the past");
 				return false;
 			}
 
