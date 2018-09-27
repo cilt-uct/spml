@@ -5,12 +5,11 @@ To build the servelt you need to add the OpenSPML jars to your maven
 repostitory, as they are not in any of the remote repositories. They can be
 downloaded from http://openspml.org. Once you have downloaded the
 files:
-	1) Create a folder in you maven repository (~/maven/repository on
-	*nix) called 'openspml'
-	2) in that folder create a folder called jars
-	3) copy the jars from the lib folder of the openspml tarball to the
-	the folder in (2)
-	4) Reman openspml.jar to openspml-0.5.jar
+
+* Create a folder in you maven repository (~/maven/repository on nix) called 'openspml'
+* in that folder create a folder called jars
+* copy the jars from the lib folder of the openspml tarball to thefolder in (2)
+* Reman openspml.jar to openspml-0.5.jar
 	
 
 You should now be able to build the packagae as any other Sakai tool.  The
