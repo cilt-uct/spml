@@ -72,24 +72,24 @@ import org.sakaiproject.coursemanagement.api.EnrollmentSet;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.email.cover.EmailService;
+import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.UsageSession;
-import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.sms.logic.external.NumberRoutingHelper;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserAlreadyDefinedException;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
-import org.sakaiproject.user.cover.UserDirectoryService;
 
 public class SPML implements SpmlHandler  {
 
@@ -233,6 +233,11 @@ public class SPML implements SpmlHandler  {
 	 * 
 	 */
 	private SakaiPersonManager sakaiPersonManager;
+	private UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
+	private UsageSessionService usageSessionService = ComponentManager.get(UsageSessionService.class);
+	private EmailService emailService = ComponentManager.get(EmailService.class);
+
+
 
 	public void setSakaiPersonManager(SakaiPersonManager spm) {
 		sakaiPersonManager = spm;
@@ -510,9 +515,9 @@ public class SPML implements SpmlHandler  {
 		boolean sendNotification = false;
 
 		try {
-			User user = UserDirectoryService.getUserByEid(CN);
-			thisUser = UserDirectoryService.editUser(user.getId());
-			LOG.debug(this + " this user useredit right is " + UserDirectoryService.allowAddUser());
+			User user = userDirectoryService.getUserByEid(CN);
+			thisUser = userDirectoryService.editUser(user.getId());
+			LOG.debug(this + " this user useredit right is " + userDirectoryService.allowAddUser());
 			oldType = thisUser.getType();
 		} 
 		catch (UserNotDefinedException e)
@@ -528,7 +533,7 @@ public class SPML implements SpmlHandler  {
 			try {
 				LOG.debug("About to try adding the user "+ CN);
 				newUser = true;
-				thisUser = UserDirectoryService.addUser(null,CN);
+				thisUser = userDirectoryService.addUser(null,CN);
 				LOG.info("created account for user: " + CN);
 			}
 			catch (UserIdInvalidException in) {
@@ -833,7 +838,7 @@ public class SPML implements SpmlHandler  {
 		// Save the user record and user and system profile records
 		
 		try {
-			UserDirectoryService.commitEdit(thisUser);
+			userDirectoryService.commitEdit(thisUser);
 			sakaiPersonManager.save(systemProfile);			
 			sakaiPersonManager.save(userProfile);
 		} catch (UserAlreadyDefinedException e1) {
@@ -977,7 +982,7 @@ public class SPML implements SpmlHandler  {
 
 		UserEdit ue = null;
 		try {
-			ue = UserDirectoryService.editUser(userId);
+			ue = userDirectoryService.editUser(userId);
 		}
 		catch (Exception uex) {
 			LOG.warn("failed to get user: " + userId);
@@ -987,7 +992,7 @@ public class SPML implements SpmlHandler  {
 		LOG.info("got user:"  + ue.getDisplayId() + " with email " + ue.getEmail());
 
 		if (ue.getEmail() == null) {
-			UserDirectoryService.cancelEdit(ue);
+			userDirectoryService.cancelEdit(ue);
 			return;
 		}
 
@@ -1019,14 +1024,14 @@ public class SPML implements SpmlHandler  {
 				LOG.debug("setting list" + recipient.size());
 				emailTemplateService.sendRenderedMessages(prefix + type, recipient, replacementValues, "help@vula.uct.ac.za", "Vula Help");
 			} else {
-				UserDirectoryService.cancelEdit(ue);
+				userDirectoryService.cancelEdit(ue);
 				return;
 			}
 
 			try {
 				ResourcePropertiesEdit rpe = ue.getPropertiesEdit();
 				rpe.addProperty(PROP_SENT_EMAIL, "true");
-				UserDirectoryService.commitEdit(ue);
+				userDirectoryService.commitEdit(ue);
 			}
 			catch (Exception e) {
 				e.printStackTrace();
@@ -1118,7 +1123,7 @@ public class SPML implements SpmlHandler  {
 		String serverName = ServerConfigurationService.getServerName();
 		LOG.debug("SPML logging in on " + serverName + " as " + eid);
 
-                UsageSession session = UsageSessionService.startSession(eid, serverName, "SPML");
+                UsageSession session = usageSessionService.startSession(eid, serverName, "SPML");
 		if (session == null) {
 			LOG.error(this + "login failed for " + eid);
 			return false;
@@ -1140,7 +1145,7 @@ public class SPML implements SpmlHandler  {
 	}
 
 	private void logout() {
-		UsageSessionService.logout();
+		usageSessionService.logout();
 	}
 
 	/*
@@ -1169,7 +1174,7 @@ public class SPML implements SpmlHandler  {
 		
 		try
 		{	
-			User user = UserDirectoryService.getUserByEid(userEid);
+			User user = userDirectoryService.getUserByEid(userEid);
 			sakaiPerson = sakaiPersonManager.getSakaiPerson(user.getId(), _type);
 			
 			// create profile if it doesn't exist
@@ -1207,7 +1212,7 @@ public class SPML implements SpmlHandler  {
 	 */
 	private synchronized void setSakaiSessionUser(String eid) {
 		try {
-			User user = UserDirectoryService.getUserByEid(eid);
+			User user = userDirectoryService.getUserByEid(eid);
 			sakaiSession.setUserId(user.getId());
 			sakaiSession.setUserEid(eid);
 		}
@@ -1356,7 +1361,7 @@ public class SPML implements SpmlHandler  {
 				
 				// Create a new course offering for this course if it doesn't exist yet
 				LOG.info("creating course offering for " + courseCode + " in year " + term);
-				EmailService.send("help-team@vula.uct.ac.za", "help-team@vula.uct.ac.za", 
+				emailService.send("help-team@vula.uct.ac.za", "help-team@vula.uct.ac.za", 
 						"[CM]: new course created on vula: " + courseEid, 
 						"[CM]: new course created on vula: " + courseEid, null, null, null);
 				
