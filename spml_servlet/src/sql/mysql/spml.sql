@@ -9,7 +9,13 @@ PRIMARY KEY (spml_id) )
 DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 CREATE TABLE UCT_ORG (
-
 Description varchar(255),
 org varchar(3),
 org_unit int);
+
+create table SPML_UPDATED_USERS (
+SPML_UPDATED_USERS_ID integer auto_increment,
+userEid varchar(255),
+dateQueued timestamp,
+PRIMARY KEY (SPML_UPDATED_USERS_ID)
+);
