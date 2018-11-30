@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
@@ -585,7 +586,7 @@ public class SPML implements SpmlHandler  {
 		systemProfile = getUserProfile(CN,"SystemMutableType");
 		log.debug("Got the system profile");    
 
-		if (systemProfile.getSurname()!=null) { 
+		if (StringUtils.isNotBlank(systemProfile.getSurname()) && StringUtils.isNotBlank(thisUser.getLastName())) {
 			String systemSurname = systemProfile.getSurname();
 			String modSurname = LN;		
 			if (!systemSurname.equals(userProfile.getSurname())) {
@@ -601,7 +602,7 @@ public class SPML implements SpmlHandler  {
 			thisUser.setLastName(LN); 	
 		}
 
-		if (systemProfile.getGivenName()!=null) {
+		if (StringUtils.isNotBlank(systemProfile.getGivenName()) && StringUtils.isNotBlank(thisUser.getFirstName())) {
 			String systemGivenName = systemProfile.getGivenName();
 			String modGivenName = GN;	
 			if (!systemGivenName.equals(userProfile.getGivenName())) {
