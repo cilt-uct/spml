@@ -3,7 +3,7 @@
 	<parent>
 		<artifactId>spml</artifactId>
 		<groupId>org.sakaiproject</groupId>
-		<version>12-SNAPSHOT</version>
+		<version>19-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<name>Sakai SPML component</name>
@@ -25,7 +25,7 @@
 		<dependency>
 			<groupId>commons-discovery</groupId>
 			<artifactId>commons-discovery</artifactId>
-			<version>0.2</version>
+			<version>0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>
@@ -73,7 +73,7 @@
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
+			<artifactId>javax.servlet-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>axis</groupId>
