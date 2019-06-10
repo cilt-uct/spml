@@ -1,5 +1,5 @@
 create table spml_log (
-spml_id integer auto_increment,
+spml_id ,
 spml_type varchar(255),
 spml_body text,
 userEid varchar(255),
@@ -13,3 +13,8 @@ CREATE TABLE UCT_ORG (
 Description varchar(255),
 org varchar(3),
 org_unit int);
+
+CREATE table SPML_UPDATED_USERS (
+userEid varchar(255),
+dateQueued timestamp
+);
