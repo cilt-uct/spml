@@ -1,5 +1,5 @@
 <?php
-$numadd=150000;
+$numadd=15000;
 #sakai-spml/servlet/spmlrouter
 #$url="http://localhost:8080/axis/servlet/spmlrouter";
 $url="http://localhost:8080/sakai-spml/spmlrouter";

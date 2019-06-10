@@ -1,5 +1,5 @@
 create table spml_log (
-spml_id ,
+spml_id integer auto_increment,
 spml_type varchar(255),
 spml_body text,
 userEid varchar(255),
