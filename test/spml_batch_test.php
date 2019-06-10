@@ -1,5 +1,5 @@
 <?php
-$numadd=15000;
+$numadd=150000;
 #sakai-spml/servlet/spmlrouter
 #$url="http://localhost:8080/axis/servlet/spmlrouter";
 $url="http://localhost:8080/sakai-spml/spmlrouter";
@@ -25,6 +25,7 @@ $addreq = "<addRequest>
 <attr name=\"CN\"> <value>User".$i."</value></attr>
 <attr name=\"Given Name\"><value>Something".$i."</value></attr>
 <attr name=\"Surname\"><value>Surname".$i."</value></attr>
+<attr name=\"eduPersonPrimaryAffiliation\"><value>Student</value></attr>
 </attributes>
 </addRequest>\n";
 fwrite($fh,$addreq);
