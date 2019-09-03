@@ -58,9 +58,12 @@ import org.openspml.message.SpmlResponse;
 import org.openspml.server.SpmlHandler;
 import org.openspml.util.SpmlBuffer;
 import org.openspml.util.SpmlException;
+
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.api.common.type.Type;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
@@ -143,7 +146,7 @@ public class SPML implements SpmlHandler  {
 	private static final String STATUS_ADMITTED = "Admitted";
 
 	// Auth details 
-	private static final String SPML_USER = ServerConfigurationService.getString("spml.user", "admin");
+	private static final String spmlUser = ServerConfigurationService.getString("spml.user", "nobody");
 
 	/**
 	 * Use one of these to manage the basic SOAP communications.	
@@ -229,15 +232,13 @@ public class SPML implements SpmlHandler  {
 
 	/*
 	 * Setup the Sakai person manager
-	 * contributed by Nuno Fernandez (nuno@ufp.pt)
 	 * 
 	 */
 	private SakaiPersonManager sakaiPersonManager;
 	private UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
 	private UsageSessionService usageSessionService = ComponentManager.get(UsageSessionService.class);
 	private EmailService emailService = ComponentManager.get(EmailService.class);
-
-
+	private SecurityService securityService = ComponentManager.get(SecurityService.class);
 
 	public void setSakaiPersonManager(SakaiPersonManager spm) {
 		sakaiPersonManager = spm;
@@ -317,16 +318,33 @@ public class SPML implements SpmlHandler  {
 		log.debug("SPMLRouter received req " + req + " (id) ");
 		SpmlResponse resp = req.createResponse();
 
+                SecurityAdvisor spmlAdvisor = new SecurityAdvisor() {
+                        public SecurityAdvice isAllowed(String userId, String function, String reference) {
+
+				// Update users
+                                if (function.startsWith("user.") || function.startsWith("profile.") || "cm.admin".equals(function)) {
+                                        return SecurityAdvice.ALLOWED;
+                                }
+                                else {
+                                        return SecurityAdvice.PASS;
+                                }
+                        }
+                };
+
 		try {
 			// we need to login
 			log.debug("About to login");
 
-			boolean sID = login(SPML_USER);
+			boolean sID = login(spmlUser);
 			if (sID == false) {
+                                log.error("Unable to login as '{}' to handle SPML request", spmlUser);
 				resp.setError("Login failure");
 				resp.setResult("failure");
 				return resp;
 			}
+
+			// allow certain operations
+			securityService.pushAdvisor(spmlAdvisor);
 
 			if (req instanceof AddRequest) {
 				AddRequest uctRequest = (AddRequest)req;
@@ -334,7 +352,7 @@ public class SPML implements SpmlHandler  {
 					resp = spmlAddRequest(uctRequest);
 				}
 				catch (Exception e) {
-					log.warn(e.getLocalizedMessage(), e);
+					log.warn("Exception handling AddRequest", e);
 				}
 			} else if (req instanceof ModifyRequest) {
 				ModifyRequest uctRequest = (ModifyRequest)req;
@@ -350,12 +368,13 @@ public class SPML implements SpmlHandler  {
 			}
 		}
 		catch (Exception e) {
-			log.warn(e.getLocalizedMessage(), e);
+			log.warn("Exception handling SPML request", e);
 			resp.setError("Login failure");
 			resp.setResult("failure");
 			return resp;	
 		} finally {
 			logout();
+			securityService.popAdvisor(spmlAdvisor);
 		}
 		return resp;
 	}
@@ -517,14 +536,14 @@ public class SPML implements SpmlHandler  {
 		try {
 			User user = userDirectoryService.getUserByEid(CN);
 			thisUser = userDirectoryService.editUser(user.getId());
-			log.debug(this + " this user useredit right is " + userDirectoryService.allowAddUser());
+			log.debug("allowAddUser for {} is {}", CN, userDirectoryService.allowAddUser());
 			oldType = thisUser.getType();
 		} 
 		catch (UserNotDefinedException e)
 		{
 			// If the status is inactive, don't add the user
 			if (STATUS_INACTIVE.equals(status)) {
-				log.info("User " + CN + " doesn't exist on Vula but has status " + status + " so not adding them");
+				log.info("User {} doesn't exist on Vula but has status {} so not adding them", CN, status);
 				response.setRequestId(SpmlResponse.RESULT_SUCCESS);
 				return response;
 			}
@@ -720,7 +739,7 @@ public class SPML implements SpmlHandler  {
 		}
 
 		if (type != null ) {
-			log.debug("got type:  " + type + "  and status: " + status);
+			log.debug("got type: {} and status: {}", type, status);
 
 			// VULA-1006 special case for inactive staff and third party: we set the email to eid@uct.ac.za
 			if (TYPE_STUDENT.equals(type) && STATUS_INACTIVE.equals(status)) {
@@ -741,11 +760,13 @@ public class SPML implements SpmlHandler  {
 				type = TYPE_OFFER;
 			}
 
-			log.debug("got type:  " + type + "  and status: " + status);
+			log.debug("got type: {} and status: {}", type, status);
 			thisUser.setType(type);
 			systemProfile.setPrimaryAffiliation(type);
 			userProfile.setPrimaryAffiliation(type);
 		}
+
+		log.debug("Updating profile");
 
 		// set the profile Common name
 		systemProfile.setCommonName(CN);
@@ -830,28 +851,35 @@ public class SPML implements SpmlHandler  {
 				date = fm.parse(DOB);
 				systemProfile.setDateOfBirth(date);
 			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.warn("Cannot parse date of birth: {}", DOB);
 			}
 		}
 
 		// Save the user record and user and system profile records
 		
 		try {
+			log.debug("Saving user details");
 			userDirectoryService.commitEdit(thisUser);
+			log.debug("Saving profile");
 			sakaiPersonManager.save(systemProfile);			
 			sakaiPersonManager.save(userProfile);
 		} catch (UserAlreadyDefinedException e1) {
-			e1.printStackTrace();
-		}			
+			log.warn("User {} already exists");
+		} catch (Exception e) {
+			log.warn("Exception saving user or profile", e);
+                }
 
 		// VULA-226 Send new user a notification
-		if (sendNotification)
+		if (sendNotification) {
+			log.debug("Sending user notification");
 			notifyNewUser(thisUser.getId(), type);
+		}
 
 		// For students, update association information: residences, programme code, faculty
 		
 		if (TYPE_STUDENT.equalsIgnoreCase(originalType)) {
+
+			log.debug("Updating student course membership data");
 
 			// Flag student for a course enrollment update from Peoplesoft
 			recordStudentUpdate(thisUser);
@@ -922,13 +950,16 @@ public class SPML implements SpmlHandler  {
 				}
 				catch (Exception e) {
 					//error adding users to course
-					e.printStackTrace();
+					log.warn("Exception adding student to course", e);
 				}
 			} else if (STATUS_INACTIVE.equalsIgnoreCase(status) || STATUS_ADMITTED.equalsIgnoreCase(status)) {
 				// Clear current year faculty, program code, residence if inactive or admitted but not yet registered 
 				synchCourses(new ArrayList<String>(), CN);
 			}
 		}
+
+		log.debug("Finished AddRequest");
+
 		return response;
 	} 
 
@@ -1034,7 +1065,7 @@ public class SPML implements SpmlHandler  {
 				userDirectoryService.commitEdit(ue);
 			}
 			catch (Exception e) {
-				e.printStackTrace();
+				log.warn("Exception saving user", e);
 			}
 		}
 	}
@@ -1105,7 +1136,7 @@ public class SPML implements SpmlHandler  {
 
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.warn("Exception handling batch request", e);
 		}
 
 		return resp;
@@ -1134,14 +1165,13 @@ public class SPML implements SpmlHandler  {
 			return false;
 		}
 
-		String userId = session.getUserId();
-
-                sakaiSession.setUserId(userId);
-                sakaiSession.setUserEid(eid);
-
-		log.debug("Logged in as user: " + eid + " with internal id of: " + userId);
-
-		return true;
+		if (setSakaiSessionUser(eid)) {
+			log.debug("Logged in as {}", eid);
+			return true;
+		} else {
+			log.debug("Unable to login as {}", eid);
+			return false;
+		}
 	}
 
 	private void logout() {
@@ -1196,12 +1226,11 @@ public class SPML implements SpmlHandler  {
 		}	
 		catch(Exception e){
 			log.error("Unknown error occurred in getUserProfile(" + userEid + "): " + e.getMessage());
-			e.printStackTrace();
 		}
 
 		if (type.equals("UserMutableType")) {
-			//return to the admin user
-			setSakaiSessionUser(SPML_USER);
+			// return to the SPML user
+			setSakaiSessionUser(spmlUser);
 		}
 
 		return sakaiPerson;
@@ -1210,7 +1239,7 @@ public class SPML implements SpmlHandler  {
 	/**
 	 * Set the session to the new user
 	 */
-	private synchronized void setSakaiSessionUser(String eid) {
+	private synchronized boolean setSakaiSessionUser(String eid) {
 		try {
 			User user = userDirectoryService.getUserByEid(eid);
 			sakaiSession.setUserId(user.getId());
@@ -1218,8 +1247,11 @@ public class SPML implements SpmlHandler  {
 		}
 		catch (Exception e)
 		{
-			log.error("Error switching user to eid " + eid + ": ", e);
+			log.error("Error switching user to eid {}: {}", eid, e.getMessage());
+			return false;
 		}
+
+		return true;
 	} 
 
 	/**
@@ -1229,20 +1261,16 @@ public class SPML implements SpmlHandler  {
 	private void recordStudentUpdate(User u) {
 		getSqlService();
 
-		// TODO Sql injection
-		String sql = "select userEid from " + TBL_UPDATED_USERS + " where userEid = '" + u.getEid() + "'";
-		List<String> result = m_sqlService.dbRead(sql);
+		String sql = "select userEid from " + TBL_UPDATED_USERS + " where userEid = ?";
+		Object[] fields = new Object[]{u.getEid()};
+		List<String> result = m_sqlService.dbRead(sql, fields, null);
 		
 		if (result == null || result.size() == 0) {
-			sql = "insert into " + TBL_UPDATED_USERS + " (userEid, dateQueued) values (?, ?)";
-			Object[] fields = new Object[] {
-					u.getEid(),
-					new Date()
-			};
+			sql = "insert into " + TBL_UPDATED_USERS + " (userEid, dateQueued) values (?, NOW())";
+			fields = new Object[] { u.getEid() };
 			m_sqlService.dbWrite(sql, fields);
 		}
 	}
-
 
 	/**
 	 * Log the SPML request to the spml_log table
@@ -1265,7 +1293,7 @@ public class SPML implements SpmlHandler  {
 
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.warn("Exception logging SPML request", e);
 		}
 
 	}
@@ -1432,7 +1460,7 @@ public class SPML implements SpmlHandler  {
 			courseAdmin.addOrUpdateSectionMembership(userEid, role, courseEid, "enrolled");
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			log.warn("Exception adding user to course:", e);
 		}
 	}
 
@@ -1728,9 +1756,9 @@ public class SPML implements SpmlHandler  {
 			}
 
 		} catch (ParseException e) {
-			e.printStackTrace();
+			log.warn("Error parsing residence dates {}", resCode);
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.warn("Exception handling residence code", ex);
 		}
 
 		return true;
