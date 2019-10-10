@@ -882,14 +882,18 @@ public class SPML implements SpmlHandler  {
 					} else {
 
 						String courses = (String) req.getAttributeValue(FIELD_COURSES);
-						boolean hasCourses = (courses != null && !courses.isEmpty());
+						boolean hasCourses = StringUtils.isNotBlank(courses);
 
 						// Programme code: only add if registered for at least one course
 
 						String program = (String) req.getAttributeValue(FIELD_PROGRAM); 
-						if (program != null && hasCourses) {
-							addUserToCourse(CN, program);
-							checkList.add(program);
+						if (StringUtils.isNotBlank(program) && hasCourses) {
+							// Single or list
+							String[] programList = program.split(",");
+							for (String programCode : programList) {
+								addUserToCourse(CN, programCode);
+								checkList.add(programCode);
+							}
 						}
 						
 						// Faculty: only add if registered for at least one course
