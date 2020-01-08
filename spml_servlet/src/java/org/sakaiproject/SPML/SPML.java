@@ -32,6 +32,8 @@ package org.sakaiproject.SPML;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -44,9 +46,6 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 import org.openspml.client.SOAPClient;
 import org.openspml.client.SOAPMonitor;
 import org.openspml.message.AddRequest;
@@ -669,8 +668,9 @@ public class SPML implements SpmlHandler  {
 		}
 
 		ResourceProperties rp = thisUser.getProperties();
-		DateTime dt = new DateTime();
-		DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+		ZonedDateTime dt = ZonedDateTime.now();
+		DateTimeFormatter fmt = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+		String isoDate = dt.format(fmt);
 
 		// Special case: if the user is inactive, set their email to eid@uct.ac.za
 		if (STATUS_INACTIVE.equals(status)) {
@@ -682,7 +682,7 @@ public class SPML implements SpmlHandler  {
 			// Do we have an inactive flag?
 			String deactivated = rp.getProperty(PROP_DEACTIVATED);
 			if (deactivated == null) {
-				rp.addProperty(PROP_DEACTIVATED, fmt.print(dt));
+				rp.addProperty(PROP_DEACTIVATED, isoDate);
 			}
 		}
 
@@ -702,7 +702,7 @@ public class SPML implements SpmlHandler  {
 		} 
 
 		// VULA-1297 add new update time
-		rp.addProperty(PROP_SPML_LAST_UPDATE, fmt.print(dt));
+		rp.addProperty(PROP_SPML_LAST_UPDATE, isoDate);
 
 		String thisTitle = (String)req.getAttributeValue(FIELD_TITLE);
 		if (systemProfile.getTitle()!= null && !systemProfile.getTitle().equals("") && thisTitle != null) {
@@ -830,8 +830,7 @@ public class SPML implements SpmlHandler  {
 				date = fm.parse(DOB);
 				systemProfile.setDateOfBirth(date);
 			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.warn(e.getLocalizedMessage(), e);
 			}
 		}
 
