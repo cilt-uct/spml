@@ -144,6 +144,9 @@ public class SPML implements SpmlHandler  {
 	private static final String STATUS_INACTIVE = "Inactive";
 	private static final String STATUS_ADMITTED = "Admitted";
 
+	// Special OFFER term (note: upper case)
+	private static final String TERM_OFFER = "OFFER";
+
 	// Auth details 
 	private static final String spmlUser = ServerConfigurationService.getString("spml.user", "nobody");
 
@@ -868,25 +871,29 @@ public class SPML implements SpmlHandler  {
 			recordStudentUpdate(thisUser);
 
 			// Only do this if the user is active, otherwise the student is not yet or no longer registered
-			if (STATUS_ACTIVE.equalsIgnoreCase(status)) { 
+			if (STATUS_ACTIVE.equalsIgnoreCase(status) || STATUS_ADMITTED.equalsIgnoreCase(status)) {
 				try {
 
 					List<String> checkList = new ArrayList<String>();
 
-					// offer students go into a special group: FAC_OFFER_STUDENT,YYYY e.g. EBE_OFFER_STUDENT,2014
-					
-					if ((String)req.getAttributeValue(FIELD_FACULTY) != null && TYPE_OFFER.equals(type)) {
-						
-						// No longer setting OFFER groups 
-						
+					String courses = (String) req.getAttributeValue(FIELD_COURSES);
+					String program = (String) req.getAttributeValue(FIELD_PROGRAM);
+					String faculty = (String) req.getAttributeValue(FIELD_FACULTY);
+					boolean hasCourses = StringUtils.isNotBlank(courses);
+
+					log.debug("Student courses: {} program {} faculty {} hasCourses {}", courses, program, faculty, hasCourses);
+
+					// Offer students get offer program codes set without a year (VULA-3938)
+
+					if (StringUtils.isNotBlank(program) && !hasCourses) {
+						// Single or list
+						String[] programList = program.split(",");
+						for (String programCode : programList) {
+							addUserToCourse(CN, programCode, TERM_OFFER, null);
+							checkList.add(programCode + "," + TERM_OFFER);
+						}
 					} else {
-
-						String courses = (String) req.getAttributeValue(FIELD_COURSES);
-						boolean hasCourses = StringUtils.isNotBlank(courses);
-
 						// Programme code: only add if registered for at least one course
-
-						String program = (String) req.getAttributeValue(FIELD_PROGRAM); 
 						if (StringUtils.isNotBlank(program) && hasCourses) {
 							// Single or list
 							String[] programList = program.split(",");
@@ -897,9 +904,7 @@ public class SPML implements SpmlHandler  {
 						}
 						
 						// Faculty: only add if registered for at least one course
-
-						String faculty = (String) req.getAttributeValue(FIELD_FACULTY); 
-						if (faculty !=null && hasCourses) {
+						if (StringUtils.isNotBlank(faculty) && hasCourses) {
 							addUserToCourse(CN, faculty + "_STUD");
 							checkList.add(faculty + "_STUD");
 						}
@@ -939,7 +944,7 @@ public class SPML implements SpmlHandler  {
 					//error adding users to course
 					log.warn("Exception adding student to course", e);
 				}
-			} else if (STATUS_INACTIVE.equalsIgnoreCase(status) || STATUS_ADMITTED.equalsIgnoreCase(status)) {
+			} else if (STATUS_INACTIVE.equalsIgnoreCase(status)) {
 				// Clear current year faculty, program code, residence if inactive or admitted but not yet registered 
 				synchCourses(new ArrayList<String>(), CN);
 			}
@@ -1345,21 +1350,24 @@ public class SPML implements SpmlHandler  {
 				courseEid = courseCode + "," +term;
 			}
 
-			// before 2011 we dropped extended course codes
-			int numericTerm = Integer.valueOf(term).intValue();
-			if (courseEid.length()==11 && numericTerm < 2012)
-			{
-				courseEid = courseEid.substring(0,8);
-			}
-
 			// do we have an academic session?
 			if (!cmService.isAcademicSessionDefined(term)) {
-				Calendar cal = Calendar.getInstance();
-				cal.set(new Integer(term).intValue(), 1, 1);
-				Date start =  cal.getTime();
-				cal.set(new Integer(term).intValue(), Calendar.DECEMBER, 30);
-				Date end = cal.getTime();
-				courseAdmin.createAcademicSession(term, term, term, start, end);
+
+				if (TERM_OFFER.equals(term)) {
+					Calendar cal = Calendar.getInstance();
+					cal.set(2021, 1, 1);
+					Date start =  cal.getTime();
+					cal.set(2099, Calendar.DECEMBER, 31);
+					Date end = cal.getTime();
+					courseAdmin.createAcademicSession(term, term, term, start, end);
+				} else {
+					Calendar cal = Calendar.getInstance();
+					cal.set(new Integer(term).intValue(), 1, 1);
+					Date start =  cal.getTime();
+					cal.set(new Integer(term).intValue(), Calendar.DECEMBER, 30);
+					Date end = cal.getTime();
+					courseAdmin.createAcademicSession(term, term, term, start, end);
+				}
 			}
 			
 			// does the course set exist?
@@ -1381,21 +1389,30 @@ public class SPML implements SpmlHandler  {
 						"[CM]: new course created on vula: " + courseEid, 
 						"[CM]: new course created on vula: " + courseEid, null, null, null);
 				
-				// If this is being created by SPML, it is current now
+				// If this is being created by SPML, it is current now (except for offer terms)
 				Date startDate = new Date();
 
-				// Use the term date
 				Calendar cal2 = Calendar.getInstance();
-				cal2.set(Calendar.DAY_OF_MONTH, 31);
-				cal2.set(Calendar.MONTH, Calendar.OCTOBER);
-				if (term !=null) {
-					cal2.set(Calendar.YEAR, Integer.valueOf(term));
+
+				if (TERM_OFFER.equals(term)) {
+					// Offer program codes always predate the current year
+					cal2.set(Calendar.DAY_OF_MONTH, 1);
+					cal2.set(Calendar.MONTH, Calendar.JANUARY);
+					cal2.set(Calendar.YEAR, 2001);
+					startDate = cal2.getTime();
+				} else {
+					// Use the term date
+					cal2.set(Calendar.DAY_OF_MONTH, 31);
+					cal2.set(Calendar.MONTH, Calendar.DECEMBER);
+					if (term != null) {
+						cal2.set(Calendar.YEAR, Integer.valueOf(term));
+					}
 				}
 
 				// If this is a residence, the end date is later.
 				if (setCategory.equalsIgnoreCase(CAT_RESIDENCE)) {
-					cal2.set(Calendar.DAY_OF_MONTH, 19);
-					cal2.set(Calendar.MONTH, Calendar.NOVEMBER);
+					cal2.set(Calendar.DAY_OF_MONTH, 31);
+					cal2.set(Calendar.MONTH, Calendar.DECEMBER);
 				}
 
 				Date endDate = cal2.getTime();
@@ -1482,23 +1499,22 @@ public class SPML implements SpmlHandler  {
 			return sections.get(0);
 		}
 
-		CourseOffering preferedOffering = null;
-		//we want the one in the later year
-		for (int i =0; i < sections.size(); i++) {
-			CourseOffering co = sections.get(i);
-			if (preferedOffering == null) {
-				preferedOffering = co;
+		CourseOffering preferredOffering = null;
+		// we want the one in the later year
+		for (CourseOffering co : sections) {
+			if (preferredOffering == null) {
+				preferredOffering = co;
 			} else {
-				AcademicSession preferedSection = preferedOffering.getAcademicSession();
+				AcademicSession preferredSection = preferredOffering.getAcademicSession();
 				AcademicSession session = co.getAcademicSession();
-				if (session.getStartDate().after(preferedSection.getStartDate())) {
-					preferedOffering = co;
+				if (session.getStartDate().after(preferredSection.getStartDate())) {
+					preferredOffering = co;
 				}
 			}
 		}
 
-		log.info("found preferred offering of {}", preferedOffering.getEid());
-		return preferedOffering;
+		log.info("found preferred offering of {}", preferredOffering.getEid());
+		return preferredOffering;
 	}
 
 
@@ -1511,25 +1527,28 @@ public class SPML implements SpmlHandler  {
 
 		log.debug("Checking enrollments for {}", userEid);
 
-		SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
-		String thisYear = yearf.format(new Date());
-
 		courseAdmin = getCourseAdmin();
 		cmService = getCourseManagementService();
 
 		// Qualify the list of courses passed in from the SPML update with a year and convert to upper-case
 		
 		List<String> finalCourses = new ArrayList<String>();
-		for (i = 0; i < uctCourse.size(); i++) {
+		for (String thisCourse : uctCourse) {
 			
-			String thisCourse = uctCourse.get(i);
 			if (log.isDebugEnabled()) {
 				log.debug("courseList contains: {}", thisCourse);
 			}
 			
 			// we need a fully qualified id for the section
-			String newSection = getPreferredSectionEid(thisCourse, thisYear);
-			finalCourses.add(newSection.toUpperCase());
+			if (thisCourse.endsWith(TERM_OFFER))  {
+				finalCourses.add(thisCourse);
+			} else {
+				// we need a fully qualified id for the section
+				SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
+				String thisYear = yearf.format(new Date());
+				String newSection = getPreferredSectionEid(thisCourse, thisYear);
+				finalCourses.add(newSection.toUpperCase());
+			}
 		}
 
 		// VULA-1256 we need all enrolled sets that are current or future
@@ -1547,13 +1566,13 @@ public class SPML implements SpmlHandler  {
 			
 			String courseEid =  eSet.getEid();
 			
-			if (!finalCourses.contains(courseEid) && doSection(courseEid)) {
+			if (finalCourses.contains(courseEid)) {
+				log.debug("retaining student {} membership in {}", userEid, courseEid);
+			} else {
 				log.info("removing student {} from {}", userEid, courseEid);
 				courseAdmin.removeCourseOfferingMembership(userEid, courseEid);
 				courseAdmin.removeSectionMembership(userEid, courseEid);
 				courseAdmin.removeEnrollment(userEid, courseEid);
-			} else {
-				log.debug("retaining student {} membership in {}", userEid, courseEid);
 			}
 		
 		} // for
@@ -1597,8 +1616,13 @@ public class SPML implements SpmlHandler  {
 			return true;
 		} 
 		
+		if (section.endsWith(TERM_OFFER)) {
+			log.debug("{} looks like an offer program code", section);
+			return true;
+		}
+
 		// Residence code: RRR,YYYY e.g. OBZ,2014
-		
+
 		if (section.length() == "OBZ,2014".length()) {
 			log.debug("{} looks like a residence code", section);
 			return true;
@@ -1624,9 +1648,10 @@ public class SPML implements SpmlHandler  {
 				continue;
 			}
 
-			// is it current
-			if (new Date().after(courseOffering.getStartDate()) && new Date().before(courseOffering.getEndDate())) {
-				log.debug("offering {} is current", courseOffering.getEid());
+			// is it an offer term or current
+			if (courseOffering.getEid().endsWith(TERM_OFFER) ||
+			    (new Date().after(courseOffering.getStartDate()) && new Date().before(courseOffering.getEndDate()))) {
+				log.debug("offering {} is offer or current", courseOffering.getEid());
 				ret.add(cmService.getEnrollmentSet(section.getEid()));
 			} else if (new Date().before(courseOffering.getStartDate()) ) {
 				log.debug("offering {} is in the future", courseOffering.getEid());
