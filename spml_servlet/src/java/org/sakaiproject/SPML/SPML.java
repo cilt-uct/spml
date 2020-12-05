@@ -105,6 +105,7 @@ public class SPML implements SpmlHandler  {
 	// Sakai user properties
 	private static final String PROP_SPML_LAST_UPDATE = "spml_last_update";
 	private static final String PROP_DEACTIVATED = "SPML_DEACTIVATED";
+	private static final String PROP_DISABLED = "disabled";
 	private static final String PROP_SENT_EMAIL = "uctNewMailSent";
 	private static final String PROP_DATA_CLEARED_LAST = "data_cleared_last";
 	private static final String PROP_CONTENT_REMOVED = "workspace_content_removed";
@@ -132,6 +133,9 @@ public class SPML implements SpmlHandler  {
 	private static final String TYPE_STUDENT = "student";
 	private static final String TYPE_STAFF = "staff";
 	private static final String TYPE_THIRDPARTY = "thirdparty";
+	private static final String TYPE_INACTIVE_STUDENT = "inactiveStudent";
+	private static final String TYPE_INACTIVE_STAFF = "inactiveStaff";
+	private static final String TYPE_INACTIVE_THIRDPARTY = "inactiveThirdParty";
 
 	// Course management set categories
 	private static final String CAT_RESIDENCE = "residence";
@@ -685,6 +689,7 @@ public class SPML implements SpmlHandler  {
 			thisUser.setEmail(inactiveMail);
 
 			// Do we have an inactive flag?
+			rp.addProperty(PROP_DISABLED, "true");
 			String deactivated = rp.getProperty(PROP_DEACTIVATED);
 			if (deactivated == null) {
 				rp.addProperty(PROP_DEACTIVATED, isoDate);
@@ -696,6 +701,7 @@ public class SPML implements SpmlHandler  {
 		if (STATUS_ACTIVE.equals(status) || STATUS_ADMITTED.equals(status)) {
 			// remove the possible flag
 			rp.removeProperty(PROP_DEACTIVATED);
+			rp.removeProperty(PROP_DISABLED);
 
 			// do we have the clear data flag?
 			String data = rp.getProperty(PROP_CONTENT_REMOVED);
@@ -729,16 +735,16 @@ public class SPML implements SpmlHandler  {
 
 			// VULA-1006 special case for inactive staff and third party: we set the email to eid@uct.ac.za
 			if (TYPE_STUDENT.equals(type) && STATUS_INACTIVE.equals(status)) {
-				type = STATUS_INACTIVE;
+				type = TYPE_INACTIVE_STUDENT;
 			} else if (TYPE_STAFF.equals(type) && STATUS_INACTIVE.equals(status)) {
-				type = "inactiveStaff";
+				type = TYPE_INACTIVE_STAFF;
 				String inactiveEmail = thisUser.getEid() + "@uct.ac.za";
 				thisUser.setEmail(inactiveEmail);
                                 systemProfile.setMail(inactiveEmail);
                                 userProfile.setMail(inactiveEmail);
 			} else if (TYPE_THIRDPARTY.equals(type) && STATUS_INACTIVE.equals(status)) {
 				String inactiveEmail = thisUser.getEid() + "@uct.ac.za";
-				type = "inactiveThirdparty";
+				type = TYPE_INACTIVE_THIRDPARTY;
 				thisUser.setEmail(inactiveEmail);
                                 systemProfile.setMail(inactiveEmail);
                                 userProfile.setMail(inactiveEmail);
