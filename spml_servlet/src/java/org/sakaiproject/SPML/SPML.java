@@ -148,8 +148,12 @@ public class SPML implements SpmlHandler  {
 	private static final String STATUS_INACTIVE = "Inactive";
 	private static final String STATUS_ADMITTED = "Admitted";
 
-	// Special OFFER term (note: upper case)
+	// Special OFFER and PREREG terms (note: upper case)
+	// OFFER means provisional or final offer (SPML student status Admitted)
+	// PREREG means matriculated and term-activated in Peoplesoft with a program code but no courses yet
+	//  (SPML student status Active)
 	private static final String TERM_OFFER = "OFFER";
+	private static final String TERM_PREREG = "PREREG";
 
 	// Auth details 
 	private static final String spmlUser = ServerConfigurationService.getString("spml.user", "nobody");
@@ -876,7 +880,7 @@ public class SPML implements SpmlHandler  {
 			// Flag student for a course enrollment update from Peoplesoft
 			recordStudentUpdate(thisUser);
 
-			// Only do this if the user is active, otherwise the student is not yet or no longer registered
+			// Only do this if the user is admitted or active
 			if (STATUS_ACTIVE.equalsIgnoreCase(status) || STATUS_ADMITTED.equalsIgnoreCase(status)) {
 				try {
 
@@ -890,13 +894,20 @@ public class SPML implements SpmlHandler  {
 					log.debug("Student courses: {} program {} faculty {} hasCourses {}", courses, program, faculty, hasCourses);
 
 					// Offer students get offer program codes set without a year (VULA-3938)
+					// Active but not enrolled students get prereg program codes set without a year (VULA-3965)
 
 					if (StringUtils.isNotBlank(program) && !hasCourses) {
 						// Single or list
 						String[] programList = program.split(",");
 						for (String programCode : programList) {
-							addUserToCourse(CN, programCode, TERM_OFFER, null);
-							checkList.add(programCode + "," + TERM_OFFER);
+							if (STATUS_ADMITTED.equalsIgnoreCase(status)) {
+								addUserToCourse(CN, programCode, TERM_OFFER, null);
+								checkList.add(programCode + "," + TERM_OFFER);
+							}
+							if (STATUS_ACTIVE.equalsIgnoreCase(status)) {
+								addUserToCourse(CN, programCode, TERM_PREREG, null);
+								checkList.add(programCode + "," + TERM_PREREG);
+							}
 						}
 					} else {
 						// Programme code: only add if registered for at least one course
@@ -1359,7 +1370,7 @@ public class SPML implements SpmlHandler  {
 			// do we have an academic session?
 			if (!cmService.isAcademicSessionDefined(term)) {
 
-				if (TERM_OFFER.equals(term)) {
+				if (TERM_OFFER.equals(term) || TERM_PREREG.equals(term)) {
 					Calendar cal = Calendar.getInstance();
 					cal.set(2021, 1, 1);
 					Date start =  cal.getTime();
@@ -1400,8 +1411,8 @@ public class SPML implements SpmlHandler  {
 
 				Calendar cal2 = Calendar.getInstance();
 
-				if (TERM_OFFER.equals(term)) {
-					// Offer program codes always predate the current year
+				if (TERM_OFFER.equals(term) || TERM_PREREG.equals(term)) {
+					// Offer and Active program codes always predate the current year
 					cal2.set(Calendar.DAY_OF_MONTH, 1);
 					cal2.set(Calendar.MONTH, Calendar.JANUARY);
 					cal2.set(Calendar.YEAR, 2001);
@@ -1546,7 +1557,7 @@ public class SPML implements SpmlHandler  {
 			}
 			
 			// we need a fully qualified id for the section
-			if (thisCourse.endsWith(TERM_OFFER))  {
+			if (thisCourse.endsWith(TERM_OFFER) || thisCourse.endsWith(TERM_PREREG))  {
 				finalCourses.add(thisCourse);
 			} else {
 				// we need a fully qualified id for the section
@@ -1622,8 +1633,8 @@ public class SPML implements SpmlHandler  {
 			return true;
 		} 
 		
-		if (section.endsWith(TERM_OFFER)) {
-			log.debug("{} looks like an offer program code", section);
+		if (section.endsWith(TERM_OFFER) || section.endsWith(TERM_PREREG)) {
+			log.debug("{} looks like an offer or prereg program code", section);
 			return true;
 		}
 
@@ -1655,9 +1666,9 @@ public class SPML implements SpmlHandler  {
 			}
 
 			// is it an offer term or current
-			if (courseOffering.getEid().endsWith(TERM_OFFER) ||
+			if (courseOffering.getEid().endsWith(TERM_OFFER) || courseOffering.getEid().endsWith(TERM_PREREG) ||
 			    (new Date().after(courseOffering.getStartDate()) && new Date().before(courseOffering.getEndDate()))) {
-				log.debug("offering {} is offer or current", courseOffering.getEid());
+				log.debug("offering {} is offer, prereg or current", courseOffering.getEid());
 				ret.add(cmService.getEnrollmentSet(section.getEid()));
 			} else if (new Date().before(courseOffering.getStartDate()) ) {
 				log.debug("offering {} is in the future", courseOffering.getEid());
