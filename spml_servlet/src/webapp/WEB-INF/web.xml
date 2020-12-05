@@ -5,11 +5,11 @@ Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app>
   <display-name>Apache-Axis</display-name>
-    
-    <listener>
+
+  <listener>
         <listener-class>org.apache.axis.transport.http.AxisHTTPSessionListener</listener-class>
-    </listener>
-    
+  </listener>
+
   <servlet>
     <servlet-name>spmlrouter</servlet-name>
     <display-name>OpenSPML SOAP Router</display-name>
@@ -28,56 +28,40 @@ Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
     <url-pattern>/spmlrouter</url-pattern>
   </servlet-mapping>
 
- <!-- uncomment this if you want the admin servlet -->
- 
- <!-- <servlet-mapping>
-    <servlet-name>AdminServlet</servlet-name>
-    <url-pattern>/servlet/AdminServlet</url-pattern>
-  </servlet-mapping>
- -->
-
-    <session-config>
+  <session-config>
         <!-- Default to 5 minute session timeouts -->
         <session-timeout>5</session-timeout>
-    </session-config>
+  </session-config>
 
-    <!-- currently the W3C havent settled on a media type for WSDL;
+  <!-- currently the W3C havent settled on a media type for WSDL;
     http://www.w3.org/TR/2003/WD-wsdl12-20030303/#ietf-draft
     for now we go with the basic 'it's XML' response -->
   <mime-mapping>
     <extension>wsdl</extension>
      <mime-type>text/xml</mime-type>
   </mime-mapping>
-  
 
   <mime-mapping>
     <extension>xsd</extension>
     <mime-type>text/xml</mime-type>
   </mime-mapping>
 
-  <welcome-file-list id="WelcomeFileList">
-    <welcome-file>index.jsp</welcome-file>
-    <welcome-file>index.html</welcome-file>
-    <welcome-file>index.jws</welcome-file>
-  </welcome-file-list>
-  
-      <context-param>
+  <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>/WEB-INF/local.xml</param-value>
-    </context-param>
-	<!-- Sakai request filter, mapped to anything that goes to the faces servlet -->
-    <filter>
-        <filter-name>sakai.request</filter-name>
-        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
-    </filter>
+  </context-param>
 
-    <filter-mapping>
-        <filter-name>sakai.request</filter-name>
-        <servlet-name>Faces Servlet</servlet-name>
-        <dispatcher>REQUEST</dispatcher>
-        <dispatcher>FORWARD</dispatcher>
-        <dispatcher>INCLUDE</dispatcher>
-    </filter-mapping>
-    
+  <filter>
+      <filter-name>Remote CIDR Filter</filter-name>
+      <filter-class>org.apache.catalina.filters.RemoteCIDRFilter</filter-class>
+      <init-param>
+      <param-name>allow</param-name>
+      <param-value>127.0.0.0/8, 137.158.158.225/32, 137.158.155.8/32, 137.158.158.234/32, ::1</param-value>
+      </init-param>
+  </filter>
+  <filter-mapping>
+      <filter-name>Remote CIDR Filter</filter-name>
+      <url-pattern>/*</url-pattern>
+  </filter-mapping>
 
 </web-app>
