@@ -3,7 +3,7 @@
   <parent>
     <artifactId>spml</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>20-SNAPSHOT</version>
+    <version>21-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai SPML component</name>
@@ -17,7 +17,7 @@
   <packaging>war</packaging>
   <dependencies>
 
-<!-- our plugin -->
+  <!-- our plugin -->
     <dependency>
       <groupId>commons-discovery</groupId>
       <artifactId>commons-discovery</artifactId>
