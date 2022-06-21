@@ -56,7 +56,7 @@ Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
       <filter-class>org.apache.catalina.filters.RemoteCIDRFilter</filter-class>
       <init-param>
       <param-name>allow</param-name>
-      <param-value>127.0.0.0/8, 137.158.158.225/32, 137.158.155.8/32, 137.158.158.234/32, ::1</param-value>
+      <param-value>127.0.0.0/8, 137.158.154.21/32, 137.158.158.225/32, 137.158.155.8/32, 137.158.158.234/32, ::1</param-value>
       </init-param>
   </filter>
   <filter-mapping>
