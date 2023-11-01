@@ -3,7 +3,7 @@
   <parent>
     <artifactId>spml</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>21-SNAPSHOT</version>
+    <version>23-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai SPML component</name>
@@ -22,6 +22,12 @@
       <groupId>commons-discovery</groupId>
       <artifactId>commons-discovery</artifactId>
       <version>0.5</version>
+      <exclusions>
+          <exclusion>
+              <groupId>commons-logging</groupId>
+              <artifactId>commons-logging</artifactId>
+          </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
@@ -48,10 +54,6 @@
       <artifactId>sakai-common-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.emailtemplateservice</groupId>
-      <artifactId>emailtemplateservice-api</artifactId>
-    </dependency>
-    <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jsp-api</artifactId>
       <version>2.0</version>
@@ -75,6 +77,12 @@
       <groupId>axis</groupId>
       <artifactId>axis</artifactId>
       <version>1.4</version>
+      <exclusions>
+          <exclusion>
+              <groupId>commons-logging</groupId>
+              <artifactId>commons-logging</artifactId>
+          </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
