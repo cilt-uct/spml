@@ -80,7 +80,6 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
-import org.sakaiproject.sms.logic.external.NumberRoutingHelper;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -300,13 +299,6 @@ public class SPML implements SpmlHandler  {
 		return sessionManager;
 	}
 
-	private NumberRoutingHelper numberRoutingHelper;
-	private NumberRoutingHelper getNumberRoutingHelper() {
-		if (numberRoutingHelper == null) {
-			numberRoutingHelper = (NumberRoutingHelper) ComponentManager.get("org.sakaiproject.sms.logic.external.NumberRoutingHelper");
-		}
-		return numberRoutingHelper;
-	}
 
 	//////////////////////////////////////////////////////////////////////
 	//
@@ -1000,13 +992,7 @@ public class SPML implements SpmlHandler  {
 	 * @return normalized number
 	 */
 	private String normalizeMobile(String mobile) {
-		numberRoutingHelper = getNumberRoutingHelper();
-		if (numberRoutingHelper == null) {
-			log.error("no numberRoutingHelper available for normalizing mobile numbers");
-			return mobile;
-		}
-
-		return numberRoutingHelper.normalizeNumber(mobile);
+		return mobile;
 	}
 
 
