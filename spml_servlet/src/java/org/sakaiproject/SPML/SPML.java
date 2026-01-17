@@ -157,6 +157,9 @@ public class SPML implements SpmlHandler  {
 	// Auth details
 	private static final String spmlUser = ServerConfigurationService.getString("spml.user", "nobody");
 
+	// Flag to enable account creation
+	private static final boolean spmlCreateUsers = ServerConfigurationService.getBoolean("spml.createusers", false);
+
 	/**
 	 * Use one of these to manage the basic SOAP communications.
 	 */
@@ -531,6 +534,11 @@ public class SPML implements SpmlHandler  {
 			if (STATUS_INACTIVE.equals(status)) {
 				log.info("User {} doesn't exist on Vula but has status {} so not adding them", CN, status);
 				response.setRequestId(SpmlResponse.RESULT_SUCCESS);
+				return response;
+			}
+
+			if (!spmlCreateUsers) {
+				log.info("User creation disabled: not creating new account for user {}", CN);
 				return response;
 			}
 
