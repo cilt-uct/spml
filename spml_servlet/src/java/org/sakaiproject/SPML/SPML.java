@@ -161,6 +161,9 @@ public class SPML implements SpmlHandler  {
 	// Flag to enable account creation
 	private static final boolean spmlCreateUsers = ServerConfigurationService.getBoolean("spml.createusers", false);
 
+	// Flag for course updates
+	private static final boolean spmlUpdateCourses = ServerConfigurationService.getBoolean("spml.updatecourses", false);
+
 	/**
 	 * Use one of these to manage the basic SOAP communications.	
 	 */
@@ -886,7 +889,9 @@ public class SPML implements SpmlHandler  {
 			log.debug("Updating student course membership data");
 
 			// Flag student for a course enrollment update from Peoplesoft
-			recordStudentUpdate(thisUser);
+			if (spmlUpdateCourses) {
+				recordStudentUpdate(thisUser);
+			}
 
 			// Only do this if the user is admitted or active
 			if (STATUS_ACTIVE.equalsIgnoreCase(status) || STATUS_ADMITTED.equalsIgnoreCase(status)) {
